@@ -1,0 +1,9 @@
+# ignore .env file containing any passwords, tokens etc. for the project
+.env
+
+# ignore data folder; put all (sensitive) source data here
+data/
+
+# ignore any undesirable files
+.DS_Store
+.Rhistory
