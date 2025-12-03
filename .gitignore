@@ -4,6 +4,9 @@
 # ignore data folder; put all (sensitive) source data here
 data/
 
+# ignore a folder with notes
+notes/
+
 # ignore any undesirable files
 .DS_Store
 .Rhistory
