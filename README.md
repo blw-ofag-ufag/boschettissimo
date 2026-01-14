@@ -2,6 +2,9 @@
 
 Dieses Repository beinhaltet den Quellcode und die Dokumentation für die Machbarkeitsstudie zur **digitalen Erfassung und Bewertung von Bäumen auf der landwirtschaftlichen Nutzfläche** im Auftrag des Bundesamtes für Landwirtschaft (BLW).
 
+> [!IMPORTANT]
+> Bei diesem Projekt handelt es sich (nur) um eine Machbarkeitsstudie. Der weg, der einschlagen werden soll, ist noch völlig offen.
+
 Ziel ist die Entwicklung eines Systems, das weg von starren Massnahmenvorschriften (heutiges Direktzahlungssystem) hin zu einer ergebnisorientierten Förderung von Bäumen in der Landwirtschaft führt.
 Anstatt die Pflege massnahmenorientiert vorzuschreiben, soll der effektive ökologische Wert eines Baumes mittels Fernerkundungsdaten ermittelt und vergütet werden.
 Folglich sind die Kernziele des Projekts:
