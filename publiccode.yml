@@ -1,0 +1,48 @@
+publiccodeYmlVersion: 0.5.0
+name: Boschettissimo
+url: https://github.com/blw-ofag-ufag/boschettissimo
+landingURL: https://github.com/blw-ofag-ufag/boschettissimo
+softwareVersion: 1.0.0
+platforms:
+  - linux
+categories:
+  - data-analytics
+fundedBy:
+  - name: Federal Office for Agriculture
+    uri: https://blw.admin.ch/
+usedBy:
+  - Federal Office for Agriculture
+developmentStatus: concept
+softwareType: standalone/other
+organisation:
+  uri: https://ld.admin.ch/office/VI.1.5
+  name: Federal Office for Agriculture (FOAG)
+description:
+  de:
+    localisedName: Automatisierte Erfassung und ökologische Bewertung von Bäumen
+      mittels Fernerkundungs- und Geodaten
+    shortDescription: Boschettissimo
+    longDescription: Dieses Repository beinhaltet den Quellcode und die
+      Dokumentation für die Machbarkeitsstudie zur digitalen Erfassung und
+      Bewertung von Bäumen auf der landwirtschaftlichen Nutzfläche im Auftrag
+      des Bundesamtes für Landwirtschaft (BLW). Ziel ist die Entwicklung eines
+      Systems, das weg von starren Massnahmenvorschriften (heutiges
+      Direktzahlungssystem) hin zu einer ergebnisorientierten Förderung von
+      Bäumen in der Landwirtschaft führt. Anstatt die Pflege
+      massnahmenorientiert vorzuschreiben, soll der effektive ökologische Wert
+      eines Baumes mittels Fernerkundungsdaten ermittelt und vergütet werden.
+    features:
+      - data-science
+      - remote-sensing
+legal:
+  license: CC-BY-4.0
+maintenance:
+  type: contract
+  contractors:
+    - name: Swiss Federal Institute for Forest, Snow and Landscape Research WSL
+      until: 2027-03-31
+      website: https://www.wsl.ch/
+localisation:
+  localisationReady: true
+  availableLanguages:
+    - de
