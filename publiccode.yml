@@ -19,9 +19,9 @@ organisation:
   name: Federal Office for Agriculture (FOAG)
 description:
   de:
-    localisedName: Automatisierte Erfassung und ökologische Bewertung von Bäumen
+    localisedName: Boschettissimo
+    shortDescription: Automatisierte Erfassung und ökologische Bewertung von Bäumen
       mittels Fernerkundungs- und Geodaten
-    shortDescription: Boschettissimo
     longDescription: Dieses Repository beinhaltet den Quellcode und die
       Dokumentation für die Machbarkeitsstudie zur digitalen Erfassung und
       Bewertung von Bäumen auf der landwirtschaftlichen Nutzfläche im Auftrag
