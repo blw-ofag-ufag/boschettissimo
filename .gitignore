@@ -10,3 +10,4 @@ notes/
 # ignore any undesirable files
 .DS_Store
 .Rhistory
+desktop.ini
