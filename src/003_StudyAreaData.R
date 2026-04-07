@@ -16,7 +16,7 @@ study_areas <- read.csv2(file = paste0(prj_data_path,"study_areas.csv"))
 for(i in 1:nrow(study_areas)){
   
   # Crop original data to extent 
-  system2("C:/Program Files/QGIS 3.40.2/OSGeo4W.bat", args = c(
+  system2(osgeo4w_path, args = c(
     "003b_CropStudyAreaData.bat", 
     paste0(study_area_data_path, "", study_areas$area_id[i],".gpkg"),
     NF_path,
