@@ -8,8 +8,6 @@ editor: visual
 #| echo: false
 #| include: false
 
-library(terra)
-
 # Source necessary codes
 source(paste0(getwd(),"/../src/001_Initialization.R"))
 source("R001a_prepare_layers.R")
@@ -41,4 +39,28 @@ Das Produkt swissTLM3D enthält einen Datensatz, der Einzelbäume \> 5m Höhe da
 #| echo: false
 
 tlm_eb_maps[["engelswilen"]]
+```
+
+### Prévonloup
+
+```{r}
+#| echo: false
+
+tlm_eb_maps[["prevonloup"]]
+```
+
+### Rickenbach
+
+```{r}
+#| echo: false
+
+tlm_eb_maps[["rickenbach"]]
+```
+
+### Orzens
+
+```{r}
+#| echo: false
+
+tlm_eb_maps[["orzens"]]
 ```

@@ -20,8 +20,7 @@ tlm_eb_maps <- lapply(names(sa_vec), function(nm) {
     st_cast("POINT")
   
   # Get the vegetation height model
-  r_wgs <- project(sa_tif[[nm]], "EPSG:4326")
-  r_wgs <- aggregate(r_wgs, fun = "mean", fact = 4)
+  r_wgs <- aggregate(sa_tif[[nm]], fun = "mean", na.rm = TRUE, fact = 4)
   
   # Create a palette for the VHM
   pal <- colorNumeric("viridis", values(r_wgs), na.color = "transparent")

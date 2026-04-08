@@ -29,7 +29,7 @@ names(sa_vec) <- gsub(".gpkg","",basename(sa_vec_path))
 # Get all raster paths
 sa_tif_path <- list.files(
   study_area_data_path,
-  pattern = "\\.tif$",
+  pattern = "\\_wgs84.tif$",
   full.names = T)
 
 # Load the rasters
@@ -38,4 +38,4 @@ sa_tif <- lapply(sa_tif_path, function(tif) {
 })
 
 # Name the list elements as the id of the study area
-names(sa_tif) <- gsub("_vhm.tif","",basename(sa_tif_path))
+names(sa_tif) <- gsub("_vhm_wgs84.tif","",basename(sa_tif_path))
