@@ -70,4 +70,16 @@ gdalwarp ^
 
 IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
 
+REM --- VHM raster in WGS84 (derived from clipped raster) ---
+set SRC_RASTER=%OUT_GPKG:.gpkg=_vhm.tif%
+set OUT_RASTER_WGS84=%OUT_GPKG:.gpkg=_vhm_wgs84.tif%
+
+gdalwarp ^
+-s_srs EPSG:2056 ^
+-t_srs EPSG:4326 ^
+-co COMPRESS=LZW -co TILED=YES ^
+"%SRC_RASTER%" "%OUT_RASTER_WGS84%"
+
+IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
+
 echo Done.
