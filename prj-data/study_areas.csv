@@ -1,5 +1,5 @@
 id, name, canton, upper_left_e, upper_left_n, lower_right_e, lower_right_n
-engelswilen, Engelswilen, TG, 2728071, 1273315, 2729649, 1271946
-prevonloup, Prévonloup, VD, 2555791, 1173216, 2556590, 1172083
-rickenbach, Rickenbach, ZH, 2700126, 1268816, 2701520, 1268336
-orzens, Orzens, VD, 2514220, 1176269, 2543820, 1175303
+1, Engelswilen, TG, 2728071, 1273315, 2729649, 1271946
+2, Prévonloup, VD, 2555791, 1173216, 2556590, 1172083
+3, Rickenbach, ZH, 2700126, 1268816, 2701520, 1268336
+4, Orzens, VD, 2514220, 1176269, 2543820, 1175303
