@@ -1,2 +1,2 @@
-﻿area_name;area_id;upper_left_e;upper_left_n;lower_right_e;lower_right_n
-First test area - Engelswilen;engelswilen;2728071;1273315;2729649;1271946
+﻿area_name, area_id, upper_left_e, upper_left_n, lower_right_e, lower_right_n
+First test area - Engelswilen, engelswilen, 2728071, 1273315, 2729649, 1271946
