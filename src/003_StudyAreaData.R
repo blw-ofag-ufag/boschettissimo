@@ -10,7 +10,7 @@ source("001_Initialization.R")
 #-----------------------------------------------------
 
 # Get study areas extent specification file
-study_areas <- read.csv2(file = paste0(prj_data_path,"study_areas.csv"))
+study_areas <- read.csv2(file = paste0(prj_data_path,"study_areas.csv"), sep=",")
 
 # Loop through the study areas
 for(i in 1:nrow(study_areas)){
@@ -18,7 +18,7 @@ for(i in 1:nrow(study_areas)){
   # Crop original data to extent 
   system2(osgeo4w_path, args = c(
     "003b_CropStudyAreaData.bat", 
-    paste0(study_area_data_path, "", study_areas$area_id[i],".gpkg"),
+    paste0(study_area_data_path, "", study_areas$id[i],".gpkg"),
     NF_path,
     TLM_EB_path,
     VHM_path,
