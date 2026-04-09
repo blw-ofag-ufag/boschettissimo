@@ -1,4 +1,4 @@
-id, name, canton, upper_left_e, upper_left_n, lower_right_e, lower_right_n, lk25_path,
+id, name, canton, upper_left_e, upper_left_n, lower_right_e, lower_right_n, lk25_path
 engelswilen, Engelswilen, TG, 2728071, 1273315, 2729649, 1271946, 05_Nordostschweiz/1054_EB_Vorbereitungsdaten_2024.gdb
 prevonloup, Prévonloup, VD, 2555791, 1173216, 2556590, 1172083, 01_Westschweiz/1204_EB_Vorbereitungsdaten_2019.gdb
 rickenbach, Rickenbach, ZH, 2700126, 1268816, 2701520, 1268336, 05_Nordostschweiz/1052_EB_Vorbereitungsdaten_2024.gdb
