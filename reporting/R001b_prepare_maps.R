@@ -19,6 +19,12 @@ tlm_eb_maps <- lapply(names(sa_vec), function(nm) {
     st_cast("MULTIPOINT") %>%
     st_cast("POINT")
   
+  # Get the tlm eb vollstaendig points
+  layer_tlm_ebv <- st_read(sa_vec[[nm]]$path, layer = "tlm_ebv", quiet = TRUE) %>% 
+    st_transform(crs = "+proj=longlat +datum=WGS84") %>%
+    st_cast("MULTIPOINT") %>%
+    st_cast("POINT")
+  
   # Update the statistics of the layer
   setMinMax(sa_tif[[nm]])
   
@@ -48,6 +54,13 @@ tlm_eb_maps <- lapply(names(sa_vec), function(nm) {
       fillOpacity = 0.5,
       group = "tlm_bb_einzelbaum_gebuesch"
     )  %>%
+    addCircleMarkers(
+      data = layer_tlm_ebv,
+      radius = 1,
+      color = "gold",
+      fillOpacity = 0.5,
+      group = "tlm_ebv"
+    )  %>%
     addWMSTiles(
       "https://wmts10.geo.admin.ch/1.0.0/ch.swisstopo.swissimage-product/default/current/3857/{z}/{x}/{y}.jpeg",
       layers = "swissimage-product",
@@ -74,8 +87,8 @@ tlm_eb_maps <- lapply(names(sa_vec), function(nm) {
         group = "vhm"
       ) %>%
       addLayersControl(
-        baseGroups = c("Location map color - swisstopo", "Aerial imagery - swisstopo"),
-        overlayGroups = c("tlm_bb_einzelbaum_gebuesch","vhm"),
+        baseGroups = c("Aerial imagery - swisstopo", "Location map color - swisstopo"),
+        overlayGroups = c("tlm_bb_einzelbaum_gebuesch","tlm_ebv","vhm"),
         options = layersControlOptions(collapsed = TRUE)
       ) %>%
       addLegend(
@@ -86,7 +99,7 @@ tlm_eb_maps <- lapply(names(sa_vec), function(nm) {
   } else {
     m <- m %>%
       addLayersControl(
-        baseGroups = c("Location map color - swisstopo", "Aerial imagery - swisstopo"),
+        baseGroups = c("Aerial imagery - swisstopo", "Location map color - swisstopo"),
         overlayGroups = c("tlm_bb_einzelbaum_gebuesch"),
         options = layersControlOptions(collapsed = TRUE)
       )

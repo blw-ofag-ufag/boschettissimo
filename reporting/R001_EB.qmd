@@ -50,3 +50,19 @@ tlm_eb_maps[["rickenbach"]]
 
 tlm_eb_maps[["orzens"]]
 ```
+
+### Rischberg (ALLEMA Perimeter)
+
+```{r}
+#| echo: false
+
+tlm_eb_maps[["allema_rischberg"]]
+```
+
+### Schäfboden (ALLEMA Perimeter)
+
+```{r}
+#| echo: false
+
+tlm_eb_maps[["allema_schafboden"]]
+```
