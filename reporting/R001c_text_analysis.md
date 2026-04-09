@@ -1,3 +1,8 @@
+> [!IMPORTANT]
+> Hinweis: Dies ist eine vorläufige Version. Die Analyse ist noch nicht abgeschlossen und wird weiter überarbeitet.
+
+
+
 ## Analyse der existierende Datensätze
 
 ### swissTLM3D (v 2025) - tlm_bb_einzelbaum_gebuesch
