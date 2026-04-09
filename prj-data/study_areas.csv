@@ -1,7 +1,7 @@
 id, name, canton, upper_left_e, upper_left_n, lower_right_e, lower_right_n, lk25_path
-engelswilen, Engelswilen, TG, 2728071, 1273315, 2729649, 1271946, 05_Nordostschweiz/1054_EB_Vorbereitungsdaten_2024.gdb
-prevonloup, Prévonloup, VD, 2555791, 1173216, 2556590, 1172083, 01_Westschweiz/1204_EB_Vorbereitungsdaten_2019.gdb
-rickenbach, Rickenbach, ZH, 2700126, 1268816, 2701520, 1268336, 05_Nordostschweiz/1052_EB_Vorbereitungsdaten_2024.gdb
-orzens, Orzens, VD, 2542201, 1176269, 2543820, 1175303, 01_Westschweiz/1203_EB_Vorbereitungsdaten_2019.gdb
-allema_rothmettlen, Rothmettlen, BE, 2605000, 1183000, 2606000, 1182002, 03_Basel_Bern_V1/1187_EB_Vorbereitungsdaten_2023.gdb
-allema_schafboden, Schäfboden, SZ, 2688999, 1215000, 2690000, 1214000, 05_Nordostschweiz\1151_EB_Vorbereitungsdaten_2024.gdb
+engelswilen, Engelswilen, TG, 2728071, 1273315, 2729649, 1271946,05_Nordostschweiz/1054_EB_Vorbereitungsdaten_2024.gdb
+prevonloup, Prévonloup, VD, 2555791, 1173216, 2556590, 1172083,01_Westschweiz/1204_EB_Vorbereitungsdaten_2019.gdb
+rickenbach, Rickenbach, ZH, 2700126, 1268816, 2701520, 1268336,05_Nordostschweiz/1052_EB_Vorbereitungsdaten_2024.gdb
+orzens, Orzens, VD, 2542201, 1176269, 2543820, 1175303,01_Westschweiz/1203_EB_Vorbereitungsdaten_2019.gdb
+allema_rischberg, Rischberg, SZ, 2677000, 1215000, 2678000, 1214000,05_Nordostschweiz/1051_EB_Vorbereitungsdaten_2024.gdb
+allema_schafboden, Schäfboden, SZ, 2688999, 1215000, 2690000, 1214000,05_Nordostschweiz/1151_EB_Vorbereitungsdaten_2024.gdb
