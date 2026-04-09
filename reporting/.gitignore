@@ -3,3 +3,5 @@ R001_EB_files/*
 
 # ignore html files
 *.html
+/.quarto/
+**/*.quarto_ipynb
