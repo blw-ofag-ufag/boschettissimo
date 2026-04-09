@@ -5,6 +5,7 @@
 # Loading libraries
 library(sf)
 library(rstac)
+library(dplyr)
 
 # Sourcing initialization code (paths and such) 
 source("001_Initialization.R")
@@ -53,40 +54,30 @@ getSwisstopoSTAC <- function(collectionName, timespan){
 # DOWNLOAD Vegetation Height Model
 #-----------------------------------------------------
 
-# Download the data
-getSwisstopoSTAC("ch.bafu.landesforstinventar-vegetationshoehenmodell_lidar","2025-01-01/2025-12-31")
-
-# Move it from the current folder (where it is downlaoded by default, even when setting destdir) to the data folder
-dir.create(paste0(orig_data_path,"VHM/"), recursive = TRUE, showWarnings = FALSE)
-file.copy(
-  from = paste0(getwd(),"/ch.bafu.landesforstinventar-vegetationshoehenmodell_lidar/landesforstinventar-vegetationshoehenmodell_lidar_2025/landesforstinventar-vegetationshoehenmodell_lidar_2025_2056.tif"),
-  to   = paste0(orig_data_path,"VHM/","landesforstinventar-vegetationshoehenmodell_lidar_2025_2056.tif"),
-  overwrite = TRUE
-)
-
-# Delete download folder
-unlink(paste0(getwd(),"/ch.bafu.landesforstinventar-vegetationshoehenmodell_lidar/"), recursive = TRUE, force = TRUE)
-
-# Data saved  in 001_Initialization.R under:
-# VHM_path <- paste0(orig_data_path,"VHM/landesforstinventar-vegetationshoehenmodell_lidar_2025_2056.tif")
+#*****************************************************
+#* STAC download provides the VHM bits that were updated, ie one year only covers part of Switzerland
+#* To get a full coverage of Switzerland use the dataset provided by Envidat (manual download): https://www.envidat.ch/#/metadata/vegetation-height-model-lidar-nfi
+#* Since this is produced by WSL, local file is used in this project (but corresponds to one in envidat)
+#*****************************************************
 
 #-----------------------------------------------------
 # DOWNLOAD Landwirtschaftliche Nutzungsflächen Schweiz (Bundesamt für Landwirtschaft BLW, Kantone)
 #-----------------------------------------------------
 
-# Not available on STAC, go to https://www.geodienste.ch/services/lwb_nutzungsflaechen and do a manual download. 
-# Save the result under D:/BLW/ORIG_DATA/BLW/nutzungsflaechen.gpkg
-
-# First test, download for canton TG only
-
-# Data saved  in 001_Initialization.R under:
-# NF_path <- D:/BLW/ORIG_DATA/BLW/nutzungsflaechen.gpkg
+#*****************************************************
+#* Not available on STAC, go to https://www.geodienste.ch/services/lwb_nutzungsflaechen and do a manual download. 
+#* Since this is produced by BWL, intern files will be used (but correspond to the ones that can be downloaded from geodienste)
+#*****************************************************
 
 #-----------------------------------------------------
 # DOWNLOAD Lebensraumkarte der Schweiz v1.2: Einzelbäume, -gebüsche, -sträuchern und -hecken ausserhalb des Waldes v1.0
 #-----------------------------------------------------
 
-# Not available on STAC, nor on map.geo.admin
+#*****************************************************
+#* Not available on STAC
+#* To get a full coverage of Switzerland use the dataset provided by Envidat (manual download): https://www.envidat.ch/#/metadata/the-habitat-map-of-switzerland-v1_2-2025
+#* Since this is produced by WSL, local file is used in this project (but corresponds to one in envidat)
+#*****************************************************
 
 #-----------------------------------------------------
 # DOWNLOAD TLM_EINZELBAUM_GEBUESCH
@@ -105,5 +96,27 @@ unzip(
 # Delete download folder
 unlink(paste0(getwd(),"/ch.swisstopo.swisstlm3d/"), recursive = TRUE, force = TRUE)
 
-# Data saved  in 001_Initialization.R under:
-# TLM_EB_path <- paste0(orig_data_path,"TLM/SWISSTLM3D_2025.gpkg")
+#-----------------------------------------------------
+# COMPUTE TLM_EINZELBAUM_GEBUESCH vollständig
+#-----------------------------------------------------
+
+#*****************************************************
+#* Not available publicly. This dataset is a the raw product of TLM_EINZELBAUM_GEBUESCH, before filtering steps that prduce the final publicly open dataset.
+#*****************************************************
+
+# Fetch the study areas
+study_areas <- read.csv2(file = paste0(git_root_path,"prj-data/study_areas.csv"), sep=",")
+
+# Get the needed LKS tiles on which the study areas are located
+tlm_EBv_layers <- list(
+  st_read(paste0(TLM_EBv_input_path,study_areas$lk25_path[1]), layer = "LK1054_LokalMax3D_LIDAR_5m") %>% st_zm(drop = TRUE, what = "ZM") %>% select(HEIGHT,Shape),
+  st_read(paste0(TLM_EBv_input_path,study_areas$lk25_path[2]), layer = "LokalMax3D_LIDAR_LK1204_5m") %>% st_zm(drop = TRUE, what = "ZM") %>% select(HEIGHT,Shape),
+  st_read(paste0(TLM_EBv_input_path,study_areas$lk25_path[3]), layer = "LK1052_LokalMax3D_LIDAR_5m") %>% st_zm(drop = TRUE, what = "ZM") %>% select(HEIGHT,Shape),
+  st_read(paste0(TLM_EBv_input_path,study_areas$lk25_path[4]), layer = "LokalMax3D_LIDAR_LK1203_5m") %>% st_zm(drop = TRUE, what = "ZM") %>% select(HEIGHT,Shape),
+  st_read(paste0(TLM_EBv_input_path,study_areas$lk25_path[5]), layer = "LK1051_LokalMax3D_LIDAR_5m") %>% st_zm(drop = TRUE, what = "ZM") %>% select(HEIGHT,Shape),
+  st_read(paste0(TLM_EBv_input_path,study_areas$lk25_path[6]), layer = "LK1151_LokalMax3D_LIDAR_5m") %>% st_zm(drop = TRUE, what = "ZM") %>% select(HEIGHT,Shape)
+)
+tlm_EBv <- do.call(rbind, tlm_EBv_layers)
+
+# Export the combined layers
+st_write(tlm_EBv,TLM_EBv_path)
