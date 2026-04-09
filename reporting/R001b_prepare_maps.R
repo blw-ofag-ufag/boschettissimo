@@ -19,11 +19,18 @@ tlm_eb_maps <- lapply(names(sa_vec), function(nm) {
     st_cast("MULTIPOINT") %>%
     st_cast("POINT")
   
-  # Get the vegetation height model
-  r_wgs <- aggregate(sa_tif[[nm]], fun = "mean", na.rm = TRUE, fact = 4)
+  # Update the statistics of the layer
+  setMinMax(sa_tif[[nm]])
   
-  # Create a palette for the VHM
-  pal <- colorNumeric("viridis", values(r_wgs), na.color = "transparent")
+  # If VHM is available, prepare raster layer
+  if(!is.nan(minmax(sa_tif[[nm]])[1])){
+    
+    # Aggregate the vegetation height model (to be able to display it easier in interactive map)
+    r_wgs <- aggregate(sa_tif[[nm]], fun = "mean", na.rm = TRUE, fact = 4)
+    
+    # Create a palette for the VHM
+    pal <- colorNumeric("viridis", values(r_wgs), na.color = "transparent")
+  }
   
   # Compose the map
   m <- leaflet() %>%
@@ -41,12 +48,6 @@ tlm_eb_maps <- lapply(names(sa_vec), function(nm) {
       fillOpacity = 0.5,
       group = "tlm_bb_einzelbaum_gebuesch"
     )  %>%
-    addRasterImage(
-      r_wgs,
-      colors = pal,
-      opacity = 0.8,
-      group = "vhm"
-    ) %>%
     addWMSTiles(
       "https://wmts10.geo.admin.ch/1.0.0/ch.swisstopo.swissimage-product/default/current/3857/{z}/{x}/{y}.jpeg",
       layers = "swissimage-product",
@@ -62,17 +63,34 @@ tlm_eb_maps <- lapply(names(sa_vec), function(nm) {
       layerId = "pixelkarte-farbe",
       options = WMSTileOptions(format = "image/png", transparent = TRUE),
       attribution = "swisstopo"
-    ) %>%
-    addLayersControl(
-      baseGroups = c("Location map color - swisstopo", "Aerial imagery - swisstopo"),
-      overlayGroups = c("tlm_bb_einzelbaum_gebuesch","vhm"),
-      options = layersControlOptions(collapsed = TRUE)
-    ) %>%
-    addLegend(
-      pal = pal,
-      values = values(r_wgs),
-      title = "VHM"
-    )
+    ) 
+  
+  if(!is.nan(minmax(sa_tif[[nm]])[1])){
+    m <- m %>%
+      addRasterImage(
+        r_wgs,
+        colors = pal,
+        opacity = 0.8,
+        group = "vhm"
+      ) %>%
+      addLayersControl(
+        baseGroups = c("Location map color - swisstopo", "Aerial imagery - swisstopo"),
+        overlayGroups = c("tlm_bb_einzelbaum_gebuesch","vhm"),
+        options = layersControlOptions(collapsed = TRUE)
+      ) %>%
+      addLegend(
+        pal = pal,
+        values = values(r_wgs),
+        title = "VHM"
+      )
+  } else {
+    m <- m %>%
+      addLayersControl(
+        baseGroups = c("Location map color - swisstopo", "Aerial imagery - swisstopo"),
+        overlayGroups = c("tlm_bb_einzelbaum_gebuesch"),
+        options = layersControlOptions(collapsed = TRUE)
+      )
+  }
   
   return(m)
 })
