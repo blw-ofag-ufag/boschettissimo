@@ -4,7 +4,7 @@
 
 # General paths
 orig_data_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/ORIG_DATA/"
-study_area_data_path <- "D:/BLW/STUDY_AREA_DATA/"
+study_area_data_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/STUDY_AREA_DATA/"
 
 # Git relative paths
 git_root_path <- paste0(rprojroot::find_root(rprojroot::is_git_root),"/")
