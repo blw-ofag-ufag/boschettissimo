@@ -10,7 +10,7 @@ source("001_Initialization.R")
 #-----------------------------------------------------
 
 # Get study areas extent specification file
-study_areas <- read.csv2(file = paste0(prj_data_path,"study_areas.csv"), sep=",")
+study_areas <- read.csv2(file = paste0(git_root_path,"prj-data/study_areas.csv"), sep=",")
 
 # Loop through the study areas
 for(i in 1:nrow(study_areas)){
