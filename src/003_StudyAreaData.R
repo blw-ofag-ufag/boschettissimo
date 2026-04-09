@@ -21,6 +21,7 @@ for(i in 1:nrow(study_areas)){
     paste0(study_area_data_path, "", study_areas$id[i],".gpkg"),
     NF_path,
     TLM_EB_path,
+    TLM_EBv_path,
     VHM_path,
     study_areas$upper_left_e[i],
     study_areas$upper_left_n[i],

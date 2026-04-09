@@ -7,11 +7,12 @@ REM Arguments
 set OUT_GPKG=%1
 set INPUT1=%2
 set INPUT2=%3
-set RASTER=%4
-set ULE=%5
-set ULN=%6
-set LRE=%7
-set LRN=%8
+set INPUT3=%4
+set RASTER=%5
+set ULE=%6
+set ULN=%7
+set LRE=%8
+set LRN=%9
 
 echo Creating study area package: %OUT_GPKG%
 
@@ -49,6 +50,18 @@ REM --- swissTLM3D Einzelbaum & Gebuesche ---
 ogr2ogr -update -append "%OUT_GPKG%" "%INPUT2%" tlm_bb_einzelbaum_gebuesch ^
 -t_srs EPSG:2056 ^
 -nln tlm_bb_einzelbaum_gebuesch ^
+-spat %XMIN% %YMIN% %XMAX% %YMAX% ^
+-clipsrc %XMIN% %YMIN% %XMAX% %YMAX% ^
+-nlt PROMOTE_TO_MULTI ^
+-lco GEOMETRY_NAME=geom ^
+-lco SPATIAL_INDEX=YES
+
+IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
+
+REM --- swissTLM3D Einzelbaum & Gebuesche vollständig ---
+ogr2ogr -update -append "%OUT_GPKG%" "%INPUT3%" ^
+-t_srs EPSG:2056 ^
+-nln tlm_ebv ^
 -spat %XMIN% %YMIN% %XMAX% %YMAX% ^
 -clipsrc %XMIN% %YMIN% %XMAX% %YMAX% ^
 -nlt PROMOTE_TO_MULTI ^
