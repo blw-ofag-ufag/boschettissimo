@@ -29,3 +29,32 @@ for(i in 1:nrow(study_areas)){
     study_areas$lower_right_n[i]
     ))
 }
+
+
+#-----------------------------------------------------
+# Fetch ALS data corresponding to study areas
+#-----------------------------------------------------
+
+# Get study areas ALS file
+ALS_sas <- read.csv2(file = paste0(git_root_path,"prj-data/ALS_study_areas.csv"), sep=",")
+
+for(sa in study_areas$id){
+  
+  # Create directory if doesn't exist
+  las_dir <- paste0(study_area_data_path,sa,"_las/")
+  if (!dir.exists(las_dir)) {
+    dir.create(las_dir)
+  }
+  
+  # Filter the LAS files associated to the study area
+  ALS_sa <- ALS_sas[which(ALS_sas$sa_id == sa),]
+  
+  # Loop over all the LAS files
+  for(i in 1:nrow(ALS_sa)){
+    
+    # Copy LAS file to directory (needed to create a catalog to avoid edge effects)
+    file.copy(from = paste0(ALS_path,ALS_sa$file_name[i]),
+              to   = las_dir)
+  }
+  
+}
