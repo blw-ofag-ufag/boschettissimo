@@ -111,7 +111,7 @@ tlm_eb_maps <- lapply(names(sa_vec), function(nm) {
       ) %>%
       addLayersControl(
         baseGroups = c("Aerial imagery - swisstopo", "Location map color - swisstopo"),
-        overlayGroups = c("TLM - Einzelbaum & Gebuesch", "TLM - Einzelbaum & Gebuesch (raw data)", "Habitat Map - Einzelbaum & Gebuesch","NEW - Segmentierte Baume (watershed)","VHM"),
+        overlayGroups = c("TLM - Einzelbaum & Gebuesch", "TLM - Einzelbaum & Gebuesch (raw data)", "Habitat Map - Einzelbaum & Gebuesche","NEW - Segmentierte Baume (watershed)","VHM"),
         options = layersControlOptions(collapsed = TRUE)
       ) %>%
       addLegend(
@@ -123,7 +123,7 @@ tlm_eb_maps <- lapply(names(sa_vec), function(nm) {
     m <- m %>%
       addLayersControl(
         baseGroups = c("Aerial imagery - swisstopo", "Location map color - swisstopo"),
-        overlayGroups = c("TLM - Einzelbaum & Gebuesch", "TLM - Einzelbaum & Gebuesch (raw data)", "Habitat Map - Einzelbaum & Gebuesch","NEW - Segmentierte Baume (watershed)"),
+        overlayGroups = c("TLM - Einzelbaum & Gebuesch", "TLM - Einzelbaum & Gebuesch (raw data)", "Habitat Map - Einzelbaum & Gebuesche","NEW - Segmentierte Baume (watershed)"),
         options = layersControlOptions(collapsed = TRUE)
       )
   }
@@ -131,4 +131,6 @@ tlm_eb_maps <- lapply(names(sa_vec), function(nm) {
   return(m)
 })
 
+# Put the study areas as names of the maps
 names(tlm_eb_maps) <- names(sa_vec)
+
