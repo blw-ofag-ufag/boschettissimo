@@ -15,6 +15,15 @@ study_areas <- read.csv2(file = paste0(git_root_path,"prj-data/study_areas.csv")
 # Loop through the study areas
 for(i in 1:nrow(study_areas)){
   
+  # Define the study area bbox coordinates
+  coords <- paste(
+    study_areas$upper_left_e[i],
+    study_areas$upper_left_n[i],
+    study_areas$lower_right_e[i],
+    study_areas$lower_right_n[i],
+    sep = ","
+  )
+  
   # Crop original data to extent 
   system2(osgeo4w_path, args = c(
     "003b_CropStudyAreaData.bat", 
@@ -23,10 +32,8 @@ for(i in 1:nrow(study_areas)){
     TLM_EB_path,
     TLM_EBv_path,
     VHM_path,
-    study_areas$upper_left_e[i],
-    study_areas$upper_left_n[i],
-    study_areas$lower_right_e[i],
-    study_areas$lower_right_n[i]
+    paste0('"', coords, '"'),
+    HM_EBuG_path
     ))
 }
 

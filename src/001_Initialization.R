@@ -15,6 +15,7 @@ TLM_EB_path <- paste0(orig_data_path,"TLM/SWISSTLM3D_2025.gpkg")
 TLM_EBv_input_path <- "//speedy12-37/data_25/Vegetationmaxima/07_WSL/"
 TLM_EBv_path <- paste0(orig_data_path,"TLM/TLM_EBv.gpkg")
 NF_path <- paste0(orig_data_path,"BLW/nutzungsflaechen.gpkg") # will be changed once data received from BLW
+HM_EBuG_path <- "//speedy16-36/data_15/_PROJEKTE/2018_Lebensraumkarte_BAFU/Data_Sharing/HabitatMap_v1_2_202512/N2025_einzelbaum_gebuesche_2025_v1_0_20260106.gdb"
 
 # Processing specific paths (personal, to be changed)
 osgeo4w_path <- "C:/Program Files/QGIS 3.40.2/OSGeo4W.bat"
