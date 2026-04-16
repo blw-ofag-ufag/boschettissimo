@@ -1,0 +1,2 @@
+# ignore temp file that serves to combine data from geodienste on LWN while waiting for the data from BLW
+temp_combining_LWN_from_geodienste.bash
