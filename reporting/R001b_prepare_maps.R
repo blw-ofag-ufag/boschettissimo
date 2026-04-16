@@ -63,7 +63,7 @@ tlm_eb_maps <- lapply(names(sa_vec), function(nm) {
     addGlPolygons(
       data = layer_hm_ebug,
       color = "purple",
-      group = "Habitat Map - Einzelbaum & Gebuesch"
+      group = "Habitat Map - Einzelbaum & Gebuesche"
     ) %>%
     addGlPolygons(
       data = layer_crowns,
