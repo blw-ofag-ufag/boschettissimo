@@ -1,6 +1,7 @@
 # Load libraries
 library(sf)
 library(leaflet)
+library(leafgl)
 library(terra)
 
 # Preparation of the maps shown in R001_EB.qmd
@@ -26,6 +27,19 @@ tlm_eb_maps <- lapply(names(sa_vec), function(nm) {
     st_cast("POINT")
   
   # Update the statistics of the layer
+  # Get the habitat map EB&G layer
+  layer_hm_ebug <- st_read(sa_vec[[nm]]$path, layer = "hm_ebug", quiet = TRUE) %>% 
+    st_transform(crs = "+proj=longlat +datum=WGS84") %>%
+    st_cast("MULTIPOLYGON") %>%
+    st_cast("POLYGON")
+  
+  # Get the tree crown layer
+  layer_crowns <- st_read(sa_vec[[nm]]$path, layer = "crowns", quiet = TRUE) %>% 
+    st_transform(crs = "+proj=longlat +datum=WGS84") %>%
+    st_cast("MULTIPOLYGON") %>%
+    st_cast("POLYGON")
+  
+  # Update the statistics of the vhm layer
   setMinMax(sa_tif[[nm]])
   
   # If VHM is available, prepare raster layer
@@ -47,19 +61,29 @@ tlm_eb_maps <- lapply(names(sa_vec), function(nm) {
       color = "cyan",
       weight = 2
     ) %>%
+    addGlPolygons(
+      data = layer_hm_ebug,
+      color = "purple",
+      group = "Habitat Map - Einzelbaum & Gebuesche"
+    ) %>%
+    addGlPolygons(
+      data = layer_crowns,
+      color = "pink",
+      group = "NEW - Segmentierte Baume (watershed)"
+    ) %>%
     addCircleMarkers(
       data = layer_tlm_eb,
       radius = 1,
       color = "red",
       fillOpacity = 0.5,
-      group = "tlm_bb_einzelbaum_gebuesch"
+      group = "TLM - Einzelbaum & Gebuesch"
     )  %>%
     addCircleMarkers(
       data = layer_tlm_ebv,
       radius = 1,
       color = "gold",
       fillOpacity = 0.5,
-      group = "tlm_ebv"
+      group = "TLM - Einzelbaum & Gebuesch (raw data)"
     )  %>%
     addWMSTiles(
       "https://wmts10.geo.admin.ch/1.0.0/ch.swisstopo.swissimage-product/default/current/3857/{z}/{x}/{y}.jpeg",
@@ -84,11 +108,11 @@ tlm_eb_maps <- lapply(names(sa_vec), function(nm) {
         r_wgs,
         colors = pal,
         opacity = 0.8,
-        group = "vhm"
+        group = "VHM"
       ) %>%
       addLayersControl(
         baseGroups = c("Aerial imagery - swisstopo", "Location map color - swisstopo"),
-        overlayGroups = c("tlm_bb_einzelbaum_gebuesch","tlm_ebv","vhm"),
+        overlayGroups = c("TLM - Einzelbaum & Gebuesch", "TLM - Einzelbaum & Gebuesch (raw data)", "Habitat Map - Einzelbaum & Gebuesche","NEW - Segmentierte Baume (watershed)","VHM"),
         options = layersControlOptions(collapsed = TRUE)
       ) %>%
       addLegend(
@@ -100,7 +124,7 @@ tlm_eb_maps <- lapply(names(sa_vec), function(nm) {
     m <- m %>%
       addLayersControl(
         baseGroups = c("Aerial imagery - swisstopo", "Location map color - swisstopo"),
-        overlayGroups = c("tlm_bb_einzelbaum_gebuesch"),
+        overlayGroups = c("TLM - Einzelbaum & Gebuesch", "TLM - Einzelbaum & Gebuesch (raw data)", "Habitat Map - Einzelbaum & Gebuesche","NEW - Segmentierte Baume (watershed)"),
         options = layersControlOptions(collapsed = TRUE)
       )
   }
@@ -108,4 +132,6 @@ tlm_eb_maps <- lapply(names(sa_vec), function(nm) {
   return(m)
 })
 
+# Put the study areas as names of the maps
 names(tlm_eb_maps) <- names(sa_vec)
+
