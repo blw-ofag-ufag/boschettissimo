@@ -6,3 +6,5 @@ Dieser Ordner enthält verschiedene Lookup-Tabellen, die für den identifizierte
 
 1. **study_areas.csv**  
    Diese Datei definiert die Untersuchungsgebiete, anhand derer der gesamte Workflow getestet und angewendet wird.
+2. **ALS_study_areas.csv**  
+   Diese Datei definiert, welche ALS Daten die Untersuchungsgebiete abdecken.

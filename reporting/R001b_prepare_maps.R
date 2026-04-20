@@ -26,6 +26,7 @@ tlm_eb_maps <- lapply(names(sa_vec), function(nm) {
     st_cast("MULTIPOINT") %>%
     st_cast("POINT")
   
+  # Update the statistics of the layer
   # Get the habitat map EB&G layer
   layer_hm_ebug <- st_read(sa_vec[[nm]]$path, layer = "hm_ebug", quiet = TRUE) %>% 
     st_transform(crs = "+proj=longlat +datum=WGS84") %>%
