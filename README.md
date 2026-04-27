@@ -15,3 +15,4 @@ Folglich sind die Kernziele des Projekts:
 4. **Bewertung** pro Baum, also Berechnung eines "Ökologischen Nutzenwerts" als Basis für Beitragszahlungen.
 5. **Ex-post-Analyse** der Berechnungen und Bewertung, um die Auswirkungen und Folgen eines möglichen Systemwechsels zu verstehen.
 5. **Ex-post-Analyse** der Berechnungen und Bewertung, um die Auswirkungen und Folgen eines möglichen Systemwechsels zu verstehen.
+fasfslka
