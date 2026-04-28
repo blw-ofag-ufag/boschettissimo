@@ -8,9 +8,10 @@ set OUT_GPKG=%1
 set LWN_SRC=%2
 set EB_SRC=%3
 set EBv_SRC=%4
-set RASTER=%5
+set RASTER_S1=%5
 set COORDS=%6
 set HM_SRC=%7
+set RASTER_S2=%8
 
 for /f "tokens=1-4 delims=," %%a in (%COORDS%) do (
     set ULE=%%a
@@ -84,34 +85,56 @@ ogr2ogr -update -overwrite "%OUT_GPKG%" "%EBv_SRC%" ^
 
 IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
 
-REM --- VHM raster ---
+REM --- VHM raster SWISS1 ---
 REM Replace .gpkg with _vhm.tif
-set OUT_RASTER=%OUT_GPKG:.gpkg=_vhm.tif%
+set OUT_RASTER=%OUT_GPKG:.gpkg=_vhm_S1.tif%
 
-REM Do the VHM cropping only if doens't exist yet
-IF NOT EXIST "%OUT_RASTER%" (
+gdalwarp ^
+-overwrite ^
+-t_srs EPSG:2056 ^
+-te %XMIN% %YMIN% %XMAX% %YMAX% ^
+-of GTiff ^
+-co COMPRESS=LZW -co TILED=YES ^
+"%RASTER_S1%" "%OUT_RASTER%"
 
-    gdalwarp ^
-    -t_srs EPSG:2056 ^
-    -te %XMIN% %YMIN% %XMAX% %YMAX% ^
-    -of GTiff ^
-    -co COMPRESS=LZW -co TILED=YES ^
-    "%RASTER%" "%OUT_RASTER%"
+IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
 
-    IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
+REM --- VHM raster in WGS84 (derived from clipped raster) ---
+set OUT_RASTER_WGS84=%OUT_GPKG:.gpkg=_vhm_S1_wgs84.tif%
 
-    REM --- VHM raster in WGS84 (derived from clipped raster) ---
-    set SRC_RASTER=%OUT_GPKG:.gpkg=_vhm.tif%
-    set OUT_RASTER_WGS84=%OUT_GPKG:.gpkg=_vhm_wgs84.tif%
+gdalwarp ^
+-overwrite ^
+-s_srs EPSG:2056 ^
+-t_srs EPSG:4326 ^
+-co COMPRESS=LZW -co TILED=YES ^
+"%OUT_RASTER%" "%OUT_RASTER_WGS84%"
 
-    gdalwarp ^
-    -s_srs EPSG:2056 ^
-    -t_srs EPSG:4326 ^
-    -co COMPRESS=LZW -co TILED=YES ^
-    "%SRC_RASTER%" "%OUT_RASTER_WGS84%"
+IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
 
-    IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
+REM --- VHM raster SWISS2 ---
+REM Replace .gpkg with _vhm.tif
+set OUT_RASTER2=%OUT_GPKG:.gpkg=_vhm_S2.tif%
 
-)
+gdalwarp ^
+-overwrite ^
+-t_srs EPSG:2056 ^
+-te %XMIN% %YMIN% %XMAX% %YMAX% ^
+-of GTiff ^
+-co COMPRESS=LZW -co TILED=YES ^
+"%RASTER_S2%" "%OUT_RASTER2%"
+
+IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
+
+REM --- VHM raster in WGS84 (derived from clipped raster) ---
+set OUT_RASTER2_WGS84=%OUT_GPKG:.gpkg=_vhm_S2_wgs84.tif%
+
+gdalwarp ^
+-overwrite ^
+-s_srs EPSG:2056 ^
+-t_srs EPSG:4326 ^
+-co COMPRESS=LZW -co TILED=YES ^
+"%OUT_RASTER2%" "%OUT_RASTER2_WGS84%"
+
+IF %ERRORLEVEL% NEQ 0 EXIT /B %ERRORLEVEL%
 
 echo Done.

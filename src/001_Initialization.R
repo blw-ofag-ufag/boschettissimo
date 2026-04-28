@@ -10,7 +10,8 @@ study_area_data_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo
 git_root_path <- paste0(rprojroot::find_root(rprojroot::is_git_root),"/")
   
 # Data specific paths
-VHM_path <- "//speedy12-37/data_17/_GEOBASISDATEN/_ENVIDAT/VHM_LiDAR_NFI/2025/landesforstinventar-vegetationshoehenmodell_lidar_2025_2056.tif"
+VHM_S1_path <- "//speedy12-37/data_17/_GEOBASISDATEN/_ENVIDAT/VHM_LiDAR_NFI/2025/landesforstinventar-vegetationshoehenmodell_lidar_2025_2056.tif"
+VHM_S2_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/ORIG_DATA/VHM/VHM_SWISS2.vrt"
 TLM_EB_path <- paste0(orig_data_path,"TLM/SWISSTLM3D_2025.gpkg")
 TLM_EBv_input_path <- "//speedy12-37/data_25/Vegetationmaxima/07_WSL/"
 TLM_EBv_path <- paste0(orig_data_path,"TLM/TLM_EBv.gpkg")

@@ -40,17 +40,17 @@ tlm_eb_maps <- lapply(names(sa_vec), function(nm) {
     st_cast("POLYGON")
   
   # Update the statistics of the vhm layer
-  setMinMax(sa_tif[[nm]])
+  setMinMax(sa_tif_S2[[nm]])
   
-  # If VHM is available, prepare raster layer
-  if(!is.nan(minmax(sa_tif[[nm]])[1])){
-    
-    # Aggregate the vegetation height model (to be able to display it easier in interactive map)
-    r_wgs <- aggregate(sa_tif[[nm]], fun = "mean", na.rm = TRUE, fact = 4)
-    
-    # Create a palette for the VHM
-    pal <- colorNumeric("viridis", values(r_wgs), na.color = "transparent")
-  }
+  # Aggregate the vegetation height models (to be able to display it easier in interactive map)
+  r_wgs_S2 <- aggregate(sa_tif_S2[[nm]], fun = "mean", na.rm = TRUE, fact = 4)
+  
+  # Create a palette for the VHMs
+  vals <- c(
+    values(r_wgs_S2)
+  )
+  vals <- vals[!is.na(vals)]
+  pal <- colorNumeric("viridis", vals, na.color = "transparent")
   
   # Compose the map
   m <- leaflet() %>%
@@ -100,34 +100,24 @@ tlm_eb_maps <- lapply(names(sa_vec), function(nm) {
       layerId = "pixelkarte-farbe",
       options = WMSTileOptions(format = "image/png", transparent = TRUE),
       attribution = "swisstopo"
-    ) 
-  
-  if(!is.nan(minmax(sa_tif[[nm]])[1])){
-    m <- m %>%
-      addRasterImage(
-        r_wgs,
-        colors = pal,
-        opacity = 0.8,
-        group = "VHM"
-      ) %>%
-      addLayersControl(
-        baseGroups = c("Aerial imagery - swisstopo", "Location map color - swisstopo"),
-        overlayGroups = c("TLM - Einzelbaum & Gebuesch", "TLM - Einzelbaum & Gebuesch (raw data)", "Habitat Map - Einzelbaum & Gebuesche","NEW - Segmentierte Baume (watershed)","VHM"),
-        options = layersControlOptions(collapsed = TRUE)
-      ) %>%
-      addLegend(
-        pal = pal,
-        values = values(r_wgs),
-        title = "VHM"
-      )
-  } else {
-    m <- m %>%
-      addLayersControl(
-        baseGroups = c("Aerial imagery - swisstopo", "Location map color - swisstopo"),
-        overlayGroups = c("TLM - Einzelbaum & Gebuesch", "TLM - Einzelbaum & Gebuesch (raw data)", "Habitat Map - Einzelbaum & Gebuesche","NEW - Segmentierte Baume (watershed)"),
-        options = layersControlOptions(collapsed = TRUE)
-      )
-  }
+    ) %>%
+    addRasterImage(
+      r_wgs_S2,
+      colors = pal,
+      opacity = 0.8,
+      group = "VHM_SWISS2"
+    ) %>%
+    addLayersControl(
+      baseGroups = c("Aerial imagery - swisstopo", "Location map color - swisstopo"),
+      overlayGroups = c("TLM - Einzelbaum & Gebuesch", "TLM - Einzelbaum & Gebuesch (raw data)", "Habitat Map - Einzelbaum & Gebuesche","NEW - Segmentierte Baume (watershed)","VHM_SWISS2"),
+      options = layersControlOptions(collapsed = TRUE)
+    ) %>%
+    addLegend(
+      pal = pal,
+      values = vals,
+      title = "VHM"
+    )
+
   
   return(m)
 })
