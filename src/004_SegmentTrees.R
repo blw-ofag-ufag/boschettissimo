@@ -26,7 +26,7 @@ for(sa in sas$id){
   ALS_sa <- ALS_sas[which(ALS_sas$sa_id == sa),]
   
   # Load the VHM associated to the study area
-  vhm_sa <- rast(paste0(study_area_data_path,sa,"_vhm.tif"))
+  vhm_sa <- rast(paste0(study_area_data_path,sa,"_vhm_S2.tif"))
   
   # Have VHM in memory (for crown delimitation and also segmentation of big raster (engelswilen))
   vhm_sa <- toMemory(vhm_sa)
