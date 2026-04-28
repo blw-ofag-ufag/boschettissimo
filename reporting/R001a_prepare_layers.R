@@ -23,23 +23,6 @@ sa_vec <- lapply(sa_vec_path, function(gpkg) {
 names(sa_vec) <- gsub(".gpkg","",basename(sa_vec_path))
 
 
-# List study area data from raster - SWISS1
-#--------------------------------------
-
-# Get all raster paths
-sa_tif_S1_path <- list.files(
-  study_area_data_path,
-  pattern = "\\_S1_wgs84.tif$",
-  full.names = T)
-
-# Load the rasters
-sa_tif_S1 <- lapply(sa_tif_S1_path, function(tif) {
-  rast(tif)
-})
-
-# Name the list elements as the id of the study area
-names(sa_tif_S1) <- gsub("_vhm_S1_wgs84.tif","",basename(sa_tif_S1_path))
-
 # List study area data from raster - SWISS2
 #--------------------------------------
 

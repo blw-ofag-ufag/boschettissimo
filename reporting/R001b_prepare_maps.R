@@ -40,16 +40,13 @@ tlm_eb_maps <- lapply(names(sa_vec), function(nm) {
     st_cast("POLYGON")
   
   # Update the statistics of the vhm layer
-  setMinMax(sa_tif_S1[[nm]])
   setMinMax(sa_tif_S2[[nm]])
   
   # Aggregate the vegetation height models (to be able to display it easier in interactive map)
-  r_wgs_S1 <- aggregate(sa_tif_S1[[nm]], fun = "mean", na.rm = TRUE, fact = 4)
   r_wgs_S2 <- aggregate(sa_tif_S2[[nm]], fun = "mean", na.rm = TRUE, fact = 4)
   
   # Create a palette for the VHMs
   vals <- c(
-    values(r_wgs_S1),
     values(r_wgs_S2)
   )
   vals <- vals[!is.na(vals)]
@@ -105,12 +102,6 @@ tlm_eb_maps <- lapply(names(sa_vec), function(nm) {
       attribution = "swisstopo"
     ) %>%
     addRasterImage(
-      r_wgs_S1,
-      colors = pal,
-      opacity = 0.8,
-      group = "VHM_SWISS1"
-    ) %>%
-    addRasterImage(
       r_wgs_S2,
       colors = pal,
       opacity = 0.8,
@@ -118,7 +109,7 @@ tlm_eb_maps <- lapply(names(sa_vec), function(nm) {
     ) %>%
     addLayersControl(
       baseGroups = c("Aerial imagery - swisstopo", "Location map color - swisstopo"),
-      overlayGroups = c("TLM - Einzelbaum & Gebuesch", "TLM - Einzelbaum & Gebuesch (raw data)", "Habitat Map - Einzelbaum & Gebuesche","NEW - Segmentierte Baume (watershed)","VHM_SWISS1","VHM_SWISS2"),
+      overlayGroups = c("TLM - Einzelbaum & Gebuesch", "TLM - Einzelbaum & Gebuesch (raw data)", "Habitat Map - Einzelbaum & Gebuesche","NEW - Segmentierte Baume (watershed)","VHM_SWISS2"),
       options = layersControlOptions(collapsed = TRUE)
     ) %>%
     addLegend(
