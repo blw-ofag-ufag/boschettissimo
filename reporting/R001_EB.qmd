@@ -8,10 +8,13 @@ editor: visual
 #| echo: false
 #| include: false
 
+# Quarto specific - need to set the working directory to git and R project location
+setwd("..")
+
 # Source necessary codes
-source(paste0(getwd(),"/../src/001_Initialization.R"))
-source("R001a_prepare_layers.R")
-source("R001b_prepare_maps.R")
+source("src/r/001_Initialization.R")
+source("reporting/R001a_prepare_layers.R")
+source("reporting/R001b_prepare_maps.R")
 
 ```
 

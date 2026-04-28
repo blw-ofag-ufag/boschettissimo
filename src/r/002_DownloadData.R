@@ -8,7 +8,7 @@ library(rstac)
 library(dplyr)
 
 # Sourcing initialization code (paths and such) 
-source("001_Initialization.R")
+source("src/r/001_Initialization.R")
 
 #-----------------------------------------------------
 # STAC related functions
@@ -105,7 +105,7 @@ unlink(paste0(getwd(),"/ch.swisstopo.swisstlm3d/"), recursive = TRUE, force = TR
 #*****************************************************
 
 # Fetch the study areas
-study_areas <- read.csv2(file = paste0(git_root_path,"data/study_areas.csv"), sep=",")
+study_areas <- read.csv2(file = "data/study_areas.csv", sep=",")
 
 # Get the needed LKS tiles on which the study areas are located
 tlm_EBv_layers <- list(

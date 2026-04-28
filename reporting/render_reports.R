@@ -3,7 +3,7 @@
 #--------------------------------------------------------
   
 # Render the file
-quarto::quarto_render("R001_EB.qmd")
+quarto::quarto_render("reporting/R001_EB.qmd")
 
 # Move the report to speedy
 file.copy(
