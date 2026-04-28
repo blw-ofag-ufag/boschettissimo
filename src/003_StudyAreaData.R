@@ -31,9 +31,10 @@ for(i in 1:nrow(study_areas)){
     NF_path,
     TLM_EB_path,
     TLM_EBv_path,
-    VHM_path,
+    VHM_S1_path,
     paste0('"', coords, '"'),
-    HM_EBuG_path
+    HM_EBuG_path,
+    VHM_S2_path
     ))
 }
 
