@@ -2,7 +2,12 @@
 .env
 
 # ignore data folder; put all (sensitive) source data here
-data/
+data/*
+
+# add data files that should be tracked
+!data/ALS_study_areas.csv
+!data/study_areas.csv
+!data/README.md
 
 # ignore a folder with notes
 notes/
