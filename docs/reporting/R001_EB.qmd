@@ -9,7 +9,7 @@ editor: visual
 #| include: false
 
 # Quarto specific - need to set the working directory to git and R project location
-setwd("..")
+setwd("../..")
 
 # Source necessary codes
 source("src/r/001_Initialization.R")

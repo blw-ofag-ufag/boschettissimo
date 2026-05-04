@@ -3,16 +3,16 @@
 #--------------------------------------------------------
   
 # Render the file
-quarto::quarto_render("reporting/R001_EB.qmd")
+quarto::quarto_render("docs/reporting/R001_EB.qmd")
 
 # Move the report to speedy
 file.copy(
-  "reporting/R001_EB.html",
+  "docs/reporting/R001_EB.html",
   "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/02_Reports/R001_EB.html",
   overwrite = TRUE
 )
 file.copy(
-  "reporting/R001_EB_files",
+  "docs/reporting/R001_EB_files",
   "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/02_Reports/",
   overwrite = TRUE,
   recursive = TRUE
