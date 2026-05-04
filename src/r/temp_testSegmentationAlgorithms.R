@@ -19,7 +19,7 @@ sa <- "allema_rischberg"
 ALS_sa <- ALS_sas[which(ALS_sas$sa_id == sa),]
 
 # Load the VHM associated to the study area
-vhm_sa <- rast(paste0(study_area_data_path,sa,"_vhm.tif"))
+vhm_sa <- rast(paste0(study_area_data_path,sa,"_vhm_S2.tif"))
 
 # Path to las files
 las_dir <- paste0(study_area_data_path,sa,"_las/")
@@ -123,5 +123,17 @@ seg <- segment_trees(
 )
 
 plot(seg, bg = "white", size = 4, color = "treeID")
+
+
+#-----------------------------------------------------
+# 2-approach test
+# 1 segment small new trees on raw VHM
+# 2 segment old large trees on smoothed VHM
+#-----------------------------------------------------
+
+# Area to filder small/big trees (approach 1 or 2)
+area_thresh <- 25
+
+
 
 
