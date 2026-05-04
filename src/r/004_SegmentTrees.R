@@ -7,13 +7,13 @@ library(lidR)
 library(terra)
 
 # Sourcing initialization code (paths and such) 
-source("001_Initialization.R")
+source("src/r/001_Initialization.R")
 
 # Get study areas ALS file
-ALS_sas <- read.csv2(file = paste0(git_root_path,"prj-data/ALS_study_areas.csv"), sep=",")
+ALS_sas <- read.csv2(file = "data/ALS_study_areas.csv", sep=",")
 
 # Get the study areas
-sas <- read.csv2(file = paste0(git_root_path,"prj-data/study_areas.csv"), sep=",")
+sas <- read.csv2(file = "data/study_areas.csv", sep=",")
 
 #-----------------------------------------------------
 # Tree segementation

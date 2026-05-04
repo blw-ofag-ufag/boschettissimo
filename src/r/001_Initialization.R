@@ -6,9 +6,6 @@
 orig_data_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/ORIG_DATA/"
 study_area_data_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/STUDY_AREA_DATA/"
 
-# Git relative paths
-git_root_path <- paste0(rprojroot::find_root(rprojroot::is_git_root),"/")
-  
 # Data specific paths
 VHM_S1_path <- "//speedy12-37/data_17/_GEOBASISDATEN/_ENVIDAT/VHM_LiDAR_NFI/2025/landesforstinventar-vegetationshoehenmodell_lidar_2025_2056.tif"
 VHM_S2_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/ORIG_DATA/VHM/VHM_SWISS2.vrt"
