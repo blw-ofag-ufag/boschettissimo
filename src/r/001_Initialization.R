@@ -26,7 +26,7 @@ treeseg_data_local_path <- "D:/BOSCHETTISSIMO/PROCESSED_DATA/TREE_SEG/"
 
 # (TEMP only for TG)
 # Path to combined unfiltered EB data from TLM (produced using 004d_Combine_TLMEB.bat)
-combined_tlm_eb_path <- "D:/BOSCHETTISSIMO/ORIG_DATA/TLM_EB/combined_tlm_eb.gpkg"
+combined_tlm_eb_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/ORIG_DATA/TLM/combined_tlm_eb_TG.gpkg"
 seg_tlm_EB_log_file <- "docs/logging/seg_tlm_EB_TG.txt"
 
 # Processing specific paths (personal, to be changed)
