@@ -105,12 +105,10 @@ table(ALLEMA_ALS_ref$LubiJahr_max) # The years covered span from 2017 to 2022
 
 # The perimeters that can be considered
 ALLEMA_Q_ref <- ALLEMA_Q_orig %>% 
-  filter( ID_Quadrat %in% unique(ALLEMA_ALS_ref$FK_Quadrat)) %>%
-  select( ID_Quadrat, geometry)
-st_write(ALLEMA_Q_ref, "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/REF_DATA/ALLEMA/ALLEMA_Q_ref.gpkg")
+  filter( ID_Quadrat %in% unique(ALLEMA_ALS_ref$FK_Quadrat)) 
+st_write(ALLEMA_Q_ref, "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/REF_DATA/ALLEMA/ALLEMA_Q_ref.gpkg", append = FALSE)
 
 # The segmented trees that are there
 ALLEMA_EB_ref <- ALLEMA_orig %>% 
-  filter(OBJECT_ID %in% unique(ALLEMA_ALS_ref$OBJECT_ID)) %>%
-  select(FK_Quadrat, Shape, LubiJahr)
-st_write(ALLEMA_EB_ref, "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/REF_DATA/ALLEMA/ALLEMA_EB_ref.gpkg")
+  filter(OBJECT_ID %in% unique(ALLEMA_ALS_ref$OBJECT_ID)) 
+st_write(ALLEMA_EB_ref, "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/REF_DATA/ALLEMA/ALLEMA_EB_ref.gpkg", append = FALSE)
