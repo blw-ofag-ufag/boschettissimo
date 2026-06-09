@@ -53,10 +53,10 @@ ALLEMA <- ALLEMA %>%
   mutate(LubiJahr_max = max(LubiJahr)) %>%
   ungroup() 
 
-# Filter to keep only single tree polygons
+# Filter to keep only classes 37 (Obstanlagen), 38 (Hochstammobst) and 59 (Einzelbaum, Baumgruppe)
 ALLEMA <- ALLEMA %>% 
-  filter(Gehoelztyp == 59) %>%
-  select(FK_Quadrat, OBJECT_ID, LubiJahr_max) %>%
+  filter(Gehoelztyp %in% c(37,38,59)) %>%
+  select(FK_Quadrat, OBJECT_ID, Gehoelztyp, LubiJahr_max) %>%
   st_drop_geometry()
 
 # Import the perimeter of the ALLEMA Quadrants
