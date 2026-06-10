@@ -7,6 +7,9 @@ library(sf)
 library(dplyr)
 library(purrr)
 
+# Sourcing initialization code (paths and such) 
+source("src/r/001_Initialization.R")
+
 #-----------------------------------------------------
 # Prepping the ALS dataset
 #-----------------------------------------------------
@@ -99,16 +102,118 @@ length(unique(ALLEMA_ALS_ref$FK_Quadrat)) # 56 Quadrants can be used as referenc
 table(ALLEMA_ALS_ref$source) # Only the first VHM can be used (newest Lubi_Jahr used is 2022 in the ALLEMA dataset)
 table(ALLEMA_ALS_ref$LubiJahr_max) # The years covered span from 2017 to 2022
 
+
 #-----------------------------------------------------
-# Export the data that will be used to test the segmentation
+# Post-filtering of reference data
 #-----------------------------------------------------
 
 # The perimeters that can be considered
 ALLEMA_Q_ref <- ALLEMA_Q_orig %>% 
   filter( ID_Quadrat %in% unique(ALLEMA_ALS_ref$FK_Quadrat)) 
+
+# Fetch the reference trees that should be considered
+ALLEMA_EB <- ALLEMA_orig %>% 
+  filter(OBJECT_ID %in% unique(ALLEMA_ALS_ref$OBJECT_ID)) %>%
+  st_zm(drop = TRUE, what = "ZM")
+
+# Filter based on roudness
+#---------------------------
+
+# Add roudness info
+ALLEMA_EB <- ALLEMA_EB %>%
+  mutate(
+    area_allema = st_area(Shape),
+    perimeter = st_length(st_boundary(Shape)),
+    roundness =
+      as.numeric(
+        (4 * pi * area_allema) / (perimeter^2)
+      )
+  )
+
+# Keep only ref polygons with a roundness > 0.95
+# Idea is to filter out polgons that do not represent a single tree but a group of trees
+ALLEMA_EB <- ALLEMA_EB %>%
+  filter(roundness > 0.95)
+
+# Filter based on all VHM = 0
+#---------------------------
+
+library(terra)
+
+# get the vhm (use 1m to speed everything up)
+VHM_ALS <- rast(VHM_S1_1m_path)
+
+# sf -> terra vector
+ALLEMA_EB_v <- vect(ALLEMA_EB)
+
+# output column
+ALLEMA_EB$has_veg <- FALSE
+
+# optional: progress bar
+pb <- txtProgressBar(min = 0, max = nrow(ALLEMA_Q_ref), style = 3)
+
+for(i in seq_len(nrow(ALLEMA_Q_ref))) {
+  
+  # -------------------------------------------------
+  # current quadrant
+  # -------------------------------------------------
+  
+  quad_id <- ALLEMA_Q_ref$ID_Quadrat[i]
+  
+  # extent/perimeter of current quadrant
+  quad <- vect(ALLEMA_Q_ref[i, ])
+  
+  # -------------------------------------------------
+  # crop VHM to current quadrant
+  # -------------------------------------------------
+  
+  VHM_crop <- crop(VHM_ALS, ext(quad))
+  
+  # optional but often safer/faster
+  VHM_crop <- mask(VHM_crop, quad)
+  
+  # -------------------------------------------------
+  # fetch matching EB polygons
+  # -------------------------------------------------
+  
+  idx <- which(ALLEMA_EB$FK_Quadrat == quad_id)
+  
+  # skip if no polygons
+  if(length(idx) == 0) {
+    setTxtProgressBar(pb, i)
+    next
+  }
+  
+  eb_sub <- ALLEMA_EB_v[idx, ]
+  
+  # -------------------------------------------------
+  # vegetation presence
+  # -------------------------------------------------
+  
+  mx <- terra::extract(
+    VHM_crop,
+    eb_sub,
+    fun = max,
+    na.rm = TRUE
+  )
+  
+  # polygons having vegetation
+  ALLEMA_EB$has_veg[idx] <- mx[,2] > 0
+  
+  # progress
+  setTxtProgressBar(pb, i)
+}
+
+close(pb)
+
+# keep only polygons with vegetation
+ALLEMA_EB_ref <- ALLEMA_EB[ALLEMA_EB$has_veg, ]%>%
+  select(-has_veg)
+
+#-----------------------------------------------------
+# Export the data that will be used to test the segmentation
+#-----------------------------------------------------
+
 st_write(ALLEMA_Q_ref, "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/REF_DATA/ALLEMA/ALLEMA_Q_ref.gpkg", append = FALSE)
 
-# The segmented trees that are there
-ALLEMA_EB_ref <- ALLEMA_orig %>% 
-  filter(OBJECT_ID %in% unique(ALLEMA_ALS_ref$OBJECT_ID)) 
 st_write(ALLEMA_EB_ref, "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/REF_DATA/ALLEMA/ALLEMA_EB_ref.gpkg", append = FALSE)

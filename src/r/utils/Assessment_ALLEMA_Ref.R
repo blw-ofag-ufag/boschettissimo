@@ -17,27 +17,7 @@ library(tidyr)
 
 ALLEMA_EB <- st_read(
   "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/REF_DATA/ALLEMA/ALLEMA_EB_ref.gpkg"
-) %>%
-  st_zm(drop = TRUE, what = "ZM")
-
-#-----------------------------------------------------
-# Add geometry metrics
-#-----------------------------------------------------
-
-ALLEMA_EB <- ALLEMA_EB %>%
-  mutate(
-    area_allema = st_area(geom),
-    perimeter = st_length(st_boundary(geom)),
-    roundness =
-      as.numeric(
-        (4 * pi * area_allema) / (perimeter^2)
-      )
-  )
-
-# Keep only ref polygons with a roundness > 0.95
-# Idea is to filter out polgons that do not represent a single tree but a group of trees
-ALLEMA_EB <- ALLEMA_EB %>%
-  filter(roundness > 0.95)
+) 
 
 # ALLEMA_schafboden <- ALLEMA_EB[which(ALLEMA_EB$FK_Quadrat == 689214),]
 
