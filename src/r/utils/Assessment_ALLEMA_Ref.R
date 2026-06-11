@@ -21,6 +21,12 @@ ALLEMA_EB <- st_read(
 
 # ALLEMA_schafboden <- ALLEMA_EB[which(ALLEMA_EB$FK_Quadrat == 689214),]
 
+# recompute area to have a "unit" object
+ALLEMA_EB <- ALLEMA_EB %>%
+  mutate(
+    area_allema = st_area(geom),
+  )
+
 #-----------------------------------------------------
 # Segmentation files
 #-----------------------------------------------------
@@ -29,7 +35,7 @@ ALLEMA_seg_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_D
 
 ALLEMA_seg_EB <- list.files(
   ALLEMA_seg_path,
-  pattern = "\\.gpkg$",
+  pattern = "//.gpkg$",
   full.names = FALSE
 )
 
@@ -47,14 +53,16 @@ counter <- 1
 
 for(i in seq_along(ALLEMA_seg_EB)){
   
+  # i <- 24 # Schafboden
+  
   current_file <- ALLEMA_seg_EB[i]
   
   quadrant_id <- as.integer(
     gsub("ALLEMA_", "", gsub(".gpkg", "", current_file))
   )
   
-  cat("\n============================\n")
-  cat("Quadrant:", quadrant_id, "\n")
+  cat("/n============================/n")
+  cat("Quadrant:", quadrant_id, "/n")
   
   #---------------------------------------------------
   # Reference polygons for current quadrant
@@ -79,7 +87,7 @@ for(i in seq_along(ALLEMA_seg_EB)){
     
     segmentation_method <- seg_EB_layers$name[j]
     
-    cat("Method:", segmentation_method, "\n")
+    cat("Method:", segmentation_method, "/n")
     
     #-------------------------------------------------
     # Read segmentation
@@ -91,9 +99,9 @@ for(i in seq_along(ALLEMA_seg_EB)){
       quiet = TRUE
     )
     
-    # Skip empty geometies
+    # Skip empty geometries
     if(nrow(EB_seg) == 0){
-      cat("Empty layer! \n")
+      cat("Empty layer! /n")
       next
     }
     
@@ -245,8 +253,7 @@ all_combinations <- all_ref %>%
 # DETECTION THRESHOLD
 #-----------------------------------------------------
 
-# Since reference polygons are approximate:
-# lower threshold than classical segmentation
+# Since reference polygons are approximate use a low threshold
 
 iou_threshold <- 0.25
 
@@ -457,18 +464,21 @@ method_ranking <- method_ranking %>%
     rank_underseg =
       rank(mean_underseg_rate)
 
-  ) %>%
-  mutate(
-    
-    final_score =
-      (
-          mean_iou * (1/3) -
-          mean_overseg_rate * (1/3) -
-          mean_underseg_rate * (1/3)
-      )
-    
-  ) %>%
-  arrange(desc(final_score))
+  ) 
+  # # TBD - Final score is a bit tricky, very much dependant on the coefficients we set for the different methods, if we use ranking or mean value, etc.
+  # %>%
+  # mutate(
+  #   
+  #   final_score =
+  #     (
+  #       rank_detection * 0.25 +
+  #         rank_iou * 0.25 +
+  #         rank_overseg * 0.25 +
+  #         rank_underseg * 0.25
+  #     )
+  #   
+  # ) %>%
+  # arrange(final_score)
 
 
 
@@ -478,31 +488,25 @@ method_ranking <- method_ranking %>%
 
 write.csv(
   results_all,
-  "all_intersections.csv",
+  "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/ASSESSMENT_DATA/ALLEMA/all_intersections.csv",
   row.names = FALSE
 )
 
 write.csv(
   summary_table,
-  "summary_table.csv",
+  "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/ASSESSMENT_DATA/ALLEMA/summary_table.csv",
   row.names = FALSE
 )
 
 write.csv(
   method_ranking,
-  "method_ranking.csv",
+  "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/ASSESSMENT_DATA/ALLEMA/method_ranking.csv",
   row.names = FALSE
 )
 
 #=====================================================
 # Linking it back to the ref trees
 #=====================================================
-
-# Per-reference crown counts --> oversegmentation table
-
-# Per-crown reference counts --> undersegmentation table
-
-# Keep best match per reference tree --> best_matches table
 
 tree_status <- best_matches %>%
   
@@ -602,4 +606,4 @@ ALLEMA_assessment <- ALLEMA_EB %>%
     )
   )
 
-st_write(ALLEMA_assessment, "D:/temp/ALLEMA_assessment.gpkg")
+st_write(ALLEMA_assessment, "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/ASSESSMENT_DATA/ALLEMA/ALLEMA_assessment.gpkg", append = FALSE)
