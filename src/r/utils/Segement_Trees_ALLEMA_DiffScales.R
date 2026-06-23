@@ -154,7 +154,7 @@ build_tracks <- function(ttops_cand, max_xy, max_h)
   return(tracks)
 }
 
-misc <- function(vhm_cell, ALLEMA_filter){
+misc <- function(vhm_cell, ALLEMA_filter, outpackage){
   
   # GET THE TREE TOPS
   #--------------------------------------------
@@ -187,7 +187,7 @@ misc <- function(vhm_cell, ALLEMA_filter){
   # Get the tracking of the tree tops
   ttops_cand_tracked <- build_tracks(ttops_cand, max_xy, max_h)
   
-  st_write(ttops_cand_tracked, paste0(out_data_path,"ttops_cand_tracked.gpkg"), append = FALSE)
+  st_write(ttops_cand_tracked, outpackage, layer="ttops_cand_tracked", append = FALSE)
   
   ttops_cand_tracked$x <- st_coordinates(ttops_cand_tracked)[,1]
   ttops_cand_tracked$y <- st_coordinates(ttops_cand_tracked)[,2]
@@ -213,7 +213,7 @@ misc <- function(vhm_cell, ALLEMA_filter){
     st_as_sf( coords = c("x_mean", "y_mean"), crs = 2056)
   
   
-  st_write(tracks, paste0(out_data_path,"tracks.gpkg"), append = FALSE)
+  st_write(tracks, outpackage, layer = "tracks", append = FALSE)
   
   
   # GET THE STABLE TRACKS
@@ -223,7 +223,7 @@ misc <- function(vhm_cell, ALLEMA_filter){
     filter(persistence > 2)
   
   
-  st_write(stable_tracks, paste0(out_data_path,"stable_tracks.gpkg"), append = FALSE)
+  st_write(stable_tracks, outpackage, layer= "stable_tracks", append = FALSE)
   
   # TEMP - VARIOUS TESTS
   
@@ -270,8 +270,6 @@ misc <- function(vhm_cell, ALLEMA_filter){
   # # stable_tracks$y <- st_coordinates(stable_tracks)[,2]
   # # stable_tracks_mat <- scale(as.matrix(stable_tracks[,c("height","trackID","x","y")] %>% st_drop_geometry()))
   # # track_clusters <- hdbscan(stable_tracks_mat, minPts = 2)
-  
-  
 
 }
 
@@ -320,13 +318,15 @@ process_cell <- function(i) {
   # Keep only VHM values that are outside of ALLEMA filter
   vhm_cell <- mask(vhm_cell, ALLEMA_filter, inverse = T)
   
-  # .... TBD
+  # Run the ttops & track functions
+  misc(vhm_cell, ALLEMA_filter, paste0(out_data_path,"ALLEMA_", ALLEMA_Q[i, ]$ID_Quadrat, ".gpkg"))
   
-  return(NULL)
 }
 
 #-----------------------------------------------------
 # Process over cells
 #-----------------------------------------------------
 
-# .... TBD
+for(j in 1:length(ALLEMA_Q)){
+  process_cell(j)
+}
