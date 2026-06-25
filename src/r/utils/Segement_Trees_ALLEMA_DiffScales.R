@@ -177,6 +177,19 @@ misc <- function(vhm_cell, ALLEMA_filter, outpackage){
   # Get the actual tree height of the point using the original VHM
   ttops_cand$height <- terra::extract(vhm_cell, ttops_cand)[,2]
   
+  # # TD - Doesn't change anything....
+  # # FILTER ONLY WHAT IS ON LN FLAECHE
+  # #--------------------------------------------
+  # tt_ext <- ext(ttops_cand)
+  # wkt <- as.polygons(tt_ext) |>
+  #   st_as_sf() |>
+  #   st_geometry() |>
+  #   st_as_text()
+  # ln <- st_read(LN_2025_path, wkt_filter = wkt)
+  # 
+  # ttops_cand <- ttops_cand %>%
+  #   st_filter(ln, .predicate = st_intersects)
+    
   # GET THE TRACKS
   #--------------------------------------------
   
@@ -216,60 +229,49 @@ misc <- function(vhm_cell, ALLEMA_filter, outpackage){
   st_write(tracks, outpackage, layer = "tracks", append = FALSE)
   
   
-  # GET THE STABLE TRACKS
-  #--------------------------------------------
-  
+  # # GET THE STABLE TRACKS
+  # #--------------------------------------------
+
   stable_tracks <- tracks %>%
-    filter(persistence > 2)
-  
-  
+    filter(persistence > 1)
+
+
   st_write(stable_tracks, outpackage, layer= "stable_tracks", append = FALSE)
   
-  # TEMP - VARIOUS TESTS
+  # ISOLATE TREES THAT HAVE A SINGLE TRACK
+  #--------------------------------------------
+  radii <- stable_tracks$height_mean / 2
+  dmat  <- st_distance(stable_tracks)
   
-  # stable_tracks <- tracks %>%
-  #   select(x_mean, y_mean, height_mean) %>% 
-  #   st_drop_geometry()
-  # stable_tracks_mat <- scale(as.matrix(stable_tracks))
-  # track_clusters <- hdbscan(stable_tracks_mat, minPts = 2)
-  # 
-  # stable_tracks <- cbind(stable_tracks, track_clusters$cluster)%>%
-  #   st_as_sf(
-  #     coords = c("x_mean", "y_mean"),
-  #     crs = 2056   # Swiss LV95, assuming your coordinates are in LV95
-  #   )
-  # st_write(stable_tracks, paste0(out_data_path,"stable_tracks.gpkg"), append = FALSE)
+  stable_tracks$has_neighbor <- sapply(seq_len(nrow(stable_tracks)), function(i) {
+    
+    d <- as.numeric(dmat[i, ])
+    d[i] <- Inf  # exclude self
+    
+    any(d <= pmax(radii[i], radii[-i]))
+  })
   
+  eb_idx <- !stable_tracks$has_neighbor 
+  stable_tracks_isolated      <- stable_tracks[eb_idx, ]
+  stable_tracks_with_neighbor <- stable_tracks[!eb_idx, ]
   
-  # # Set minimum persistence (in schafboden, 2 needed to detect small trees)
-  # min_pers <- 2
-  # 
-  # # Identify stable track ids based on persistence
-  # n_tracks <- table(tracks$trackID)
-  # stable_tracks_ids <- as.integer(names(n_tracks[which(n_tracks >= min_pers)]))
-  # 
-  # # Filter out tracks with low persistence
-  # stable_tracks <- tracks[which(tracks$trackID %in% stable_tracks_ids),]
-  # 
-  # # ... 
-  # # supplementary filter to identify stable tracks
-  # 
-  # # Among the stable tracks, identify the highest point
-  # stable_tracks_tops <- stable_tracks %>%
-  #   group_by(trackID) %>%
-  #   slice_max(height, n = 1, with_ties = FALSE) %>%
-  #   ungroup()
-  # 
-  # 
-  # st_write(stable_tracks_tops, paste0(out_data_path,"stable_tracks.gpkg"), append = FALSE)
-  # 
-  # # # Identify the clusters
-  # # # TBD - Seems to cluster not at all th tree corwns, but rather the different regions of the ALLEMA Quadrant
-  # # #--------------------------------------------
-  # # stable_tracks$x <- st_coordinates(stable_tracks)[,1]
-  # # stable_tracks$y <- st_coordinates(stable_tracks)[,2]
-  # # stable_tracks_mat <- scale(as.matrix(stable_tracks[,c("height","trackID","x","y")] %>% st_drop_geometry()))
-  # # track_clusters <- hdbscan(stable_tracks_mat, minPts = 2)
+  st_write(stable_tracks_isolated, outpackage, layer= "stable_tracks_isolated", append = FALSE)
+  st_write(stable_tracks_with_neighbor, outpackage, layer= "stable_tracks_with_neighbor", append = FALSE)
+  
+  # CLUSTER TRACKS WHICH HAVE NEIGHBORS
+  #--------------------------------------------
+  stable_tracks_with_neighbor$x <- st_coordinates(stable_tracks_with_neighbor)[,1]
+  stable_tracks_with_neighbor$y <- st_coordinates(stable_tracks_with_neighbor)[,2]
+  stable_tracks_with_neighbor_mat <- scale(as.matrix(stable_tracks_with_neighbor[,c("x","y")] %>% st_drop_geometry()))
+  track_clusters <- hdbscan(stable_tracks_with_neighbor_mat, minPts = 2)
+  
+  clustered_tracks <- cbind(stable_tracks_with_neighbor, track_clusters$cluster, track_clusters$membership_prob, track_clusters$outlier_scores)
+  st_write(clustered_tracks, outpackage, layer= "clustered_tracks", append = FALSE)
+  
+  filtered_clustered_tracks <- clustered_tracks %>%
+    filter(track_clusters.cluster > 0) %>%
+    filter(track_clusters.outlier_scores == 0)
+  st_write(filtered_clustered_tracks, outpackage, layer= "filtered_clustered_tracks", append = FALSE)
 
 }
 
@@ -289,8 +291,8 @@ process_cell <- function(i) {
   
   # Buffered extent
   e_buf <- ext(
-    xmin(e) - 5, xmax(e) + 5,
-    ymin(e) - 5, ymax(e) + 5
+    xmin(e), xmax(e),
+    ymin(e), ymax(e)
   )
   
   # # Write to temp directory to avoid crash during parallelization
@@ -311,9 +313,21 @@ process_cell <- function(i) {
   ALLEMA_filter <- st_read("//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/ORIG_DATA/ALLEMA/Wald_Gehoelz_ErhZyk2.gdb", 
                            query = paste0("SELECT * FROM Wald_Gehoelz_ErhZyk2_3D WHERE FK_Quadrat = ", ALLEMA_Q[i, ]$ID_Quadrat, " AND Gehoelztyp IN (50,55,58)"))
   
-  ALLEMA_filter <- st_union(ALLEMA_filter) %>%
-    st_transform(crs(vhm_cell)) %>% 
+  # Buffer only 50 and 57
+  buf <- ALLEMA_filter |>
+    dplyr::filter(Gehoelztyp %in% c(50, 57)) |>
+    st_buffer(5)
+  
+  # Keep others unchanged
+  nobuf <- ALLEMA_filter |>
+    dplyr::filter(!Gehoelztyp %in% c(50, 57))
+  
+  # Merge everything
+  ALLEMA_filter <- rbind(buf, nobuf) |>
+    st_union() |>
+    st_transform(crs(vhm_cell)) |>
     vect()
+  
   
   # Keep only VHM values that are outside of ALLEMA filter
   vhm_cell <- mask(vhm_cell, ALLEMA_filter, inverse = T)
