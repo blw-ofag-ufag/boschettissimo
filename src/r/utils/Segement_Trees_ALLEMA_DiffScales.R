@@ -240,7 +240,7 @@ misc <- function(vhm_cell, ALLEMA_filter, outpackage){
   
   # ISOLATE TREES THAT HAVE A SINGLE TRACK
   #--------------------------------------------
-  radii <- stable_tracks$height_mean / 2
+  radii <- stable_tracks$height_mean/2 
   dmat  <- st_distance(stable_tracks)
   
   stable_tracks$has_neighbor <- sapply(seq_len(nrow(stable_tracks)), function(i) {
@@ -272,7 +272,25 @@ misc <- function(vhm_cell, ALLEMA_filter, outpackage){
     filter(track_clusters.cluster > 0) %>%
     filter(track_clusters.outlier_scores == 0)
   st_write(filtered_clustered_tracks, outpackage, layer= "filtered_clustered_tracks", append = FALSE)
-
+  
+  filtered_clustered_tracks_best <- filtered_clustered_tracks %>%
+    group_by(track_clusters.cluster) %>%
+    arrange(
+      desc(height_mean),
+      desc(persistence),
+      position_sd,
+      .by_group = TRUE
+    ) %>%
+    slice(1) %>%
+    ungroup()
+  st_write(filtered_clustered_tracks_best, outpackage, layer= "filtered_clustered_tracks_best", append = FALSE)
+  
+  
+  #* TODO 
+  #* - Faire procedure sur toute la surface
+  #* - Faire les crowns sur les stable_tracks_isolated et filtered_clustered_tracks. Ev retester Silva
+  #* - Filtrer les crowns qui n'ont pas le centroid sur une parcelle LN.
+  
 }
 
 

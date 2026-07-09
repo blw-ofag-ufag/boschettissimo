@@ -12,9 +12,11 @@ library(future.apply)
 source("src/r/001_Initialization.R")
 
 # Load the grid for processing 
-CH_1000 <- rast(CH_1000_path) %>%
-  as.polygons(values=TRUE, dissolve=FALSE) %>%
-  st_as_sf()
+CH_1000 <- st_read(ALS_ndms) %>%
+  filter(source == "SWISS")
+
+# Limit analysis on LN areas
+LN_mask <- st_read(LN_mask_path)
 
 #-----------------------------------------------------
 # TEMP! - Filter on canton TG
@@ -32,46 +34,13 @@ st_crs(TG) <- st_crs(CH_1000)
 CH_1000 <- CH_1000[st_intersects(CH_1000, TG, sparse = FALSE), ]
 
 #-----------------------------------------------------
-# Segmentation functions (TODO: put it in separate code file)
-#-----------------------------------------------------
-
-segment_small_trees <- function(vhm){
-  
-  # Specify the segmentation algorithm
-  seg_algo <- lidR::watershed(vhm, th_tree = 1.5, ext = 1, tol = 1)
-  
-  # Segment
-  crowns <- seg_algo()
-  
-  # Transform rastered crowns to polygons
-  crowns_polys <- as.polygons(crowns, dissolve = TRUE)
-  
-  return(crowns_polys)
-  
-}
-
-segment_large_trees <- function(vhm){
-  
-  # Specify the segmentation algorithm
-  seg_algo <- lidR::watershed(vhm, th_tree = 2, ext = 2, tol = 1.5)
-  
-  # Segment
-  crowns <- seg_algo()
-  
-  # Transform rastered crowns to polygons
-  crowns_polys <- as.polygons(crowns, dissolve = TRUE)
-  
-  return(crowns_polys)
-  
-}
-
-#-----------------------------------------------------
 # Cell processing function
 #-----------------------------------------------------
 process_cell <- function(i) {
   
   library(terra)
   library(lidR)
+  library(ForestTools)
   
   # Get extent of cell
   e <- ext(CH_1000[i, ])
@@ -89,7 +58,7 @@ process_cell <- function(i) {
   cmd <- sprintf(
     'gdal_translate -projwin %.2f %.2f %.2f %.2f -of VRT "%s" "%s.vrt"',
     xmin(e_buf), ymax(e_buf), xmax(e_buf), ymin(e_buf),
-    VHM_S2_local_path,
+    VHM_S1_path,
     tmpfile
   )
   system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
@@ -103,12 +72,46 @@ process_cell <- function(i) {
   # Erase temp file
   unlink(paste0(tmpfile, ".vrt"))
   
-  # Smooth
-  vhm_cell_smooth <- focal(vhm_cell, w = matrix(1,3,3), fun = mean)
+  # Smooth vhm
+  g05 <- focalMat(vhm_cell, d = 0.5, type = "Gauss")
+  vhm_cell <- focal(vhm_cell, w = g05, fun = sum)
   
-  # Segment
-  tree_seg_s <- segment_small_trees(vhm_cell)
-  tree_seg_l <- segment_large_trees(vhm_cell_smooth)
+  # Limit analysis on LN areas
+  LN_sub <- st_filter(LN_mask, CH_1000[i, ], .predicate = st_intersects) %>%
+    st_union()
+  
+  # Have a buffered version to limit processing
+  LN_sub_buff <- LN_sub %>%
+    st_buffer(50)
+  
+  # Crop and mask to buffered area only
+  LN_sub_buff_vect <- vect(LN_sub_buff)
+  vhm_cell <-  vhm_cell %>%
+    crop(LN_sub_buff_vect) %>%
+    mask(LN_sub_buff_vect)
+  
+  # Define the function that should be used to find tree tops 
+  find_ttops <- function(h) {
+    3.5 + 0.7*h
+  }
+  
+  # Identify the tree tops
+  ttops <- locate_trees(vhm_cell, lmf(find_ttops, shape="circular")) %>%
+    st_zm(drop = TRUE, what = "ZM")
+  
+  # Get the watershed crowns
+  crowns2 <- mcws(
+    treetops = ttops,
+    CHM = vhm_cell,
+    minHeight = 1,
+    format = "polygons"
+  )
+  
+  # Get the centroid of the crown 
+  centroids <- st_centroid(crowns2)
+  
+  # Keep only crowns that have their centroid within the LN parcels
+  crowns2 <- crowns2[lengths(st_intersects(centroids, LN_sub)) > 0, ]
   
   # Output filename 
   fname <- paste0(
