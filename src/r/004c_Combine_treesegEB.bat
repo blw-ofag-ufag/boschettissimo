@@ -2,9 +2,9 @@
 setlocal enabledelayedexpansion
  
 REM === ANPASSEN ===
-set "ROOT=E:\TREE_SEG"
-set "OUT=E:\TREE_SEG\merged.gpkg"
-set "LAYER=crowns_large"
+set "ROOT=D:\BOSCHETTISSIMO\PROCESSED_DATA\TREE_SEG\"
+set "OUT=D:\BOSCHETTISSIMO\PROCESSED_DATA\TREE_SEG_merged.gpkg"
+set "LAYER=crowns"
  
 REM Falls Output schon existiert, löschen
 if exist "%OUT%" del "%OUT%"

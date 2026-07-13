@@ -12,8 +12,9 @@ library(future.apply)
 source("src/r/001_Initialization.R")
 
 # Load the grid for processing 
-CH_1000 <- st_read(ALS_ndms) %>%
-  filter(source == "SWISS")
+CH_1000 <- rast(CH_1000_path) %>%
+  as.polygons(values=TRUE, dissolve=FALSE) %>%
+  st_as_sf()
 
 # Limit analysis on LN areas
 LN_mask <- st_read(LN_mask_path)
@@ -58,7 +59,7 @@ process_cell <- function(i) {
   cmd <- sprintf(
     'gdal_translate -projwin %.2f %.2f %.2f %.2f -of VRT "%s" "%s.vrt"',
     xmin(e_buf), ymax(e_buf), xmax(e_buf), ymin(e_buf),
-    VHM_S1_path,
+    VHM_S2_path,
     tmpfile
   )
   system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
@@ -80,9 +81,15 @@ process_cell <- function(i) {
   LN_sub <- st_filter(LN_mask, CH_1000[i, ], .predicate = st_intersects) %>%
     st_union()
   
-  # Have a buffered version to limit processing
+  # If no LN parcel skip this iteration
+  if (length(LN_sub)==0) {
+    message("No LN polygons in cell ", i)
+    return(NULL)
+  }
+  
+  # Have a buffered version to consider crowns overpassing ln parcels
   LN_sub_buff <- LN_sub %>%
-    st_buffer(50)
+    st_buffer(25)
   
   # Crop and mask to buffered area only
   LN_sub_buff_vect <- vect(LN_sub_buff)
@@ -99,19 +106,35 @@ process_cell <- function(i) {
   ttops <- locate_trees(vhm_cell, lmf(find_ttops, shape="circular")) %>%
     st_zm(drop = TRUE, what = "ZM")
   
+  # If no tree tops detected skip this iteration
+  if (is.null(ttops) || nrow(ttops) == 0) {
+    return(NULL)
+  }
+  
   # Get the watershed crowns
-  crowns2 <- mcws(
+  crowns <- mcws(
     treetops = ttops,
     CHM = vhm_cell,
-    minHeight = 1,
+    minHeight = 1.5,
     format = "polygons"
   )
   
+  # If no detected crown skip this iteration
+  if (is.null(crowns) || nrow(crowns) == 0) {
+    return(NULL)
+  }
+  
   # Get the centroid of the crown 
-  centroids <- st_centroid(crowns2)
+  centroids <- st_centroid(crowns)
   
   # Keep only crowns that have their centroid within the LN parcels
-  crowns2 <- crowns2[lengths(st_intersects(centroids, LN_sub)) > 0, ]
+  in_LN   <- lengths(st_intersects(centroids, LN_sub)) > 0
+  
+  # Keep only crowns whose centroid is really within the extent of the processed cell
+  in_cell <- lengths(st_intersects(centroids, CH_1000[i, ])) > 0
+  
+  # Get the final crowns
+  crowns <- crowns[in_LN & in_cell, ]
   
   # Output filename 
   fname <- paste0(
@@ -121,15 +144,11 @@ process_cell <- function(i) {
   )
   
   # Write results
-  writeVector(tree_seg_s,
-              filename = fname,
-              layer = "crowns_small",
-              overwrite = TRUE)
-  
-  writeVector(tree_seg_l,
-              filename = fname,
-              layer = "crowns_large",
-              insert = TRUE)
+  st_write(crowns,
+              dsn = fname,
+              layer = "crowns",
+              append = FALSE)
+
   
   return(NULL)
 }
@@ -143,19 +162,19 @@ Sys.setenv(GDAL_NUM_THREADS = "2")
 Sys.setenv(OMP_NUM_THREADS = "2")
 
 # Set up parallel processing
-n_workers <- 16 # (detectCores() --> 20)
+n_workers <- 5 # (detectCores() --> 20)
 plan(multisession, workers = n_workers)
 
 # Process cell by cell in parallel 
 future_lapply(
   seq_len(nrow(CH_1000)),
   process_cell,
-  future.packages = c("terra", "lidR"),
+  future.seed = TRUE,
+  future.packages = c("terra", "lidR", "sf", "dplyr"),
   future.globals = list(
     CH_1000 = CH_1000,
-    VHM_S2_local_path = VHM_S2_local_path,
+    VHM_S2_path = VHM_S2_path,
     treeseg_data_local_path = treeseg_data_local_path,
-    segment_small_trees = segment_small_trees,
-    segment_large_trees = segment_large_trees
+    LN_mask = LN_mask
   )
 )
