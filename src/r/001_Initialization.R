@@ -9,8 +9,7 @@ study_area_data_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo
 # Data specific paths
 VHM_S1_path <- "//speedy12-37/data_17/_GEOBASISDATEN/_ENVIDAT/VHM_LiDAR_NFI/2024/landesforstinventar-vegetationshoehenmodell_lidar_2024_2056.tif"
 VHM_S1_1m_path <- "//speedy11-12-fs/data_17/_LIDAR/ALS_CH/__VHM_ALS_CH/20250217_VHM_ALS_CH_SWISS_1m_2056.tif"
-VHM_S2_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/ORIG_DATA/VHM/VHM_SWISS2.vrt"
-VHM_S2_tif_path <- "//speedy11-12-fs/data_17/_LIDAR/ALS_CH/__VHM_ALS_CH/_Kantone/SWISS2_forBoschettissimo/_tiles/"
+VHM_S2_path <- "//speedy11-12-fs/data_17/_LIDAR/ALS_CH/__VHM_ALS_CH/_Kantone/SWISS2_forBoschettissimo/2024_05_VHM_ALS_CH_SWISS2_0.5m_2056.tif"
 TLM_EB_path <- paste0(orig_data_path,"TLM/SWISSTLM3D_2025.gpkg")
 TLM_EBv_input_path <- "//speedy12-37/data_25/Vegetationmaxima/07_WSL/"
 TLM_EBv_path <- paste0(orig_data_path,"TLM/TLM_EBv.gpkg")
