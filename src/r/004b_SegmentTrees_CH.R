@@ -19,20 +19,35 @@ CH_1000 <- rast(CH_1000_path) %>%
 # Limit analysis on LN areas
 LN_mask <- st_read(LN_mask_path)
 
+# #-----------------------------------------------------
+# # TEMP! - Filter on canton TG
+# #-----------------------------------------------------
+# 
+# # Load the canton
+# TG <- st_read("//katze/geolib/swissBOUNDARIES3D/2024/fgdb/swissBOUNDARIES3D_1_5_LV95_LN02.gdb", 
+#               query="select * from TLM_KANTONSGEBIET t where t.NAME = 'Thurgau'") %>%
+#   st_zm(drop = TRUE, what = "ZM") 
+# 
+# # Set the crs (same, but had the Z mention for TG)
+# st_crs(TG) <- st_crs(CH_1000)
+#   
+# # Keep only intersecting polygons
+# CH_1000 <- CH_1000[st_intersects(CH_1000, TG, sparse = FALSE), ]
+
 #-----------------------------------------------------
-# TEMP! - Filter on canton TG
+# TEMP! - Filter on canton VD
 #-----------------------------------------------------
 
 # Load the canton
-TG <- st_read("//katze/geolib/swissBOUNDARIES3D/2024/fgdb/swissBOUNDARIES3D_1_5_LV95_LN02.gdb", 
-              query="select * from TLM_KANTONSGEBIET t where t.NAME = 'Thurgau'") %>%
+VD <- st_read("//katze/geolib/swissBOUNDARIES3D/2024/fgdb/swissBOUNDARIES3D_1_5_LV95_LN02.gdb", 
+              query="select * from TLM_KANTONSGEBIET t where t.NAME = 'Vaud'") %>%
   st_zm(drop = TRUE, what = "ZM") 
 
 # Set the crs (same, but had the Z mention for TG)
-st_crs(TG) <- st_crs(CH_1000)
-  
+st_crs(VD) <- st_crs(CH_1000)
+
 # Keep only intersecting polygons
-CH_1000 <- CH_1000[st_intersects(CH_1000, TG, sparse = FALSE), ]
+CH_1000 <- CH_1000[st_intersects(CH_1000, VD, sparse = FALSE), ]
 
 #-----------------------------------------------------
 # Cell processing function
