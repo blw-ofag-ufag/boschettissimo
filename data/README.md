@@ -8,3 +8,5 @@ Dieser Ordner enthält verschiedene Lookup-Tabellen, die für den identifizierte
    Diese Datei definiert die Untersuchungsgebiete, anhand derer der gesamte Workflow getestet und angewendet wird.
 2. **ALS_study_areas.csv**  
    Diese Datei definiert, welche ALS Daten die Untersuchungsgebiete abdecken.
+3. **SWISSIMAGE_2025_TG.csv**  
+   File obtained from https://www.swisstopo.admin.ch/en/orthoimage-swissimage-10 when trying to download all orthoimages for TG for 2025.
