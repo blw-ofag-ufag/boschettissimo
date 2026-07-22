@@ -10,6 +10,10 @@ library(dplyr)
 # Sourcing initialization code (paths and such) 
 source("src/r/001_Initialization.R")
 
+#-----------------------------------------------------
+# LN
+#-----------------------------------------------------
+
 # Limit analysis on designated areas
 LN <- st_read(LN_2025_path, query = "SELECT * FROM Landwirtschaftliche_Nutzungsflaechen_Schweiz_2025")
 
@@ -22,3 +26,4 @@ LN_interest <- LN %>%
 
 # Export as geopackage (faster for spatial queries later on)
 st_write(LN_interest,paste0(orig_data_path,"BLW/LWB_mask.gpkg"))
+

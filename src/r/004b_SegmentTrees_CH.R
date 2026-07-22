@@ -19,52 +19,74 @@ CH_1000 <- rast(CH_1000_path) %>%
 # Limit analysis on LN areas
 LN_mask <- st_read(LN_mask_path)
 
+# Load the forest layer
+forest_mask <- st_read(forest_mask_path)
+
+# Load the Gebeaude footprint layer
+settlement <- st_read(settlement_path)
+
+
+#-----------------------------------------------------
+# TEMP! - Filter on Ebertswil, Uerzlikon, Rossau
+#-----------------------------------------------------
+
+# Load the canton
+ZU <- st_read("//katze/geolib/swissBOUNDARIES3D/2024/fgdb/swissBOUNDARIES3D_1_5_LV95_LN02.gdb",
+              query="select * from TLM_KANTONSGEBIET t where t.NAME = 'Zürich'") %>%
+  st_zm(drop = TRUE, what = "ZM")
+
+# Set the crs (same, but had the Z mention for ZU)
+st_crs(ZU) <- st_crs(CH_1000)
+
+# Keep only intersecting polygons
+CH_1000 <- CH_1000[st_intersects(CH_1000, ZU, sparse = FALSE), ]
+
+# Keep only polygons around Ebertswil, Uerzlikon, Rossau
+CH_1000 <- CH_1000[c(1756:1763, 1786:1793, 1816:1823), ]
+
+# Adapt output path
+treeseg_data_local_path <- "D:/BOSCHETTISSIMO/PROCESSED_DATA/TREE_SEG_Uerzlikon/"
+
 # #-----------------------------------------------------
 # # TEMP! - Filter on canton TG
 # #-----------------------------------------------------
 # 
 # # Load the canton
-# TG <- st_read("//katze/geolib/swissBOUNDARIES3D/2024/fgdb/swissBOUNDARIES3D_1_5_LV95_LN02.gdb", 
+# TG <- st_read("//katze/geolib/swissBOUNDARIES3D/2024/fgdb/swissBOUNDARIES3D_1_5_LV95_LN02.gdb",
 #               query="select * from TLM_KANTONSGEBIET t where t.NAME = 'Thurgau'") %>%
-#   st_zm(drop = TRUE, what = "ZM") 
+#   st_zm(drop = TRUE, what = "ZM")
 # 
 # # Set the crs (same, but had the Z mention for TG)
 # st_crs(TG) <- st_crs(CH_1000)
-#   
+# 
 # # Keep only intersecting polygons
 # CH_1000 <- CH_1000[st_intersects(CH_1000, TG, sparse = FALSE), ]
 
-#-----------------------------------------------------
-# TEMP! - Filter on canton VD
-#-----------------------------------------------------
+# #-----------------------------------------------------
+# # TEMP! - Filter on canton VD
+# #-----------------------------------------------------
+# 
+# # Load the canton
+# VD <- st_read("//katze/geolib/swissBOUNDARIES3D/2024/fgdb/swissBOUNDARIES3D_1_5_LV95_LN02.gdb", 
+#               query="select * from TLM_KANTONSGEBIET t where t.NAME = 'Vaud'") %>%
+#   st_zm(drop = TRUE, what = "ZM") 
+# 
+# # Set the crs (same, but had the Z mention for TG)
+# st_crs(VD) <- st_crs(CH_1000)
+# 
+# # Keep only intersecting polygons
+# CH_1000 <- CH_1000[st_intersects(CH_1000, VD, sparse = FALSE), ]
 
-# Load the canton
-VD <- st_read("//katze/geolib/swissBOUNDARIES3D/2024/fgdb/swissBOUNDARIES3D_1_5_LV95_LN02.gdb", 
-              query="select * from TLM_KANTONSGEBIET t where t.NAME = 'Vaud'") %>%
-  st_zm(drop = TRUE, what = "ZM") 
-
-# Set the crs (same, but had the Z mention for TG)
-st_crs(VD) <- st_crs(CH_1000)
-
-# Keep only intersecting polygons
-CH_1000 <- CH_1000[st_intersects(CH_1000, VD, sparse = FALSE), ]
 
 #-----------------------------------------------------
-# Cell processing function
+# VHM preparation - Gaussian smoothing
 #-----------------------------------------------------
-process_cell <- function(i) {
-  
-  library(terra)
-  library(lidR)
-  library(ForestTools)
-  
-  # Get extent of cell
-  e <- ext(CH_1000[i, ])
+vhm_cell_prep <- function(arg_e, arg_VHM_S2_path) {
   
   # Buffered extent
   e_buf <- ext(
-    xmin(e) - 25, xmax(e) + 25,
-    ymin(e) - 25, ymax(e) + 25
+    xmin(arg_e) - 125, xmax(arg_e) + 125,
+    ymin(arg_e) - 125, ymax(arg_e) + 125
   )
   
   # Create temp file
@@ -74,14 +96,14 @@ process_cell <- function(i) {
   cmd <- sprintf(
     'gdal_translate -projwin %.2f %.2f %.2f %.2f -of VRT "%s" "%s.vrt"',
     xmin(e_buf), ymax(e_buf), xmax(e_buf), ymin(e_buf),
-    VHM_S2_path,
+    arg_VHM_S2_path,
     tmpfile
   )
   system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
   
   # Read cell VHM from temp file
   vhm_cell <- rast(paste0(tmpfile, ".vrt"))
-
+  
   # Load the raster into memory (needed for lidr processing steps)
   vhm_cell <- toMemory(vhm_cell)
   
@@ -91,6 +113,231 @@ process_cell <- function(i) {
   # Smooth vhm
   g05 <- focalMat(vhm_cell, d = 0.5, type = "Gauss")
   vhm_cell <- focal(vhm_cell, w = g05, fun = sum)
+  
+  return(vhm_cell)
+  
+}
+
+#-----------------------------------------------------
+# Segmentation
+#-----------------------------------------------------
+segment_cell <- function(arg_vhm) {
+  
+  # Define the function that should be used to find tree tops 
+  find_ttops <- function(h) {
+    3.5 + 0.7*h
+  }
+  
+  # Identify the tree tops
+  ttops <- locate_trees(arg_vhm, lmf(find_ttops, shape="circular", hmin = 1.5)) %>%
+    st_zm(drop = TRUE, what = "ZM")
+  
+  # If no tree tops detected skip this iteration
+  if (is.null(ttops) || nrow(ttops) == 0) {
+    return(NULL)
+  }
+  
+  # Get the watershed crowns
+  crowns <- mcws(
+    treetops = ttops,
+    CHM = arg_vhm,
+    minHeight = 1.5,
+    format = "polygons"
+  )
+  
+  # If no detected crown skip this iteration
+  if (is.null(crowns) || nrow(crowns) == 0) {
+    return(NULL)
+  }
+  
+  return(crowns)
+}
+
+#-----------------------------------------------------
+# Ecological value calculation
+#-----------------------------------------------------
+neighborhood_val <- function(arg_neigh_dist, arg_centroids, arg_crowns){
+  
+  #-----------------------------------------------------
+  # Computing the ecological parameters depending on neighborhood
+  #-----------------------------------------------------
+  
+  # Find the neighbors
+  neighbors <- st_is_within_distance(
+    arg_centroids,
+    arg_centroids,
+    dist = arg_neigh_dist
+  )
+  
+  # Initialize vectors
+  n_neighbors <- numeric(length(neighbors))
+  mean_neighbor_dist <- numeric(length(neighbors))
+  nearest_neighbor_dist <- numeric(length(neighbors))
+  
+  neighbor_h90_mean <- numeric(length(neighbors))
+  neighbor_h90_sd <- numeric(length(neighbors))
+  neighbor_h90_cv <- numeric(length(neighbors))
+  neighbor_h90_z <- numeric(length(neighbors))
+  
+  for(i in seq_along(neighbors)) {
+    
+    # Get the neighbors for iteration i
+    neigh_ids <- neighbors[[i]]
+    
+    # Focal tree id
+    focal_id <- neigh_ids[neigh_ids == i]
+    
+    # Remove focal tree itself
+    neigh_ids <- neigh_ids[neigh_ids != i]
+    
+    # Number of neighbors
+    n_neighbors[i] <- length(neigh_ids)
+    
+    # If neighbors exist
+    if(length(neigh_ids) > 0) {
+      
+      # Distances
+      dists <- st_distance(
+        arg_centroids[i,],
+        arg_centroids[neigh_ids,],
+        by_element = FALSE
+      )
+      
+      dists <- as.numeric(dists)
+      
+      mean_neighbor_dist[i] <- mean(dists)
+      nearest_neighbor_dist[i] <- min(dists)
+      
+      # Neighbor heights
+      neigh_h90 <- arg_crowns$height_p90[neigh_ids]
+      
+      neighbor_h90_mean[i] <- mean(neigh_h90, na.rm = TRUE)
+      neighbor_h90_sd[i]   <- sd(neigh_h90, na.rm = TRUE)
+      neighbor_h90_cv[i]   <- sd(neigh_h90, na.rm = TRUE)/mean(neigh_h90, na.rm = TRUE)
+      neighbor_h90_z[i]   <- (arg_crowns$height_p90[focal_id] - mean(neigh_h90, na.rm = TRUE))/sd(neigh_h90, na.rm = TRUE)
+      
+    } else {
+      
+      mean_neighbor_dist[i] <- NA
+      nearest_neighbor_dist[i] <- NA
+      
+      neighbor_h90_mean[i] <- NA
+      neighbor_h90_sd[i]   <- NA
+      neighbor_h90_cv[i]   <- NA
+      neighbor_h90_z[i]   <- NA
+    }
+  }
+  
+  # Add metrics back to crown object
+  neigh_df <- data.frame(
+    n_neighbors = n_neighbors,
+    mean_neighbor_dist = mean_neighbor_dist,
+    nearest_neighbor_dist = nearest_neighbor_dist,
+    neighbor_h90_mean = neighbor_h90_mean,
+    neighbor_h90_sd   = neighbor_h90_sd,
+    neighbor_h90_cv   = neighbor_h90_cv,
+    neighbor_h90_z = neighbor_h90_z
+  )
+  
+  return(neigh_df)
+}
+
+
+ecological_val_tree <- function(arg_crowns, arg_vhm, arg_ln_path, arg_forest, arg_settlement, arg_e, arg_perim){
+  
+  # Geometry metrics
+  #-----------------------------------------------------
+  
+  # Area, diameter, perimeter and roundness
+  arg_crowns <- arg_crowns %>%
+    mutate(
+      area_m2 = as.numeric(st_area(.)),
+      diameter_m = 2 * sqrt(area_m2 / pi),
+      perimeter = st_length(st_boundary(.)),
+      roundness = as.numeric((4 * pi * area_m2) / (perimeter^2))
+    )
+  
+  # Centroids
+  centroids <- st_centroid(arg_crowns)
+  
+  coords <- st_coordinates(centroids)
+  
+  arg_crowns$center_x <- coords[,1]
+  arg_crowns$center_y <- coords[,2]
+  
+  
+  # VHM metrics
+  #-----------------------------------------------------
+  
+  # Extract 90th percentile height
+  h90 <- terra::extract(
+    arg_vhm,
+    vect(arg_crowns),
+    fun = function(x, ...) {
+      quantile(x, probs = 0.90, na.rm = TRUE)
+    }
+  )
+  
+  # Add to crowns
+  arg_crowns$height_p90 <- h90[,2]
+  
+  # Compute Height / Crown diameter
+  arg_crowns$height_diameter <- arg_crowns$height_p90 / arg_crowns$diameter_m
+  
+  # BLW metrics
+  #-----------------------------------------------------
+  
+  # Load the LN surfaces for the perimeter
+  wkt <- as.polygons(arg_e) |>
+    st_as_sf() |>
+    st_geometry() |>
+    st_as_text()
+  ln <- st_read(arg_ln_path, wkt_filter = wkt)
+  
+  idx <- st_intersects(centroids, ln)
+  
+  arg_crowns$lnf_codes <- sapply(
+    idx,
+    \(i) paste(sort(unique(ln$lnf_code[i])), collapse = ";")
+  )
+  
+  # Neighborhood metrics
+  #-----------------------------------------------------
+  
+  # For a radius of 100m
+  df_100m <- neighborhood_val(100, centroids, arg_crowns)
+  colnames(df_100m) <- paste0(colnames(df_100m), "_100m")
+  arg_crowns <- cbind(arg_crowns, df_100m)
+  
+  # For a radius making up an area of 1 ha
+  df_56m <- neighborhood_val(56, centroids, arg_crowns)
+  colnames(df_56m) <- paste0(colnames(df_56m), "_56m")
+  arg_crowns <- cbind(arg_crowns, df_56m)
+  
+  # Forest and settlement distances
+  #-----------------------------------------------------
+  forest <- st_filter(arg_forest, arg_perim, .predicate = st_intersects) 
+  f_nearest_idx <- st_nearest_feature(centroids, forest)
+  f_min_dist <- st_distance(centroids, forest[f_nearest_idx, ], by_element = TRUE)
+  arg_crowns$dist_to_forest <- f_min_dist
+  
+  sied <- st_filter(arg_settlement, arg_perim, .predicate = st_intersects) 
+  s_nearest_idx <- st_nearest_feature(centroids, sied)
+  s_min_dist <- st_distance(centroids, sied[s_nearest_idx, ], by_element = TRUE)
+  arg_crowns$dist_to_settlement <- s_min_dist
+  
+  return(arg_crowns)
+}
+
+
+#-----------------------------------------------------
+# Cell processing function
+#-----------------------------------------------------
+process_cell <- function(i) {
+  
+  library(terra)
+  library(lidR)
+  library(ForestTools)
   
   # Limit analysis on LN areas
   LN_sub <- st_filter(LN_mask, CH_1000[i, ], .predicate = st_intersects) %>%
@@ -106,36 +353,24 @@ process_cell <- function(i) {
   LN_sub_buff <- LN_sub %>%
     st_buffer(25)
   
+  # Get extent of cell
+  e <- ext(CH_1000[i, ])
+  
+  # Get the VHM of a buffered extent
+  #-------------------------
+  vhm_cell <- vhm_cell_prep(e, VHM_S2_path)
+  
   # Crop and mask to buffered area only
   LN_sub_buff_vect <- vect(LN_sub_buff)
   vhm_cell <-  vhm_cell %>%
     crop(LN_sub_buff_vect) %>%
     mask(LN_sub_buff_vect)
   
-  # Define the function that should be used to find tree tops 
-  find_ttops <- function(h) {
-    3.5 + 0.7*h
-  }
-  
-  # Identify the tree tops
-  ttops <- locate_trees(vhm_cell, lmf(find_ttops, shape="circular")) %>%
-    st_zm(drop = TRUE, what = "ZM")
-  
-  # If no tree tops detected skip this iteration
-  if (is.null(ttops) || nrow(ttops) == 0) {
-    return(NULL)
-  }
-  
-  # Get the watershed crowns
-  crowns <- mcws(
-    treetops = ttops,
-    CHM = vhm_cell,
-    minHeight = 1.5,
-    format = "polygons"
-  )
-  
-  # If no detected crown skip this iteration
-  if (is.null(crowns) || nrow(crowns) == 0) {
+  # Perform the segmentation
+  #-------------------------
+  crowns <- segment_cell(vhm_cell)
+  if (is.null(crowns)) {
+    message("No crowns detected in cell ", i)
     return(NULL)
   }
   
@@ -145,11 +380,36 @@ process_cell <- function(i) {
   # Keep only crowns that have their centroid within the LN parcels
   in_LN   <- lengths(st_intersects(centroids, LN_sub)) > 0
   
+  # Get the crowns to be considered for neighborhood analysis
+  crowns_LN <- crowns[in_LN, ]
+  
+  # If no crowns fall within the LN parcels, skip this iteration
+  if (nrow(crowns_LN) == 0) {
+    message("No crowns within LN parcels for cell ", i)
+    return(NULL)
+  }
+  
+  # Calculate the attributes pro tree (for the crowns_out)
+  #-------------------------
+  crowns_LN <- ecological_val_tree(crowns_LN, vhm_cell, LN_2025_path, forest_mask, settlement, e, CH_1000[i, ])
+
+  # Get the centroids again of only the crowns within the LN parcels
+  centroids <- st_centroid(crowns_LN)
+  
   # Keep only crowns whose centroid is really within the extent of the processed cell
   in_cell <- lengths(st_intersects(centroids, CH_1000[i, ])) > 0
   
   # Get the final crowns
-  crowns <- crowns[in_LN & in_cell, ]
+  crowns_in <- crowns_LN[in_cell, ]
+  
+  if (nrow(crowns_in) == 0) {
+    message("No crowns within cell extent for cell ", i)
+    return(NULL)
+  }
+  
+  # Round the result to save memory space
+  crowns_in <- crowns_in %>%
+    mutate(across(where(is.numeric), ~round(.x, 2)))
   
   # Output filename 
   fname <- paste0(
@@ -159,7 +419,7 @@ process_cell <- function(i) {
   )
   
   # Write results
-  st_write(crowns,
+  st_write(crowns_in,
               dsn = fname,
               layer = "crowns",
               append = FALSE)
@@ -190,6 +450,13 @@ future_lapply(
     CH_1000 = CH_1000,
     VHM_S2_path = VHM_S2_path,
     treeseg_data_local_path = treeseg_data_local_path,
-    LN_mask = LN_mask
+    LN_mask = LN_mask,
+    LN_2025_path = LN_2025_path,
+    forest_mask = forest_mask,
+    settlement = settlement,
+    vhm_cell_prep = vhm_cell_prep,
+    segment_cell = segment_cell,
+    ecological_val_tree = ecological_val_tree,
+    neighborhood_val = neighborhood_val
   )
 )

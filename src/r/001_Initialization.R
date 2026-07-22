@@ -20,6 +20,8 @@ HM_EBuG_path <- "//speedy16-36/data_15/_PROJEKTE/2018_Lebensraumkarte_BAFU/Data_
 ALS_path <- "//speedy11-12-fs/data_17/_LIDAR/ALS_CH/nDSM/"
 CH_1000_path <- "//speedy16-36/data_15/_PROJEKTE/_SNAPRASTER/ExampleRaster/ExampleRaster_CHbin_1000m_LV95.tif"
 ALS_ndms <- "//speedy11-12-fs/data_17/_LIDAR/ALS_CH/ALS_CH_db/mv_als_ch_ndsm_20260511.gpkg"
+forest_mask_path <- "//speedy11-12-fs/data_17/_GEOBASISDATEN/DATA_2025/ID164.23_Waldmaske/forest_mask_switzerland_shrub_20250902_v1/NFI_forest_mask_20250217.gpkg"
+settlement_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/ORIG_DATA/SIEDLUNG/siedlung_2025_2056.gpkg"
 
 # Local paths (for faster processing)
 orig_data_local_path <- "D:/BOSCHETTISSIMO/ORIG_DATA/"

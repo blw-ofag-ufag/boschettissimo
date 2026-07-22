@@ -186,68 +186,73 @@ labs(title = "hmax")
 library(ggplot2)
 library(ggpubr)
 
-ALLEMA_EB_poly$Gehoelztyp <- as.factor(ALLEMA_EB_poly$Gehoelztyp)
+# Make sure the grouping variable is a factor with readable labels
+ALLEMA_EB_poly$Gehoelztyp <- factor(
+  ALLEMA_EB_poly$Gehoelztyp,
+  levels = c(38, 59),
+  labels = c("Obstbäume", "andere Einzelbäume")
+)
 
-ggplot(
+# A colorblind-friendly, print-friendly palette
+group_colors <- c("Obstbäume" = "#D55E00", "andere Einzelbäume" = "#0072B2")
+
+p <- ggplot(
   ALLEMA_EB_poly,
-  aes(x = hmax, y = diameter, color = Gehoelztyp)
+  aes(x = hmax, y = diameter, color = Gehoelztyp, fill = Gehoelztyp)
 ) +
-  geom_point() +
-  geom_smooth(method = "lm", se = FALSE) +
-  stat_regline_equation(
-    aes(label = after_stat(eq.label)),
-    label.x.npc = c(0.05, 0.05),
-    label.y.npc = c(0.95, 0.85)
-  ) +
-  stat_cor(
-    aes(label = after_stat(rr.label)),
-    label.x.npc = c(0.05, 0.05),
-    label.y.npc = c(0.90, 0.80)
-  ) +
-  theme_bw()
-
-library(ggplot2)
-library(ggpubr)
-
-ALLEMA_EB_poly$Gehoelztyp <- as.factor(ALLEMA_EB_poly$Gehoelztyp)
-
-ggplot(
-  ALLEMA_EB_poly,
-  aes(x = h99, y = diameter)
-) +
-  geom_point(alpha = 0.6) +
+  geom_point(size = 1.6, alpha = 0.65, shape = 16) +
   geom_smooth(
-    method = "lm",
-    color = "blue",
-    fill = "lightblue",
-    se = TRUE
+    method = "lm", se = TRUE, alpha = 0.45, linewidth = 1.1
   ) +
   stat_regline_equation(
     aes(label = after_stat(eq.label)),
-    label.x.npc = "left",
-    label.y.npc = 0.95
+    label.x.npc = 0.05,
+    label.y.npc = c(0.97, 0.90),
+    size = 4.5,
+    show.legend = FALSE
   ) +
   stat_cor(
     aes(label = after_stat(rr.label)),
-    label.x.npc = "left",
-    label.y.npc = 0.85
+    label.x.npc = 0.05,
+    label.y.npc = c(0.92, 0.85),
+    size = 4.5,
+    show.legend = FALSE
   ) +
-  facet_wrap(~ Gehoelztyp) +
-  theme_bw() +
+  scale_color_manual(values = group_colors) +
+  scale_fill_manual(values = group_colors) +
   labs(
-    title = "Diameter vs hmax by Gehölztyp",
-    x = "hmax",
-    y = "diameter"
+    title = "Kronenhöhe vs. Kronendurchmesser",
+    subtitle = "Vergleich zweier Gehölztypen (VHM-basierte Kronenmaxima)",
+    x = "Maximale Vegetationshöhe in der Krone (hmax) [m]",
+    y = "Kronendurchmesser [m]",
+    color = "Gehölztyp",
+    fill = "Gehölztyp"
+  ) +
+  theme_bw(base_size = 15) +
+  theme(
+    plot.title = element_text(face = "bold", size = 18),
+    plot.subtitle = element_text(color = "grey30", size = 13),
+    legend.position = "top",
+    legend.title = element_text(face = "bold"),
+    panel.grid.minor = element_blank(),
+    plot.caption = element_text(size = 9, color = "grey50")
   )
+
+print(p)
 
 #-----------------------------------------------------
 # Linear models
 #-----------------------------------------------------
 
+mmax_gh  <- lm(diameter ~ h99 + Gehoelztyp,  data = ALLEMA_EB_poly)
+
 m90  <- lm(diameter ~ h90 + alt,  data = ALLEMA_EB_poly)
 m95  <- lm(diameter ~ h95,  data = ALLEMA_EB_poly)
 m99  <- lm(diameter ~ h99,  data = ALLEMA_EB_poly)
 mmax <- lm(diameter ~ hmax + alt, data = ALLEMA_EB_poly)
+
+# Test based on Popescu 2004 results. Doesn't work as good as simple h99.
+mmax <- lm(diameter ~ I(h99^2), data = ALLEMA_EB_poly)
 
 summary(m90)
 summary(m95)
@@ -256,6 +261,9 @@ summary(mmax)
 
 m90_OB  <- lm(diameter ~ h99,  data = ALLEMA_EB_poly[which(ALLEMA_EB_poly$Gehoelztyp == 38),])
 summary(m90_OB)
+
+par(mfrow = c(2, 2))
+plot(m90_OB)
 
 m90_EB  <- lm(diameter ~ h99,  data = ALLEMA_EB_poly[which(ALLEMA_EB_poly$Gehoelztyp == 59),])
 summary(m90_EB)
