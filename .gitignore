@@ -17,3 +17,6 @@ notes/
 .Rhistory
 desktop.ini
 .Rproj.user
+
+# Ignore Python virtual environment
+/venv/
