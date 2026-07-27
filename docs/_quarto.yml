@@ -1,0 +1,21 @@
+project:
+  type: book
+
+book:
+  title: Boschettissimo
+  subtitle: Digitale Erkennung und Bewertung von Bäumen auf landwirtschaftlicher Nutzfläche
+  date: today
+
+  repo-url: https://github.com/blw-ofag-ufag/boschettissimo
+  repo-subdir: docs
+  repo-actions: [source, issue]
+  chapters:
+    - index.qmd
+    - intro.qmd
+    - references.qmd
+
+bibliography: references.bib
+
+format:
+  html:
+    theme: cosmo
