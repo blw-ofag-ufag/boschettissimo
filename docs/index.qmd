@@ -1,13 +1,4 @@
----
-title: Boschettissimo
-subtitle: Digitale Erkennung und Bewertung von Bäumen auf landwirtschaftlicher Nutzfläche
-lang: de
-keywords:
-  - Ergebnisorientierte Fördersysteme
-  - Fernerkundung
-  - Agroforstwirtschaft
-  - Biodiversität
----
+## Vorwort {.unnumbered}
 
 Dieses Repository beinhaltet den Quellcode und die Dokumentation für die Machbarkeitsstudie zur **digitalen Erfassung und Bewertung von Bäumen auf der landwirtschaftlichen Nutzfläche** im Auftrag des Bundesamtes für Landwirtschaft (BLW).
 
@@ -15,7 +6,7 @@ Dieses Repository beinhaltet den Quellcode und die Dokumentation für die Machba
 Bei diesem Projekt handelt es sich (nur) um eine Machbarkeitsstudie. Der weg, der einschlagen werden soll, ist noch völlig offen.
 :::
 
-## Ziel dieses Projekts {.unnumbered}
+## Ziel dieses Projekts
 
 Ziel ist die Entwicklung eines Systems, das weg von starren Massnahmenvorschriften (heutiges Direktzahlungssystem) hin zu einer ergebnisorientierten Förderung von Bäumen in der Landwirtschaft führt.
 Anstatt die Pflege massnahmenorientiert vorzuschreiben, soll der effektive ökologische Wert eines Baumes mittels Fernerkundungsdaten ermittelt und vergütet werden.

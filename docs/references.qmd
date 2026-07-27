@@ -1,4 +1,4 @@
-# Referenzen {.appendix}
+# Referenzen {.unnumbered .appendix}
 
 ::: {#refs}
 :::
