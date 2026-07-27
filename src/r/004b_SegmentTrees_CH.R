@@ -26,41 +26,41 @@ forest_mask <- st_read(forest_mask_path)
 settlement <- st_read(settlement_path)
 
 
-#-----------------------------------------------------
-# TEMP! - Filter on Ebertswil, Uerzlikon, Rossau
-#-----------------------------------------------------
-
-# Load the canton
-ZU <- st_read("//katze/geolib/swissBOUNDARIES3D/2024/fgdb/swissBOUNDARIES3D_1_5_LV95_LN02.gdb",
-              query="select * from TLM_KANTONSGEBIET t where t.NAME = 'Zürich'") %>%
-  st_zm(drop = TRUE, what = "ZM")
-
-# Set the crs (same, but had the Z mention for ZU)
-st_crs(ZU) <- st_crs(CH_1000)
-
-# Keep only intersecting polygons
-CH_1000 <- CH_1000[st_intersects(CH_1000, ZU, sparse = FALSE), ]
-
-# Keep only polygons around Ebertswil, Uerzlikon, Rossau
-CH_1000 <- CH_1000[c(1756:1763, 1786:1793, 1816:1823), ]
-
-# Adapt output path
-treeseg_data_local_path <- "D:/BOSCHETTISSIMO/PROCESSED_DATA/TREE_SEG_Uerzlikon/"
-
 # #-----------------------------------------------------
-# # TEMP! - Filter on canton TG
+# # TEMP! - Filter on Ebertswil, Uerzlikon, Rossau
 # #-----------------------------------------------------
 # 
 # # Load the canton
-# TG <- st_read("//katze/geolib/swissBOUNDARIES3D/2024/fgdb/swissBOUNDARIES3D_1_5_LV95_LN02.gdb",
-#               query="select * from TLM_KANTONSGEBIET t where t.NAME = 'Thurgau'") %>%
+# ZU <- st_read("//katze/geolib/swissBOUNDARIES3D/2024/fgdb/swissBOUNDARIES3D_1_5_LV95_LN02.gdb",
+#               query="select * from TLM_KANTONSGEBIET t where t.NAME = 'Zürich'") %>%
 #   st_zm(drop = TRUE, what = "ZM")
 # 
-# # Set the crs (same, but had the Z mention for TG)
-# st_crs(TG) <- st_crs(CH_1000)
+# # Set the crs (same, but had the Z mention for ZU)
+# st_crs(ZU) <- st_crs(CH_1000)
 # 
 # # Keep only intersecting polygons
-# CH_1000 <- CH_1000[st_intersects(CH_1000, TG, sparse = FALSE), ]
+# CH_1000 <- CH_1000[st_intersects(CH_1000, ZU, sparse = FALSE), ]
+# 
+# # Keep only polygons around Ebertswil, Uerzlikon, Rossau
+# CH_1000 <- CH_1000[c(1756:1763, 1786:1793, 1816:1823), ]
+# 
+# # Adapt output path
+# treeseg_data_local_path <- "D:/BOSCHETTISSIMO/PROCESSED_DATA/TREE_SEG_Uerzlikon/"
+
+#-----------------------------------------------------
+# TEMP! - Filter on canton TG
+#-----------------------------------------------------
+
+# Load the canton
+TG <- st_read("//katze/geolib/swissBOUNDARIES3D/2024/fgdb/swissBOUNDARIES3D_1_5_LV95_LN02.gdb",
+              query="select * from TLM_KANTONSGEBIET t where t.NAME = 'Thurgau'") %>%
+  st_zm(drop = TRUE, what = "ZM")
+
+# Set the crs (same, but had the Z mention for TG)
+st_crs(TG) <- st_crs(CH_1000)
+
+# Keep only intersecting polygons
+CH_1000 <- CH_1000[st_intersects(CH_1000, TG, sparse = FALSE), ]
 
 # #-----------------------------------------------------
 # # TEMP! - Filter on canton VD
