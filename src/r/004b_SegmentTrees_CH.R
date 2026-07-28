@@ -240,7 +240,7 @@ neighborhood_val <- function(arg_neigh_dist, arg_centroids, arg_crowns){
 }
 
 
-ecological_val_tree <- function(arg_crowns, arg_vhm, arg_forest, arg_settlement, arg_perim, ln){
+ecological_val_tree <- function(arg_crowns, arg_vhm, arg_forest, arg_settlement, arg_perim, arg_ln){
   
   # Geometry metrics
   #-----------------------------------------------------
@@ -284,11 +284,11 @@ ecological_val_tree <- function(arg_crowns, arg_vhm, arg_forest, arg_settlement,
   # BLW metrics
   #-----------------------------------------------------
 
-  idx <- st_intersects(centroids, ln)
+  idx <- st_intersects(centroids, arg_ln)
   
   arg_crowns$lnf_codes <- sapply(
     idx,
-    \(i) paste(sort(unique(ln$lnf_code[i])), collapse = ";")
+    \(i) paste(sort(unique(arg_ln$lnf_code[i])), collapse = ";")
   )
   
   # Neighborhood metrics
@@ -444,7 +444,6 @@ future_lapply(
     CH_1000 = CH_1000,
     VHM_S2_path = VHM_S2_path,
     treeseg_data_local_path = treeseg_data_local_path,
-    LN_mask = LN_mask,
     LN_2025_path = LN_2025_path,
     forest_mask = forest_mask,
     settlement = settlement,
