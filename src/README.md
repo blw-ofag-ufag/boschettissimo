@@ -10,3 +10,9 @@ In diesem Ordner finden Sie die verschiedenen Skripte, mit denen der identifizie
 
 3. **r/003_CombineProcessedCells.bat**  
    Kombiniert die Resultate von jeder Zelle in einem eindeutigen geopackage.
+
+4. **r/utils/**
+   Enthält Skripten, die zum Aufbau des ALLEMA Referenz Datensatz benutzt worden, oder zur Bewertung von zwischen Schritten des Projekts.
+
+5. **r/archive/** 
+   Enthählt getestete Segmentierung etc Varianten, teilweise mit ein paar Notizen zu den Resultaten.
