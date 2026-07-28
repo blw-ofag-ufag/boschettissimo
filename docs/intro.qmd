@@ -1,0 +1,30 @@
+---
+title: Einleitung
+lang: de-CH
+bibliography: references.bib
+abstract: |
+    Das aktuelle massnahmenorientierte Fördersystem für Bäume in der Schweizer Landwirtschaft ist komplex und schliesst moderne Agroforstsysteme nur in begrenztem Umfang ein.
+    Die Agrarpolitik fordert Lösungen, die ergebnisorientiert sind und Agroforstsysteme einbeziehen.
+    Eine Machbarkeitsstudie wird testen, wie Fernerkundungsdaten genutzt werden können, um Bäume auf landwirtschaftlichen Flächen zu identifizieren und ihre ökologische Qualität zu bewerten.
+---
+
+## Aktuelle Fördersysteme für Bäume auf landwirtschaftlichen Flächen in der Schweiz, einschliesslich Agroforstwirtschaft
+
+Bäume auf den landwirtschaftlichen Flächen der Schweiz werden durch Biodiversitäts- und Landschaftsqualitätsbeiträge gemäss der Direktzahlungsverordnung [@dzv] gefördert.
+Zahlenmässig sind Hochstamm-Feldobstbäume am bedeutendsten.
+Im Jahr 2024 wurden 67 Millionen Franken an Biodiversitätsbeiträgen für fast 2,4 Millionen Bäume ausgezahlt [@agrarbericht].
+Darüber hinaus wurden Landschaftsqualitätsbeiträge auch für Hochstamm-Feldobstbäume sowie für Einzelbäume und Alleen ausgerichtet.
+
+Neben Hochstamm-Feldobstgärten decken diese Zahlungen auch andere traditionelle Agroforstsysteme wie Kastanienselven und Wytweiden ab.
+Seit einigen Jahren experimentieren Schweizer Landwirtschaftsbetriebe zunehmend auch mit modernen Agroforstsystemen.
+Das Projekt «Agro4esterie», das von 2020 bis 2027 läuft, untersucht die Auswirkungen von silvo-arablen und silvo-pastoralen Systemen auf Betrieben in der Westschweiz, mit Fokus auf deren Einfluss auf Biodiversität, Unkrautdruck, Boden und Klima [@agroforesterie; @schmid2025].
+
+In ihrer Klimastrategie Landwirtschaft und Ernährung 2050, die vom Bundesamt für Umwelt (BAFU), dem Bundesamt für Lebensmittelsicherheit und Veterinärwesen (BLV) und dem Bundesamt für Landwirtschaft (BLW) erarbeitet wurde, sieht die Schweizerische Eidgenossenschaft die Förderung von Agroforstsystemen vor [@blw2023].
+
+## Herausforderungen der aktuellen Fördersysteme
+
+Das aktuelle Fördersystem für Bäume ist rein massnahmenbasiert konzipiert und in zwei Qualitätsstufen unterteilt, mit zusätzlichen Fördergeldern für die ökologische Vernetzung. Die Vorschriften für Hochstamm-Feldobstbäume, die den Grossteil der geförderten Bäume ausmachen, sind umfangreich. In der ersten Qualitätsstufe umfassen sie unter anderem eine Mindestanzahl an Bäumen, eine maximale Baumdichte, eine Mindeststammhöhe und die Baumpflege. In der zweiten Qualitätsstufe werden zusätzliche Anforderungen definiert, einschliesslich Kleinstrukturen wie Asthaufen, Nistgelegenheiten für Vögel und Fledermäuse sowie maximale Abstände zwischen den Bäumen. Das System ist komplex, unflexibel und daher sowohl für die Landwirte als auch für die Kontrollorgane herausfordernd.
+
+## Machbarkeitsstudie zu einem neuen, ergebnisorientierten Fördersystem
+
+Aus diesen Gründen möchten wir ein potenzielles zukünftiges System entwickeln und testen, das so ergebnisorientiert und rein datengesteuert wie möglich ist und auf einer begrenzten Anzahl von Indikatoren basiert. In einer Machbarkeitsstudie untersucht die Eidgenössische Forschungsanstalt für Wald, Schnee und Landschaft (WSL), wie Bäume auf landwirtschaftlichen Flächen mithilfe von Fernerkundungsdaten und -produkten identifiziert und ihre ökologische Qualität – insbesondere ihr Einfluss auf die Biodiversität – automatisch bewertet werden könnten. Die primären Datenquellen für die Schweiz sind landesweite Daten von swisstopo [@swisstopo] und operationell abgeleitete Geodatensätze. Diese bestehen in erster Linie aus LiDAR-Daten, digitalen Luft- und Satellitenbildern sowie Vegetationshöhenmodellen, die im Rahmen des Schweizerischen Landesforstinventars (LFI) [@lfi] erstellt werden. Da auch die Baumarten bei der ökologischen Bewertung eine Rolle spielen, soll zudem die Unterscheidung von Baumarten mittels maschinellen Lernens getestet werden. Die Machbarkeitsstudie hat im April 2026 begonnen und wird bis März 2027 abgeschlossen sein.

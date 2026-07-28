@@ -10,9 +10,13 @@ data/*
 
 # ignore a folder with notes
 notes/
+notes.*
 
 # ignore any undesirable files
 .DS_Store
 .Rhistory
 desktop.ini
 .Rproj.user
+
+# Ignore Python virtual environment
+/venv/
