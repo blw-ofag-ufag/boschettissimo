@@ -16,9 +16,6 @@ CH_1000 <- rast(CH_1000_path) %>%
   as.polygons(values=TRUE, dissolve=FALSE) %>%
   st_as_sf()
 
-# Limit analysis on LN areas
-LN_mask <- st_read(LN_mask_path)
-
 # Load the forest layer
 forest_mask <- st_read(forest_mask_path)
 
@@ -243,7 +240,7 @@ neighborhood_val <- function(arg_neigh_dist, arg_centroids, arg_crowns){
 }
 
 
-ecological_val_tree <- function(arg_crowns, arg_vhm, arg_ln_path, arg_forest, arg_settlement, arg_e, arg_perim){
+ecological_val_tree <- function(arg_crowns, arg_vhm, arg_forest, arg_settlement, arg_perim, ln){
   
   # Geometry metrics
   #-----------------------------------------------------
@@ -286,14 +283,7 @@ ecological_val_tree <- function(arg_crowns, arg_vhm, arg_ln_path, arg_forest, ar
   
   # BLW metrics
   #-----------------------------------------------------
-  
-  # Load the LN surfaces for the perimeter
-  wkt <- as.polygons(arg_e) |>
-    st_as_sf() |>
-    st_geometry() |>
-    st_as_text()
-  ln <- st_read(arg_ln_path, wkt_filter = wkt)
-  
+
   idx <- st_intersects(centroids, ln)
   
   arg_crowns$lnf_codes <- sapply(
@@ -339,9 +329,15 @@ process_cell <- function(i) {
   library(lidR)
   library(ForestTools)
   
-  # Limit analysis on LN areas
-  LN_sub <- st_filter(LN_mask, CH_1000[i, ], .predicate = st_intersects) %>%
-    st_union()
+  # Get extent of cell
+  e <- ext(CH_1000[i, ])
+  
+  # Load the LN surfaces for the perimeter
+  wkt <- as.polygons(e) |>
+    st_as_sf() |>
+    st_geometry() |>
+    st_as_text()
+  LN_sub <- st_read(LN_2025_path, wkt_filter = wkt)
   
   # If no LN parcel skip this iteration
   if (length(LN_sub)==0) {
@@ -351,10 +347,8 @@ process_cell <- function(i) {
   
   # Have a buffered version to consider crowns overpassing ln parcels
   LN_sub_buff <- LN_sub %>%
-    st_buffer(25)
-  
-  # Get extent of cell
-  e <- ext(CH_1000[i, ])
+    st_buffer(25) %>%
+    st_union()
   
   # Get the VHM of a buffered extent
   #-------------------------
@@ -391,7 +385,7 @@ process_cell <- function(i) {
   
   # Calculate the attributes pro tree (for the crowns_out)
   #-------------------------
-  crowns_LN <- ecological_val_tree(crowns_LN, vhm_cell, LN_2025_path, forest_mask, settlement, e, CH_1000[i, ])
+  crowns_LN <- ecological_val_tree(crowns_LN, vhm_cell, forest_mask, settlement, CH_1000[i, ], LN_sub)
 
   # Get the centroids again of only the crowns within the LN parcels
   centroids <- st_centroid(crowns_LN)

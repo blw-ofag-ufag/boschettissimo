@@ -15,7 +15,6 @@ TLM_EBv_input_path <- "//speedy12-37/data_25/Vegetationmaxima/07_WSL/"
 TLM_EBv_path <- paste0(orig_data_path,"TLM/TLM_EBv.gpkg")
 NF_path <- paste0(orig_data_path,"BLW/nutzungsflaechen.gpkg") # will be changed once data received from BLW
 LN_2025_path <- paste0(orig_data_path,"BLW/LWB_Nutzungsflaechen_Derivat_BGDI_2025.gdb")
-LN_mask_path <- paste0(orig_data_path,"BLW/LWB_mask.gpkg")
 HM_EBuG_path <- "//speedy16-36/data_15/_PROJEKTE/2018_Lebensraumkarte_BAFU/Data_Sharing/HabitatMap_v1_2_202512/N2025_einzelbaum_gebuesche_2025_v1_0_20260106.gdb"
 ALS_path <- "//speedy11-12-fs/data_17/_LIDAR/ALS_CH/nDSM/"
 CH_1000_path <- "//speedy16-36/data_15/_PROJEKTE/_SNAPRASTER/ExampleRaster/ExampleRaster_CHbin_1000m_LV95.tif"
