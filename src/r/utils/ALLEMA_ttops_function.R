@@ -331,3 +331,91 @@ for(k in seq_along(selec_fks)) {
   )
 }
 
+#-----------------------------------------------------
+# Check regression model for Nadel / Laub differentiation
+#-----------------------------------------------------
+
+# Load Nadel Laub dataset done by Christian
+NadelLaub <- st_read("//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/ORIG_DATA/ALLEMA/ALLEM_EB_ref_ReturnALS_VHM.gpkg")
+#* COMMENT: Weird, i cannot plot the polygons, neither in R nor in QGIS...
+
+# Fetch previously computed h90 etc values
+ALLEMA_EB_poly <- st_read(out_gpkg)
+
+# Join back to original ALLEMA object to be able to do the regression 
+NadelLaub_ALLEMA <- inner_join(
+  ALLEMA_EB_poly[,c("FK_Quadrat","OBJECT_ID","h90","h99","hmax","diameter","geom")],
+  st_drop_geometry(NadelLaub[,c("FK_Quadrat","OBJECT_ID","evergreen")]),
+  by = c("FK_Quadrat","OBJECT_ID")
+)
+
+
+library(ggplot2)
+library(ggpubr)
+
+# Make sure the grouping variable is a factor with readable labels
+NadelLaub_ALLEMA$evergreen <- factor(
+  NadelLaub_ALLEMA$evergreen,
+  levels = c(0,1,9),
+  labels = c("Laub", "Nadel", "NA")
+)
+
+# A colorblind-friendly, print-friendly palette
+group_colors <- c("Laub" = "#90ee90", "Nadel" = "#013220", "NA"="#999999")
+
+p <- ggplot(
+  NadelLaub_ALLEMA[which(NadelLaub_ALLEMA$evergreen != "NA"),],
+  aes(x = hmax, y = diameter, color = evergreen, fill = evergreen)
+) +
+  geom_point(size = 1.6, alpha = 0.65, shape = 16) +
+  geom_smooth(
+    method = "lm", se = FALSE, linewidth = 1.1
+  ) +
+  stat_regline_equation(
+    aes(label = after_stat(eq.label)),
+    label.x.npc = 0.05,
+    label.y.npc = c(0.97, 0.85, 0.73),
+    size = 4.5,
+    show.legend = FALSE
+  ) +
+  stat_cor(
+    aes(label = after_stat(rr.label)),
+    label.x.npc = 0.05,
+    label.y.npc = c(0.92, 0.80, 0.68),
+    size = 4.5,
+    show.legend = FALSE
+  ) +
+  scale_color_manual(values = group_colors) +
+  scale_fill_manual(values = group_colors) +
+  labs(
+    title = "Kronenhöhe vs. Kronendurchmesser",
+    subtitle = "Vergleich Laub/Nadel (VHM-basierte Kronenmaxima)",
+    x = "Maximale Vegetationshöhe in der Krone (hmax) [m]",
+    y = "Kronendurchmesser [m]",
+    color = "Laub / Nadel",
+    fill = "Laub / Nadel"
+  ) +
+  theme_bw(base_size = 15) +
+  theme(
+    plot.title = element_text(face = "bold", size = 18),
+    plot.subtitle = element_text(color = "grey30", size = 13),
+    legend.position = "top",
+    legend.title = element_text(face = "bold"),
+    panel.grid.minor = element_blank(),
+    plot.caption = element_text(size = 9, color = "grey50")
+  )
+
+print(p)
+
+
+mLaub  <- lm(diameter ~ h99,  
+  data = NadelLaub_ALLEMA[which(NadelLaub_ALLEMA$evergreen == "Laub"),])
+summary(mLaub)
+
+mNadel <- lm(diameter ~ h99,  
+  data = NadelLaub_ALLEMA[which(NadelLaub_ALLEMA$evergreen == "Nadel"),])
+summary(mNadel)
+
+mh99 <- lm(diameter ~ h99,  
+  data = NadelLaub_ALLEMA)
+summary(mh99)
