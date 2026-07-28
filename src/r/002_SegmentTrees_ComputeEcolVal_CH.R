@@ -126,7 +126,7 @@ segment_cell <- function(arg_vhm) {
   }
   
   # Identify the tree tops
-  ttops <- locate_trees(arg_vhm, lmf(find_ttops, shape="circular", hmin = 1.5)) %>%
+  ttops <- lidR::locate_trees(arg_vhm, lmf(find_ttops, shape="circular", hmin = 1.5)) %>%
     st_zm(drop = TRUE, what = "ZM")
   
   # If no tree tops detected skip this iteration
@@ -135,7 +135,7 @@ segment_cell <- function(arg_vhm) {
   }
   
   # Get the watershed crowns
-  crowns <- mcws(
+  crowns <- ForestTools::mcws(
     treetops = ttops,
     CHM = arg_vhm,
     minHeight = 1.5,

@@ -5,8 +5,7 @@
 data/*
 
 # add data files that should be tracked
-!data/ALS_study_areas.csv
-!data/study_areas.csv
+!data/SWISSIMAGE_2025_TG.csv
 !data/README.md
 
 # ignore a folder with notes
