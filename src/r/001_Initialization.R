@@ -14,6 +14,7 @@ CH_1000_path <- "//speedy16-36/data_15/_PROJEKTE/_SNAPRASTER/ExampleRaster/Examp
 forest_mask_path <- "//speedy11-12-fs/data_17/_GEOBASISDATEN/DATA_2025/ID164.23_Waldmaske/forest_mask_switzerland_shrub_20250902_v1/NFI_forest_mask_20250217.gpkg"
 settlement_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/ORIG_DATA/SIEDLUNG/siedlung_2025_2056.gpkg"
 swissimage_path <- paste0(orig_data_path,"SWISSIMAGE/")
+swissalti3D_path <- "//katze/geolib/swissALTI3D/2m/download_20240408/LV95/swissALTI3D_2M_CHLV95_LN02.tif"
 
 # Local paths (for faster processing)
 treeseg_data_local_path <- "D:/BOSCHETTISSIMO/PROCESSED_DATA/TREE_SEG/"

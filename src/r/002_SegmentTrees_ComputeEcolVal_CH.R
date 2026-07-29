@@ -112,7 +112,47 @@ vhm_cell_prep <- function(arg_e, arg_VHM_S2_path) {
   vhm_cell <- focal(vhm_cell, w = g05, fun = sum)
   
   return(vhm_cell)
-  
+
+}
+
+#-----------------------------------------------------
+# Topography preparation
+#-----------------------------------------------------
+dem_cell_prep <- function(arg_e, arg_swissalti3D_path) {
+
+  # Buffered extent
+  e_buf <- ext(
+    xmin(arg_e) - 125, xmax(arg_e) + 125,
+    ymin(arg_e) - 125, ymax(arg_e) + 125
+  )
+
+  # Create temp file
+  tmpfile <- tempfile("dem_crop_")
+
+  # Use gdal for faster raster cropping
+  cmd <- sprintf(
+    'gdal_translate -projwin %.2f %.2f %.2f %.2f -of VRT "%s" "%s.vrt"',
+    xmin(e_buf), ymax(e_buf), xmax(e_buf), ymin(e_buf),
+    arg_swissalti3D_path,
+    tmpfile
+  )
+  system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
+
+  # Read cell DEM from temp file
+  dem_cell <- rast(paste0(tmpfile, ".vrt"))
+
+  # Load the raster into memory
+  dem_cell <- toMemory(dem_cell)
+
+  # Erase temp file
+  unlink(paste0(tmpfile, ".vrt"))
+
+  # Derive slope and aspect from the DEM
+  topo_cell <- terrain(dem_cell, v = c("slope", "aspect"), unit = "degrees")
+
+  # Combine altitude, slope and aspect into a single raster stack
+  c(altitude = dem_cell, topo_cell)
+
 }
 
 #-----------------------------------------------------
@@ -276,7 +316,7 @@ coverage_val <- function(arg_radius, arg_centroids, arg_polygons, arg_vhm = NULL
 }
 
 
-ecological_val_tree <- function(arg_crowns, arg_vhm, arg_forest, arg_settlement, arg_perim, arg_ln){
+ecological_val_tree <- function(arg_crowns, arg_vhm, arg_dem, arg_forest, arg_settlement, arg_perim, arg_ln){
   
   # Geometry metrics
   #-----------------------------------------------------
@@ -316,7 +356,17 @@ ecological_val_tree <- function(arg_crowns, arg_vhm, arg_forest, arg_settlement,
   
   # Compute Height / Crown diameter
   arg_crowns$height_diameter <- arg_crowns$height_p90 / arg_crowns$diameter_m
-  
+
+  # Topography metrics
+  #-----------------------------------------------------
+
+  # Extract altitude, slope and aspect at the crown centroid
+  topo <- terra::extract(arg_dem, vect(centroids))
+
+  arg_crowns$altitude <- topo$altitude
+  arg_crowns$slope    <- topo$slope
+  arg_crowns$aspect   <- topo$aspect
+
   # BLW metrics
   #-----------------------------------------------------
 
@@ -436,9 +486,13 @@ process_cell <- function(i) {
     return(NULL)
   }
   
+  # Get the topography of the cell
+  #-------------------------
+  dem_cell <- dem_cell_prep(e, swissalti3D_path)
+
   # Calculate the attributes pro tree (for the crowns_out)
   #-------------------------
-  crowns_LN <- ecological_val_tree(crowns_LN, vhm_cell, forest_mask, settlement, CH_1000[i, ], LN_sub)
+  crowns_LN <- ecological_val_tree(crowns_LN, vhm_cell, dem_cell, forest_mask, settlement, CH_1000[i, ], LN_sub)
 
   # Get the centroids again of only the crowns within the LN parcels
   centroids <- st_centroid(crowns_LN)
@@ -496,13 +550,16 @@ future_lapply(
   future.globals = list(
     CH_1000 = CH_1000,
     VHM_S2_path = VHM_S2_path,
+    swissalti3D_path = swissalti3D_path,
     treeseg_data_local_path = treeseg_data_local_path,
     LN_2025_path = LN_2025_path,
     forest_mask = forest_mask,
     settlement = settlement,
     vhm_cell_prep = vhm_cell_prep,
+    dem_cell_prep = dem_cell_prep,
     segment_cell = segment_cell,
     ecological_val_tree = ecological_val_tree,
-    neighborhood_val = neighborhood_val
+    neighborhood_val = neighborhood_val,
+    coverage_val = coverage_val
   )
 )
