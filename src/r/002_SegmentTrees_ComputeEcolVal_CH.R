@@ -297,17 +297,17 @@ coverage_val <- function(arg_radius, arg_centroids, arg_polygons, arg_vhm = NULL
 
   # Cover proportion - 0 everywhere if there is nothing to intersect with
   if (nrow(arg_polygons) == 0) {
-    cover <- rep(0, length(disks))
+    cover <- rep(0, nrow(disks))
   } else {
 
     # Union once so overlapping polygons aren't double-counted
     polygons_union <- st_union(arg_polygons)
 
     # Intersect all disks at once and map the resulting area back by disk id
-    disks_sf <- st_sf(id = seq_along(disks), geometry = disks)
+    disks_sf <- st_sf(id = seq_len(nrow(disks)), geometry = st_geometry(disks))
     inter <- st_intersection(disks_sf, polygons_union)
 
-    covered_area <- numeric(length(disks))
+    covered_area <- numeric(nrow(disks))
     covered_area[inter$id] <- as.numeric(st_area(inter))
 
     cover <- covered_area / disk_area
@@ -437,10 +437,6 @@ ecological_val_tree <- function(arg_crowns, arg_vhm, arg_dem, arg_forest, arg_se
 #-----------------------------------------------------
 process_cell <- function(i) {
   
-  library(terra)
-  library(lidR)
-  library(ForestTools)
-  
   # Get extent of cell
   e <- ext(CH_1000[i, ])
   
@@ -555,7 +551,7 @@ future_lapply(
   seq_len(nrow(CH_1000)),
   process_cell,
   future.seed = TRUE,
-  future.packages = c("terra", "lidR", "sf", "dplyr"),
+  future.packages = c("terra", "lidR", "sf", "dplyr", "ForestTools"),
   future.globals = list(
     CH_1000 = CH_1000,
     VHM_S2_path = VHM_S2_path,
