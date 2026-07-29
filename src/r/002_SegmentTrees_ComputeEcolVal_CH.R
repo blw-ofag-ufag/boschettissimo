@@ -78,21 +78,15 @@ CH_1000 <- CH_1000[st_intersects(CH_1000, TG, sparse = FALSE), ]
 #-----------------------------------------------------
 # VHM preparation - Gaussian smoothing
 #-----------------------------------------------------
-vhm_cell_prep <- function(arg_e, arg_VHM_S2_path) {
-  
-  # Buffered extent
-  e_buf <- ext(
-    xmin(arg_e) - 125, xmax(arg_e) + 125,
-    ymin(arg_e) - 125, ymax(arg_e) + 125
-  )
-  
+vhm_cell_prep <- function(arg_e_buf, arg_VHM_S2_path) {
+
   # Create temp file
   tmpfile <- tempfile("vhm_crop_")
-  
+
   # Use gdal for faster raster cropping
   cmd <- sprintf(
     'gdal_translate -projwin %.2f %.2f %.2f %.2f -of VRT "%s" "%s.vrt"',
-    xmin(e_buf), ymax(e_buf), xmax(e_buf), ymin(e_buf),
+    xmin(arg_e_buf), ymax(arg_e_buf), xmax(arg_e_buf), ymin(arg_e_buf),
     arg_VHM_S2_path,
     tmpfile
   )
@@ -118,13 +112,7 @@ vhm_cell_prep <- function(arg_e, arg_VHM_S2_path) {
 #-----------------------------------------------------
 # Topography preparation
 #-----------------------------------------------------
-dem_cell_prep <- function(arg_e, arg_swissalti3D_path) {
-
-  # Buffered extent
-  e_buf <- ext(
-    xmin(arg_e) - 125, xmax(arg_e) + 125,
-    ymin(arg_e) - 125, ymax(arg_e) + 125
-  )
+dem_cell_prep <- function(arg_e_buf, arg_swissalti3D_path) {
 
   # Create temp file
   tmpfile <- tempfile("dem_crop_")
@@ -132,7 +120,7 @@ dem_cell_prep <- function(arg_e, arg_swissalti3D_path) {
   # Use gdal for faster raster cropping
   cmd <- sprintf(
     'gdal_translate -projwin %.2f %.2f %.2f %.2f -of VRT "%s" "%s.vrt"',
-    xmin(e_buf), ymax(e_buf), xmax(e_buf), ymin(e_buf),
+    xmin(arg_e_buf), ymax(arg_e_buf), xmax(arg_e_buf), ymin(arg_e_buf),
     arg_swissalti3D_path,
     tmpfile
   )
@@ -436,83 +424,77 @@ ecological_val_tree <- function(arg_crowns, arg_vhm, arg_dem, arg_forest, arg_se
 # Cell processing function
 #-----------------------------------------------------
 process_cell <- function(i) {
-  
-  # Get extent of cell
+
+  # Get extent of cell, and a 125m-buffered version of it
+  #-------------------------
+  # 125m = 100m (largest neighborhood/coverage radius) + 25m (margin for a
+  # large crown centered close to the cell border) - so every metric computed
+  # for a crown ultimately kept (centroid within the true cell) is based on
+  # complete, non-truncated data, regardless of how close it is to the border
   e <- ext(CH_1000[i, ])
-  
-  # Load the LN surfaces for the perimeter
-  wkt <- as.polygons(e) |>
-    st_as_sf() |>
+  perim_buf <- st_buffer(CH_1000[i, ], dist = 125, joinStyle = "MITRE")
+  e_buf <- ext(perim_buf)
+
+  # Load the LN surfaces for the buffered perimeter (wider than the raw
+  # cell, so LN parcels just outside the true cell are still available for
+  # segmentation/neighborhood context)
+  wkt <- perim_buf |>
     st_geometry() |>
     st_as_text()
   LN_sub <- st_read(LN_2025_path, wkt_filter = wkt)
-  
+
   # If no LN parcel skip this iteration
   if (length(LN_sub)==0) {
     message("No LN polygons in cell ", i)
     return(NULL)
   }
-  
+
   # Have a buffered version to consider crowns overpassing ln parcels
   LN_sub_buff <- LN_sub %>%
     st_buffer(25) %>%
     st_union()
-  
-  # Get the VHM of a buffered extent
+
+  # Get the VHM and topography of the buffered cell
   #-------------------------
-  vhm_cell <- vhm_cell_prep(e, VHM_S2_path)
-  
-  # Crop and mask to buffered area only
+  vhm_cell <- vhm_cell_prep(e_buf, VHM_S2_path)
+  dem_cell <- dem_cell_prep(e_buf, swissalti3D_path)
+
+  # Make a separate copy restricted to the LN parcels (+25m) to segment on,
+  # so trees are not segmented in forest that isn't needed - vhm_cell itself
+  # stays unmasked and buffered, so ecological_val_tree's neighborhood/coverage
+  # metrics still reflect the true surrounding vegetation, not just the LN part
   LN_sub_buff_vect <- vect(LN_sub_buff)
-  vhm_cell <-  vhm_cell %>%
+  vhm_cell_seg <- vhm_cell %>%
     crop(LN_sub_buff_vect) %>%
     mask(LN_sub_buff_vect)
-  
-  # Perform the segmentation
+
+  # Perform the segmentation over the LN parcels (+25m) only
   #-------------------------
-  crowns <- segment_cell(vhm_cell)
+  crowns <- segment_cell(vhm_cell_seg)
   if (is.null(crowns)) {
     message("No crowns detected in cell ", i)
     return(NULL)
   }
-  
-  # Get the centroid of the crown 
-  centroids <- st_centroid(crowns)
-  
-  # Keep only crowns that have their centroid within the LN parcels
+
+  # Calculate the attributes pro tree, using the buffered perimeter and the
+  # unmasked VHM so neighborhood/coverage metrics near the cell border and
+  # near LN parcel edges aren't truncated
+  #-------------------------
+  crowns_out <- ecological_val_tree(crowns, vhm_cell, dem_cell, forest_mask, settlement, perim_buf, LN_sub)
+
+  # Only now keep crowns whose centroid is both within an LN parcel and
+  # within the true (unbuffered) extent of the processed cell
+  centroids <- st_centroid(crowns_out)
   in_LN   <- lengths(st_intersects(centroids, LN_sub)) > 0
-  
-  # Get the crowns to be considered for neighborhood analysis
-  crowns_LN <- crowns[in_LN, ]
-  
-  # If no crowns fall within the LN parcels, skip this iteration
-  if (nrow(crowns_LN) == 0) {
-    message("No crowns within LN parcels for cell ", i)
-    return(NULL)
-  }
-  
-  # Get the topography of the cell
-  #-------------------------
-  dem_cell <- dem_cell_prep(e, swissalti3D_path)
-
-  # Calculate the attributes pro tree (for the crowns_out)
-  #-------------------------
-  crowns_LN <- ecological_val_tree(crowns_LN, vhm_cell, dem_cell, forest_mask, settlement, CH_1000[i, ], LN_sub)
-
-  # Get the centroids again of only the crowns within the LN parcels
-  centroids <- st_centroid(crowns_LN)
-  
-  # Keep only crowns whose centroid is really within the extent of the processed cell
   in_cell <- lengths(st_intersects(centroids, CH_1000[i, ])) > 0
-  
-  # Get the final crowns
-  crowns_in <- crowns_LN[in_cell, ]
-  
+
+  crowns_in <- crowns_out[in_LN & in_cell, ]
+
   if (nrow(crowns_in) == 0) {
-    message("No crowns within cell extent for cell ", i)
+    message("No crowns within LN parcels and cell extent for cell ", i)
     return(NULL)
   }
-  
+
   # Round the result to save memory space
   crowns_in <- crowns_in %>%
     mutate(across(where(is.numeric), ~round(.x, 2)))
