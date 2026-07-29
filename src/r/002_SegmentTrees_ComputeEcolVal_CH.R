@@ -173,7 +173,6 @@ neighborhood_val <- function(arg_neigh_dist, arg_centroids, arg_crowns){
   
   neighbor_h90_mean <- numeric(length(neighbors))
   neighbor_h90_sd <- numeric(length(neighbors))
-  neighbor_h90_cv <- numeric(length(neighbors))
   neighbor_h90_z <- numeric(length(neighbors))
   
   for(i in seq_along(neighbors)) {
@@ -210,7 +209,6 @@ neighborhood_val <- function(arg_neigh_dist, arg_centroids, arg_crowns){
       
       neighbor_h90_mean[i] <- mean(neigh_h90, na.rm = TRUE)
       neighbor_h90_sd[i]   <- sd(neigh_h90, na.rm = TRUE)
-      neighbor_h90_cv[i]   <- sd(neigh_h90, na.rm = TRUE)/mean(neigh_h90, na.rm = TRUE)
       neighbor_h90_z[i]   <- (arg_crowns$height_p90[focal_id] - mean(neigh_h90, na.rm = TRUE))/sd(neigh_h90, na.rm = TRUE)
       
     } else {
@@ -220,7 +218,6 @@ neighborhood_val <- function(arg_neigh_dist, arg_centroids, arg_crowns){
       
       neighbor_h90_mean[i] <- NA
       neighbor_h90_sd[i]   <- NA
-      neighbor_h90_cv[i]   <- NA
       neighbor_h90_z[i]   <- NA
     }
   }
@@ -232,11 +229,50 @@ neighborhood_val <- function(arg_neigh_dist, arg_centroids, arg_crowns){
     nearest_neighbor_dist = nearest_neighbor_dist,
     neighbor_h90_mean = neighbor_h90_mean,
     neighbor_h90_sd   = neighbor_h90_sd,
-    neighbor_h90_cv   = neighbor_h90_cv,
     neighbor_h90_z = neighbor_h90_z
   )
   
   return(neigh_df)
+}
+
+coverage_val <- function(arg_radius, arg_centroids, arg_polygons, arg_vhm = NULL){
+
+  #-----------------------------------------------------
+  # Proportion of a disk around each centroid covered by arg_polygons,
+  # and (optionally) the mean VHM value within that same disk
+  #-----------------------------------------------------
+
+  # Build a disk of the given radius around each centroid
+  disks <- st_buffer(arg_centroids, dist = arg_radius)
+  disk_area <- as.numeric(st_area(disks))
+
+  # Cover proportion - 0 everywhere if there is nothing to intersect with
+  if (nrow(arg_polygons) == 0) {
+    cover <- rep(0, length(disks))
+  } else {
+
+    # Union once so overlapping polygons aren't double-counted
+    polygons_union <- st_union(arg_polygons)
+
+    # Intersect all disks at once and map the resulting area back by disk id
+    disks_sf <- st_sf(id = seq_along(disks), geometry = disks)
+    inter <- st_intersection(disks_sf, polygons_union)
+
+    covered_area <- numeric(length(disks))
+    covered_area[inter$id] <- as.numeric(st_area(inter))
+
+    cover <- covered_area / disk_area
+  }
+
+  out <- data.frame(cover = cover)
+
+  # Mean VHM value within the disk, reusing the same disk geometry
+  if (!is.null(arg_vhm)) {
+    vhm_mean <- terra::extract(arg_vhm, vect(disks), fun = mean, na.rm = TRUE)
+    out$vhm_mean <- vhm_mean[, 2]
+  }
+
+  out
 }
 
 
@@ -311,11 +347,28 @@ ecological_val_tree <- function(arg_crowns, arg_vhm, arg_forest, arg_settlement,
   f_min_dist <- st_distance(centroids, forest[f_nearest_idx, ], by_element = TRUE)
   arg_crowns$dist_to_forest <- f_min_dist
   
-  sied <- st_filter(arg_settlement, arg_perim, .predicate = st_intersects) 
+  sied <- st_filter(arg_settlement, arg_perim, .predicate = st_intersects)
   s_nearest_idx <- st_nearest_feature(centroids, sied)
   s_min_dist <- st_distance(centroids, sied[s_nearest_idx, ], by_element = TRUE)
   arg_crowns$dist_to_settlement <- s_min_dist
-  
+
+  # Forest and settlement cover, and mean VHM within radius
+  #-----------------------------------------------------
+  # arg_vhm is only passed to the forest calls since centroids stay the same
+  # the vhm mean would be computed duplicatly for nothing otherwise
+  cov_forest_56m  <- coverage_val(56,  centroids, forest, arg_vhm)
+  cov_forest_100m <- coverage_val(100, centroids, forest, arg_vhm)
+  cov_sied_56m    <- coverage_val(56,  centroids, sied)
+  cov_sied_100m   <- coverage_val(100, centroids, sied)
+
+  arg_crowns$forest_cover_56m      <- cov_forest_56m$cover
+  arg_crowns$forest_cover_100m     <- cov_forest_100m$cover
+  arg_crowns$settlement_cover_56m  <- cov_sied_56m$cover
+  arg_crowns$settlement_cover_100m <- cov_sied_100m$cover
+
+  arg_crowns$vhm_mean_56m  <- cov_forest_56m$vhm_mean
+  arg_crowns$vhm_mean_100m <- cov_forest_100m$vhm_mean
+
   return(arg_crowns)
 }
 
