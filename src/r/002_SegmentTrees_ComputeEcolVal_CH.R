@@ -214,7 +214,9 @@ neighborhood_val <- function(arg_neigh_dist, arg_centroids, arg_crowns){
   neighbor_h90_mean <- numeric(length(neighbors))
   neighbor_h90_sd <- numeric(length(neighbors))
   neighbor_h90_z <- numeric(length(neighbors))
-  
+
+  prop_large_neighbors <- numeric(length(neighbors))
+
   for(i in seq_along(neighbors)) {
     
     # Get the neighbors for iteration i
@@ -250,18 +252,24 @@ neighborhood_val <- function(arg_neigh_dist, arg_centroids, arg_crowns){
       neighbor_h90_mean[i] <- mean(neigh_h90, na.rm = TRUE)
       neighbor_h90_sd[i]   <- sd(neigh_h90, na.rm = TRUE)
       neighbor_h90_z[i]   <- (arg_crowns$height_p90[focal_id] - mean(neigh_h90, na.rm = TRUE))/sd(neigh_h90, na.rm = TRUE)
-      
+
+      # Proportion of neighbors with a crown diameter larger than 3m
+      neigh_diameter <- arg_crowns$diameter_m[neigh_ids]
+      prop_large_neighbors[i] <- mean(neigh_diameter > 3, na.rm = TRUE)
+
     } else {
-      
+
       mean_neighbor_dist[i] <- NA
       nearest_neighbor_dist[i] <- NA
-      
+
       neighbor_h90_mean[i] <- NA
       neighbor_h90_sd[i]   <- NA
       neighbor_h90_z[i]   <- NA
+
+      prop_large_neighbors[i] <- NA
     }
   }
-  
+
   # Add metrics back to crown object
   neigh_df <- data.frame(
     n_neighbors = n_neighbors,
@@ -269,7 +277,8 @@ neighborhood_val <- function(arg_neigh_dist, arg_centroids, arg_crowns){
     nearest_neighbor_dist = nearest_neighbor_dist,
     neighbor_h90_mean = neighbor_h90_mean,
     neighbor_h90_sd   = neighbor_h90_sd,
-    neighbor_h90_z = neighbor_h90_z
+    neighbor_h90_z = neighbor_h90_z,
+    prop_large_neighbors = prop_large_neighbors
   )
   
   return(neigh_df)
