@@ -389,14 +389,22 @@ ecological_val_tree <- function(arg_crowns, arg_vhm, arg_dem, arg_forest, arg_se
   
   # Forest and settlement distances
   #-----------------------------------------------------
-  forest <- st_filter(arg_forest, arg_perim, .predicate = st_intersects) 
-  f_nearest_idx <- st_nearest_feature(centroids, forest)
-  f_min_dist <- st_distance(centroids, forest[f_nearest_idx, ], by_element = TRUE)
+  forest <- st_filter(arg_forest, arg_perim, .predicate = st_intersects)
+  if (nrow(forest) > 0) {
+    f_nearest_idx <- st_nearest_feature(centroids, forest)
+    f_min_dist <- st_distance(centroids, forest[f_nearest_idx, ], by_element = TRUE)
+  } else {
+    f_min_dist <- rep(NA_real_, nrow(centroids))
+  }
   arg_crowns$dist_to_forest <- f_min_dist
-  
+
   sied <- st_filter(arg_settlement, arg_perim, .predicate = st_intersects)
-  s_nearest_idx <- st_nearest_feature(centroids, sied)
-  s_min_dist <- st_distance(centroids, sied[s_nearest_idx, ], by_element = TRUE)
+  if (nrow(sied) > 0) {
+    s_nearest_idx <- st_nearest_feature(centroids, sied)
+    s_min_dist <- st_distance(centroids, sied[s_nearest_idx, ], by_element = TRUE)
+  } else {
+    s_min_dist <- rep(NA_real_, nrow(centroids))
+  }
   arg_crowns$dist_to_settlement <- s_min_dist
 
   # Forest and settlement cover, and mean VHM within radius
