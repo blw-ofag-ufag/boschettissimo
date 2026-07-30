@@ -327,6 +327,29 @@ ecological_val_tree <- function(arg_crowns, arg_vhm, arg_dem, arg_forest, arg_se
       roundness = as.numeric((4 * pi * area_m2) / (perimeter^2))
     )
   
+  # Inbetween crown distance and number of neighboring crowns it touches/overlaps
+  #-----------------------------------------------------
+
+  # Distance of 0 <=> polygons intersect (touch or overlap), self included
+  touching <- st_intersects(arg_crowns)
+  n_touching_crowns <- lengths(touching) - 1L
+  has_touch <- n_touching_crowns > 0
+
+  # Set inbetween crown distance to 0 for crowns that touch other crowns
+  nearest_crown_dist <- ifelse(has_touch, 0, NA_real_)
+
+  if (nrow(arg_crowns) > 1) {
+    for (i in which(!has_touch)) {
+      nearest_j <- st_nearest_feature(arg_crowns[i, ], arg_crowns[-i, ])
+      nearest_crown_dist[i] <- as.numeric(
+        st_distance(arg_crowns[i, ], arg_crowns[-i, ][nearest_j, ])
+      )
+    }
+  }
+
+  arg_crowns$nearest_crown_dist <- nearest_crown_dist
+  arg_crowns$n_touching_crowns  <- n_touching_crowns
+
   # Centroids
   centroids <- st_centroid(arg_crowns)
   
