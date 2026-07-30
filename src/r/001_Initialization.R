@@ -14,8 +14,8 @@ CH_1000_path <- "//speedy16-36/data_15/_PROJEKTE/_SNAPRASTER/ExampleRaster/Examp
 swisstlm3d_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/ORIG_DATA/TLM/SWISSTLM3D_2025.gpkg"
 settlement_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/ORIG_DATA/SIEDLUNG/siedlung_2025_2056.gpkg"
 swissimage_path <- paste0(orig_data_path,"SWISSIMAGE/")
-dhm25_path <- "//katze/geolib/dhm25/DHM25_MM_ASCII_GRID/ASCII_GRID_1part/dhm25_grid_raster.asc"
+dhm25_raw_path <- "//katze/geolib/dhm25/DHM25_MM_ASCII_GRID/ASCII_GRID_1part/dhm25_grid_raster.asc"
+dhm25_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/ORIG_DATA/DEM/dhm25_grid_raster_2056.tif"
 
 # Local paths (for faster processing)
 treeseg_data_local_path <- "D:/BOSCHETTISSIMO/PROCESSED_DATA/TREE_SEG/"
-

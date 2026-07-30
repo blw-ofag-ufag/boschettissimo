@@ -139,7 +139,8 @@ dem_cell_prep <- function(arg_e_buf, arg_dem_path) {
   topo_cell <- terrain(dem_cell, v = c("slope", "aspect"), unit = "degrees")
 
   # Combine altitude, slope and aspect into a single raster stack
-  c(altitude = dem_cell, topo_cell)
+  names(dem_cell) <- "altitude"
+  c(dem_cell, topo_cell)
 
 }
 
