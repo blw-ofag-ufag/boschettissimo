@@ -16,3 +16,32 @@ cmd <- sprintf(
   dhm25_path
 )
 system(cmd)
+
+#-----------------------------------------------------
+# BFF - union all cantonal geopackages into one
+#-----------------------------------------------------
+# Each canton delivers its Biodiversitätsförderflächen (BFF) as its own
+# geopackage, all sharing the same two layers - union them into a single
+# Switzerland-wide geopackage.
+
+bff_files <- list.files(bff_raw_path, pattern = "\\.gpkg$", full.names = TRUE)
+bff_layers <- st_layers(bff_files[1])$name
+
+# Start from a clean file so re-running this section doesn't leave stale data
+if (file.exists(bff_path)) unlink(bff_path)
+
+for (layer in bff_layers) {
+
+  message("Merging layer ", layer)
+
+  merged <- bff_files %>%
+    lapply(st_read, layer = layer, quiet = TRUE) %>%
+    bind_rows()
+
+  st_write(
+    merged,
+    dsn = bff_path,
+    layer = layer,
+    append = FALSE
+  )
+}

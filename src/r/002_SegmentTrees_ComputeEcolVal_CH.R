@@ -22,6 +22,10 @@ forest_mask <- st_read(swisstlm3d_path, query="SELECT * FROM tlm_bb_bodenbedecku
 # Load the Gebeaude footprint layer
 settlement <- st_read(settlement_path)
 
+# Load the BFF layers
+bff_qual <- st_read(bff_path, layer = "bff_qualitaet_2_flaechen")
+bff_vern <- st_read(bff_path, layer = "bff_vernetzung_flaechen")
+
 
 # #-----------------------------------------------------
 # # TEMP! - Filter on Ebertswil, Uerzlikon, Rossau
@@ -314,7 +318,7 @@ coverage_val <- function(arg_radius, arg_centroids, arg_polygons, arg_vhm = NULL
 }
 
 
-ecological_val_tree <- function(arg_crowns, arg_vhm, arg_dem, arg_forest, arg_settlement, arg_perim, arg_ln){
+ecological_val_tree <- function(arg_crowns, arg_vhm, arg_dem, arg_forest, arg_settlement, arg_bff_qual, arg_bff_vern, arg_perim, arg_ln){
   
   # Geometry metrics
   #-----------------------------------------------------
@@ -431,6 +435,26 @@ ecological_val_tree <- function(arg_crowns, arg_vhm, arg_dem, arg_forest, arg_se
   }
   arg_crowns$dist_to_settlement <- s_min_dist
 
+  # BFF distances
+  #-----------------------------------------------------
+  bffq <- st_filter(arg_bff_qual, arg_perim, .predicate = st_intersects)
+  if (nrow(bffq) > 0) {
+    bq_nearest_idx <- st_nearest_feature(centroids, bffq)
+    bq_min_dist <- st_distance(centroids, bffq[bq_nearest_idx, ], by_element = TRUE)
+  } else {
+    bq_min_dist <- rep(NA_real_, nrow(centroids))
+  }
+  arg_crowns$dist_to_bff_qual <- bq_min_dist
+
+  bffv <- st_filter(arg_bff_vern, arg_perim, .predicate = st_intersects)
+  if (nrow(bffv) > 0) {
+    bv_nearest_idx <- st_nearest_feature(centroids, bffv)
+    bv_min_dist <- st_distance(centroids, bffv[bv_nearest_idx, ], by_element = TRUE)
+  } else {
+    bv_min_dist <- rep(NA_real_, nrow(centroids))
+  }
+  arg_crowns$dist_to_bff_vern <- bv_min_dist
+
   # Forest and settlement cover, and mean VHM within radius
   #-----------------------------------------------------
   # arg_vhm is only passed to the forest calls since centroids stay the same
@@ -447,6 +471,18 @@ ecological_val_tree <- function(arg_crowns, arg_vhm, arg_dem, arg_forest, arg_se
 
   arg_crowns$vhm_mean_56m  <- cov_forest_56m$vhm_mean
   arg_crowns$vhm_mean_100m <- cov_forest_100m$vhm_mean
+
+  # BFF cover
+  #-----------------------------------------------------
+  cov_bff_qual_56m  <- coverage_val(56,  centroids, bffq)
+  cov_bff_qual_100m <- coverage_val(100, centroids, bffq)
+  cov_bff_vern_56m  <- coverage_val(56,  centroids, bffv)
+  cov_bff_vern_100m <- coverage_val(100, centroids, bffv)
+
+  arg_crowns$bff_qual_cover_56m  <- cov_bff_qual_56m$cover
+  arg_crowns$bff_qual_cover_100m <- cov_bff_qual_100m$cover
+  arg_crowns$bff_vern_cover_56m  <- cov_bff_vern_56m$cover
+  arg_crowns$bff_vern_cover_100m <- cov_bff_vern_100m$cover
 
   return(arg_crowns)
 }
@@ -512,7 +548,7 @@ process_cell <- function(i) {
   # unmasked VHM so neighborhood/coverage metrics near the cell border and
   # near LN parcel edges aren't truncated
   #-------------------------
-  crowns_out <- ecological_val_tree(crowns, vhm_cell, dem_cell, forest_mask, settlement, perim_buf, LN_sub)
+  crowns_out <- ecological_val_tree(crowns, vhm_cell, dem_cell, forest_mask, settlement, bff_qual, bff_vern, perim_buf, LN_sub)
 
   # Only now keep crowns whose centroid is both within an LN parcel and
   # within the true (unbuffered) extent of the processed cell
@@ -574,6 +610,8 @@ future_lapply(
     LN_2025_path = LN_2025_path,
     forest_mask = forest_mask,
     settlement = settlement,
+    bff_qual = bff_qual,
+    bff_vern = bff_vern,
     vhm_cell_prep = vhm_cell_prep,
     dem_cell_prep = dem_cell_prep,
     segment_cell = segment_cell,
