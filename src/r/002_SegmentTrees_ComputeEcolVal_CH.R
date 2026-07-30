@@ -17,7 +17,7 @@ CH_1000 <- rast(CH_1000_path) %>%
   st_as_sf()
 
 # Load the forest layer
-forest_mask <- st_read(forest_mask_path)
+forest_mask <- st_read(swisstlm3d_path, query="SELECT * FROM tlm_bb_bodenbedeckung t where t.OBJEKTART = 'Wald'")
 
 # Load the Gebeaude footprint layer
 settlement <- st_read(settlement_path)
@@ -112,7 +112,7 @@ vhm_cell_prep <- function(arg_e_buf, arg_VHM_S2_path) {
 #-----------------------------------------------------
 # Topography preparation
 #-----------------------------------------------------
-dem_cell_prep <- function(arg_e_buf, arg_swissalti3D_path) {
+dem_cell_prep <- function(arg_e_buf, arg_dem_path) {
 
   # Create temp file
   tmpfile <- tempfile("dem_crop_")
@@ -121,7 +121,7 @@ dem_cell_prep <- function(arg_e_buf, arg_swissalti3D_path) {
   cmd <- sprintf(
     'gdal_translate -projwin %.2f %.2f %.2f %.2f -of VRT "%s" "%s.vrt"',
     xmin(arg_e_buf), ymax(arg_e_buf), xmax(arg_e_buf), ymin(arg_e_buf),
-    arg_swissalti3D_path,
+    arg_dem_path,
     tmpfile
   )
   system(cmd, ignore.stdout = TRUE, ignore.stderr = TRUE)
@@ -457,7 +457,7 @@ process_cell <- function(i) {
   # Get the VHM and topography of the buffered cell
   #-------------------------
   vhm_cell <- vhm_cell_prep(e_buf, VHM_S2_path)
-  dem_cell <- dem_cell_prep(e_buf, swissalti3D_path)
+  dem_cell <- dem_cell_prep(e_buf, dem_path)
 
   # Make a separate copy restricted to the LN parcels (+25m) to segment on,
   # so trees are not segmented in forest that isn't needed - vhm_cell itself
@@ -537,7 +537,7 @@ future_lapply(
   future.globals = list(
     CH_1000 = CH_1000,
     VHM_S2_path = VHM_S2_path,
-    swissalti3D_path = swissalti3D_path,
+    dem_path = dhm25_path,
     treeseg_data_local_path = treeseg_data_local_path,
     LN_2025_path = LN_2025_path,
     forest_mask = forest_mask,
