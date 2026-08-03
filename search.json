@@ -60,6 +60,66 @@
     ]
   },
   {
+    "objectID": "data.html",
+    "href": "data.html",
+    "title": "3  Datengrundlage",
+    "section": "",
+    "text": "3.1 Vegetationshöhenmodell (VHM)\nAls Datengrundlage wurden folgende vier wichtige Datensammlungen identifiziert:\nEin Produkt, welches von der WSL bereitgestellt wird und anzeigt, wie hoch die Vegetation auf einer bestimmten Fläche ist. Hat eine Auflösung von 1 × 1 m und wird alle sechs Jahre aus Luftbildern und alle sechs Jahre (um drei Jahre versetzt) aus LIDAR-Scans gerechnet. Siehe: Vegetationshöhenmodell LFI und Vegetationshöhenmodell Lidar LFI.",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Datengrundlage</span>"
+    ]
+  },
+  {
+    "objectID": "data.html#gis-daten-des-blw",
+    "href": "data.html#gis-daten-des-blw",
+    "title": "3  Datengrundlage",
+    "section": "3.2 GIS-Daten des BLW",
+    "text": "3.2 GIS-Daten des BLW\nRepräsentiert alle landwirtschaftlichen Nutzflächen der Schweiz als Polygone mit bestimmten Attributen wie z. B. der direktzahlungsberechtigten Kultur sowie der Zugehörigkeit zu Betrieben, der für den Vollzug zuständigen Kantone etc. In der Vollzugshilfe Merkblatt Nr. 6.2 ist der Flächenkatalog mit den beitragsberechtigten Flächen und ihren Codes beschrieben. Je nach Ausprägung der Kultur sind verschiedene Codes möglich: Hecken werden beispielsweise unter folgenden Codes angemeldet: 852, 857, 858 oder 902 .",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Datengrundlage</span>"
+    ]
+  },
+  {
+    "objectID": "data.html#swissimage",
+    "href": "data.html#swissimage",
+    "title": "3  Datengrundlage",
+    "section": "3.3 SWISSIMAGE",
+    "text": "3.3 SWISSIMAGE\nDas Orthofoto SWISSIMAGE ist eine Zusammensetzung der neuen digitalen Farbluftbilder über die ganze Schweiz mit einer Bodenauflösung von 10 cm im Flachland und den wichtigsten Alpentälern sowie 25 cm in den Alpen. Es wird in einem Nachführungszyklus von drei Jahren seit 2018 aktualisiert, wobei jeweils um drei Jahre versetzt alle sechs Jahre Bäume belaubt und unbelaubt fotografiert werden.",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Datengrundlage</span>"
+    ]
+  },
+  {
+    "objectID": "data.html#swisssurface3d",
+    "href": "data.html#swisssurface3d",
+    "title": "3  Datengrundlage",
+    "section": "3.4 swissSURFACE3D",
+    "text": "3.4 swissSURFACE3D\nBeschreibt die Oberfläche der Schweiz mit allen natürlichen und künstlichen Elementen in Form einer klassifizierten Punktwolke. Die mit einem airborne LiDAR erhobenen Daten zeichnen sich durch eine hohe Punktdichte und Genauigkeit aus. swissSURFACE3D wird in Kacheln von jeweils 1 km2 produziert. Die Kachelnummerierung entspricht den Kilometerkoor-dinaten des südwestlichen Eckpunkts einer Kachel.",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Datengrundlage</span>"
+    ]
+  },
+  {
+    "objectID": "detection.html",
+    "href": "detection.html",
+    "title": "4  Digitale Erkennung von Bäumen auf der landwirtschaftlichen Nutzfläche",
+    "section": "",
+    "text": "TODO.",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Digitale Erkennung von Bäumen auf der landwirtschaftlichen Nutzfläche</span>"
+    ]
+  },
+  {
+    "objectID": "limitations.html",
+    "href": "limitations.html",
+    "title": "5  Bekannte Probleme",
+    "section": "",
+    "text": "TODO.",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Bekannte Probleme</span>"
+    ]
+  },
+  {
     "objectID": "references.html",
     "href": "references.html",
     "title": "Referenzen",
