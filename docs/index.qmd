@@ -1,3 +1,11 @@
+---
+keywords:
+  - Ergebnisorientierte Fördersysteme
+  - Fernerkundung
+  - Agroforstwirtschaft
+  - Biodiversität
+---
+
 ## Vorwort {.unnumbered}
 
 Dieses Repository beinhaltet den Quellcode und die Dokumentation für die Machbarkeitsstudie zur **digitalen Erfassung und Bewertung von Bäumen auf der landwirtschaftlichen Nutzfläche** im Auftrag des Bundesamtes für Landwirtschaft (BLW).

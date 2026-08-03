@@ -10,15 +10,13 @@ book:
   chapters:
     - index.qmd
     - intro.qmd
+    - aim.qmd
+    - data.qmd
+    - detection.qmd
+    - limitations.qmd
     - references.qmd
 
 lang: de-CH
-
-keywords:
-  - Ergebnisorientierte Fördersysteme
-  - Fernerkundung
-  - Agroforstwirtschaft
-  - Biodiversität
 
 bibliography: references.bib
 

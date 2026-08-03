@@ -1,7 +1,6 @@
 ---
 title: Einleitung
 lang: de-CH
-bibliography: references.bib
 abstract: |
     Das aktuelle massnahmenorientierte Fördersystem für Bäume in der Schweizer Landwirtschaft ist komplex und schliesst moderne Agroforstsysteme nur in begrenztem Umfang ein.
     Die Agrarpolitik fordert Lösungen, die ergebnisorientiert sind und Agroforstsysteme einbeziehen.
