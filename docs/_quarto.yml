@@ -15,6 +15,12 @@ book:
     - detection.qmd
     - limitations.qmd
     - references.qmd
+  navbar:
+    title: false
+    search: true
+  tools:
+  - icon: envelope-fill
+    href: mailto:info@blw.admin.ch
 
 lang: de-CH
 
