@@ -26,6 +26,26 @@ settlement <- st_read(settlement_path)
 bff_qual <- st_read(bff_path, layer = "bff_qualitaet_2_flaechen")
 bff_vern <- st_read(bff_path, layer = "bff_vernetzung_flaechen")
 
+#-----------------------------------------------------
+# TEMP! - Filter on cantons available with S2
+#-----------------------------------------------------
+
+# Load the canton
+KT <- st_read("//katze/geolib/swissBOUNDARIES3D/2024/fgdb/swissBOUNDARIES3D_1_5_LV95_LN02.gdb",
+              query="select * from TLM_KANTONSGEBIET") %>%
+  st_zm(drop = TRUE, what = "ZM")
+
+# Keep only the 13 cantons that have the newest lidar aquisition (stand 30.07.2026)
+KT <- KT[which(KT$NAME %in% c("Genève", "Thurgau", "Schwyz", "Zürich", "Fribourg", "Glarus", "Appenzell Ausserrhoden",
+  "Vaud", "Zug", "St. Gallen", "Schaffhausen", "Neuchâtel", "Appenzell Innerrhoden" 
+)),]
+
+# Set the crs (same, but had the Z mention for TG)
+st_crs(KT) <- st_crs(CH_1000)
+
+# Keep only intersecting polygons
+CH_1000 <- CH_1000[lengths(st_intersects(CH_1000, KT)) > 0, ]
+
 
 # #-----------------------------------------------------
 # # TEMP! - Filter on Ebertswil, Uerzlikon, Rossau
@@ -48,20 +68,20 @@ bff_vern <- st_read(bff_path, layer = "bff_vernetzung_flaechen")
 # # Adapt output path
 # treeseg_data_local_path <- "D:/BOSCHETTISSIMO/PROCESSED_DATA/TREE_SEG_Uerzlikon/"
 
-#-----------------------------------------------------
-# TEMP! - Filter on canton TG
-#-----------------------------------------------------
+# #-----------------------------------------------------
+# # TEMP! - Filter on canton TG
+# #-----------------------------------------------------
 
-# Load the canton
-TG <- st_read("//katze/geolib/swissBOUNDARIES3D/2024/fgdb/swissBOUNDARIES3D_1_5_LV95_LN02.gdb",
-              query="select * from TLM_KANTONSGEBIET t where t.NAME = 'Thurgau'") %>%
-  st_zm(drop = TRUE, what = "ZM")
+# # Load the canton
+# TG <- st_read("//katze/geolib/swissBOUNDARIES3D/2024/fgdb/swissBOUNDARIES3D_1_5_LV95_LN02.gdb",
+#               query="select * from TLM_KANTONSGEBIET t where t.NAME = 'Thurgau'") %>%
+#   st_zm(drop = TRUE, what = "ZM")
 
-# Set the crs (same, but had the Z mention for TG)
-st_crs(TG) <- st_crs(CH_1000)
+# # Set the crs (same, but had the Z mention for TG)
+# st_crs(TG) <- st_crs(CH_1000)
 
-# Keep only intersecting polygons
-CH_1000 <- CH_1000[st_intersects(CH_1000, TG, sparse = FALSE), ]
+# # Keep only intersecting polygons
+# CH_1000 <- CH_1000[st_intersects(CH_1000, TG, sparse = FALSE), ]
 
 # #-----------------------------------------------------
 # # TEMP! - Filter on canton VD
@@ -493,6 +513,10 @@ ecological_val_tree <- function(arg_crowns, arg_vhm, arg_dem, arg_forest, arg_se
 #-----------------------------------------------------
 process_cell <- function(i) {
 
+  # Wrap the whole cell so one cell's error doesn't cancel the whole
+  # future_lapply run - log it instead and move on, to be rerun separately
+  tryCatch({
+
   # Get extent of cell, and a 125m-buffered version of it
   #-------------------------
   # 125m = 100m (largest neighborhood/coverage radius) + 25m (margin for a
@@ -500,6 +524,19 @@ process_cell <- function(i) {
   # for a crown ultimately kept (centroid within the true cell) is based on
   # complete, non-truncated data, regardless of how close it is to the border
   e <- ext(CH_1000[i, ])
+
+  # Skip cells that were already processed in a previous run (e.g. after a
+  # crash/hang), so a restart doesn't redo work that's already on disk
+  fname <- paste0(
+    treeseg_data_local_path,
+    "CH1000_", xmin(e), "_", xmax(e), "_",
+    ymin(e), "_", ymax(e), ".gpkg"
+  )
+  if (file.exists(fname)) {
+    message("Cell ", i, " already processed, skipping")
+    return(NULL)
+  }
+
   perim_buf <- st_buffer(CH_1000[i, ], dist = 125, joinStyle = "MITRE")
   e_buf <- ext(perim_buf)
 
@@ -512,7 +549,7 @@ process_cell <- function(i) {
   LN_sub <- st_read(LN_2025_path, wkt_filter = wkt)
 
   # If no LN parcel skip this iteration
-  if (length(LN_sub)==0) {
+  if (is.null(LN_sub) || nrow(LN_sub)==0) {
     message("No LN polygons in cell ", i)
     return(NULL)
   }
@@ -567,21 +604,29 @@ process_cell <- function(i) {
   crowns_in <- crowns_in %>%
     mutate(across(where(is.numeric), ~round(.x, 2)))
   
-  # Output filename 
-  fname <- paste0(
-    treeseg_data_local_path,
-    "CH1000_", xmin(e), "_", xmax(e), "_",
-    ymin(e), "_", ymax(e), ".gpkg"
-  )
-  
   # Write results
   st_write(crowns_in,
               dsn = fname,
               layer = "crowns",
               append = FALSE)
 
-  
   return(NULL)
+
+  }, error = function(e) {
+    # Log the failure instead of letting it cancel the whole future_lapply
+    # run, so failed cells can be identified and rerun separately afterwards
+    log_line <- sprintf(
+      "[%s] Cell %d failed: %s",
+      format(Sys.time(), "%Y-%m-%d %H:%M:%S"),
+      i,
+      gsub("[\r\n]+", " ", conditionMessage(e))
+    )
+    cat(log_line, "\n", sep = "",
+        file = paste0(treeseg_data_local_path, "failed_cells.log"),
+        append = TRUE)
+    message(log_line)
+    return(NULL)
+  })
 }
 
 #-----------------------------------------------------
