@@ -2,3 +2,40 @@
 title: Ziele und Grundprinzipien eines neuen Fördersystems
 ---
 
+## Grundprinzipien
+
+Ein neues Fördersystem für Bäume muss folgende Grundprinzipien erfüllen:
+
+- Das neue Fördersystem ersetzt die Bestimmungen der bisherigen Qualitätsbeiträge (Qualitäts-stufen I und II) für Bäume auf der landwirtschaftlichen Nutzfläche und ermöglicht sowohl Vereinfachungen für die Bewirtschaftenden als auch für den Vollzug.
+  Das neue System soll das bisherige Fördersystem für Hochstamm-Feldobstbäume ersetzen. Es soll den Bewirtschaftenden eine hohe Flexibilität ermöglichen und den Vollzug entlasten. Wegen des ergebnisorientierten Charakters des neuen Systems sollen auch in den Projekten zur regionalen Biodiversität und Landschaftsqualität möglichst wenig Massnahmen vorgeschrieben werden. Diese Schnittstelle soll im Auge behalten werden.
+- Das System berücksichtigt alle Laubbäume auf der landwirtschaftlichen Nutzfläche, mit Ausnahme von invasiven gebietsfremden Organismen und mit Ausnahme von Bäumen in Hecken, Feld- und Ufergehölzen.
+  Das neue System berücksichtigt alle Laubbäume, die auf der landwirtschaftlichen Nutzfläche  gepflanzt sind. Dazu gehören auch Kastanienselven mit höchstens 100 Bäume pro Hektare. Ausgeschlossen sind hingegen:
+  - Bäume auf Sömmerungsweiden (Sömmerungsgebiet).
+  - Laubbäume, die gemäss Anhang 2 der Freisetzungsverordnung als invasive gebietsfremde Organismen klassifiziert sind. 
+  - Bäume in Hecken, Feld- und Ufergehölzen, da diese gemäss der Definition der landwirtschaftlichen Begriffsverordnung (LBV, Art. 23 Abs. 1) zur Hecke gehören und als solche gefördert werden. 
+
+Die Erfassung und Beurteilung von Bäumen in folgenden Spezialfällen soll im Rahmen des Pro-jekts abgeklärt werden:
+
+- Waldweiden: Die Grünlandfläche gilt als landwirtschaftliche Nutzfläche, die Bäume gehören hingegen zum Wald. Hingegen sind Waldweiden wahrscheinlich im GIS teilweise nicht sauber abgegrenzt. 
+  (Hochstamm-) Bäume auf Flächen, die gemäss Art. 22 LBV Abs. 1 Bst. b und i als Dauerkulturen angemeldet sind (Obstanlagen und mehrjährige Kulturen wie Christbäume und Chinaschilf). 
+- Der pro Baum bezahlte Beitrag hängt von dessen Wert hinsichtlich seiner Biodiversitätsförder-leistung ab.
+
+Mit den Biodiversitätsbeiträgen fördert der Bund Arten und Lebensräume, insbesondere jene, die im Anhang der Umweltziele Landwirtschaft (UZL, 2008) als Ziel- und Leitarten respektive als UZL-Lebensräume definiert sind. Wenn alle Bäume (inklusiv jene aus modernen Agroforstsystemen) über die Biodiversitätsbeiträge bezahlt werden, dann müssen sie auch einen gewissen Wert für die Biodiversität aufweisen. Aus den Tabellen im Anhang des UZL-Berichts ist ersichtlich, dass Obstgärten, Einzelbäume und Alleen sowie Kastanienselven vielen Ziel- und Leitarten als Lebensräume dienen. Der Beitrag des neuen Systems soll daher dynamisch ausgestaltet sein und neben anderen Aspekten möglichst auch den unterschiedlichen Biodiversitätswert der Baumarten oder Baumartengruppen (z. B. Obstbäume) berücksichtigen.
+
+# Beschreibung der möglichen Umsetzung des neuen Systems
+
+Im Folgenden wird ein Vorschlag für ein mögliches neues System zur Erfassung und Bewertung von Bäumen auf der landwirtschaftlichen Nutzfläche beschrieben.
+Die Idee für den Vorschlag basiert auf folgenden Annahmen:
+
+- Das heutige, massnahmenorientierte Fördersystem bildet den Biodiversitätswert der Bäume unzureichend ab und schränkt die Landwirtinnen und Landwirte in ihrem Hand-lungsspielraum stark ein.
+- Es sind Daten verfügbar, welche für eine ergebnisorientierte Förderung der Biodiversität über Bäume genutzt werden können. Mit den in Kapitel 3.2.1 beschriebenen Datengrund-lagen können Bäume präzis erkannt werden. Verschnitten mit GIS-Daten, können Bäu-me auf solche der landwirtschaftlichen Nutzfläche eingegrenzt werden (Orthofoto, swissSURFACE3D, GIS-Daten des BLW).
+- Der Wert eines Baumes für die Biodiversität kann über folgende Indikatoren angenähert werden. Die Daten dazu sind ebenfalls vorhanden, können daraus generiert werden oder könnten ohne grossen Aufwand erhoben werden: 
+  -	Je grösser das Kronenvolumen eines Baumes ist, desto wertvoller ist er für die Bio-diversität (Vegetationshöhenmodell).
+  -	Unterschiedliche Arten(-gruppen) sind unterschiedlich wertvoll, beispielsweise bietet eine Eiche mehr Arten Lebensraum als eine Pappel und sind Hochstamm-Feldobstbäume sind in den Umweltzielen Landwirtschaft (2008) für viele Ziel- und Leitarten als unerlässliche oder förderliche Lebensräume beschrieben (machine learning oder manuelle Zuweisung).
+  -	Die Kombination mit weiteren ökologisch wertvollen Elementen erhöht den Wert der Bäume für die Biodiversität (BFF-Zurechnungsflächen, siehe heutige Anforderung bei Hochstamm-Feldobstbäumen der Qualitätsstufe II). 
+  -	Unter Umständen gibt es optimale Baumdichten (Orthofoto, swissSURFACE3D; siehe heutige Anforderung bei Hochstamm-Feldobstbäumen der Qualitätsstufen I und II).
+- Ein neues Fördersystem, basierend auf der Kombination weniger Indikatoren aus vor-handenen Daten, würde den Landwirtinnen und Landwirten mehr Handlungsspielraum geben, den Vollzug vereinfachen und die Biodiversitätsleistung der geförderten Bäume besser honorieren. 
+
+Nachfolgend werden zunächst die vorgeschlagene Datengrundlagen beschrieben, danach die Merkmals-extraktion / Datenaufbereitung, der Prozess zur ökologischen Bewertung der Bäume sowie die notwendigen nachgelagerten Analysen. 
+
+Vorschläge für Optimierungen in der Auswahl der verwendeten Datengrundlagen und des Vorgehens können in die Diskussion mit dem Auftraggeber einfliessen.
