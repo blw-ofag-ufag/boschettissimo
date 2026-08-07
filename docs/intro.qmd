@@ -7,7 +7,7 @@ abstract: |
     In einer Machbarkeitsstudie wird getestet, wie Fernerkundungsdaten genutzt werden können, um Bäume auf landwirtschaftlichen Flächen zu identifizieren und ihre ökologische Qualität zu bewerten.
 ---
 
-## Aktuelle Fördersysteme für Bäume auf landwirtschaftlichen Flächen in der Schweiz, einschliesslich Agroforstwirtschaft
+## Ausgangangslage
 
 Bäume auf den landwirtschaftlichen Flächen der Schweiz werden durch Biodiversitäts- und Landschaftsqualitätsbeiträge gemäss der Direktzahlungsverordnung [@dzv] gefördert.
 Zahlenmässig sind Hochstamm-Feldobstbäume am bedeutendsten.
@@ -24,6 +24,6 @@ In der Klimastrategie Landwirtschaft und Ernährung 2050, die vom Bundesamt für
 
 Die aktuellen Fördersysteme für Bäume - die Biodiversitäts- und die Landschaftsqualitätsbeiträge - sind rein massnahmenbasiert konzipiert. Die Biodiversitätsbeiträge sind in zwei Qualitätsstufen unterteilt, mit zusätzlichen Fördergeldern für die ökologische Vernetzung. Die Vorschriften für Hochstamm-Feldobstbäume, die den Grossteil der geförderten Bäume ausmachen, sind umfangreich. In der ersten Qualitätsstufe umfassen sie unter anderem eine Mindestanzahl an Bäumen, eine maximale Baumdichte, eine Mindeststammhöhe und die Baumpflege. In der zweiten Qualitätsstufe werden zusätzliche Anforderungen definiert, einschliesslich Kleinstrukturen wie Asthaufen, Nistgelegenheiten für Vögel und Fledermäuse sowie maximale Abstände zwischen den Bäumen. Das System ist komplex, unflexibel und daher sowohl für die Landwirt/-innen als auch für die Kontrollorgane herausfordernd.
 
-## Machbarkeitsstudie zu einem neuen, ergebnisorientierten Fördersystem
+## Gründe für die Machbarkeitsstudie
 
 Aus diesen Gründen möchte das Bundesamt für Landwirtschaft (BLW) ein potenzielles zukünftiges System entwickeln und testen, das so ergebnisorientiert und rein datengesteuert wie möglich ist und auf einer begrenzten Anzahl von Indikatoren basiert. In einer Machbarkeitsstudie untersucht die Eidgenössische Forschungsanstalt für Wald, Schnee und Landschaft (WSL), wie Bäume auf landwirtschaftlichen Flächen mithilfe von Fernerkundungsdaten und -produkten identifiziert und ihre ökologische Qualität – insbesondere ihr Einfluss auf die Biodiversität – automatisch bewertet werden könnten. Die primären Datenquellen für die Schweiz sind landesweite Daten von swisstopo [@swisstopo] und operationell abgeleitete Geodatensätze. Diese bestehen in erster Linie aus LiDAR-Daten, digitalen Luft- und Satellitenbildern sowie Vegetationshöhenmodellen, die im Rahmen des Schweizerischen Landesforstinventars (LFI) [@lfi] erstellt werden. Da auch die Baumarten bei der ökologischen Bewertung eine Rolle spielen, soll zudem die Unterscheidung von Baumarten mittels maschinellen Lernens getestet werden. Die Machbarkeitsstudie hat im April 2026 begonnen und wird bis März 2027 abgeschlossen sein.
