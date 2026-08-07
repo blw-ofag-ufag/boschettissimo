@@ -11,6 +11,20 @@ Ein Produkt, welches von der WSL bereitgestellt wird und anzeigt, wie hoch die V
 Hat eine Auflösung von 1 × 1 m und wird alle sechs Jahre aus Luftbildern und alle sechs Jahre (um drei Jahre versetzt) aus LIDAR-Scans gerechnet.
 Siehe: [Vegetationshöhenmodell LFI](https://opendata.swiss/de/dataset/vegetationshohenmodell-lfi) und [Vegetationshöhenmodell Lidar LFI](https://opendata.swiss/de/dataset/vegetationshohenmodell-lidar-lfi).
 
+::: {#fig-vhm}
+```{=html}
+<iframe 
+    src="https://map.geo.admin.ch/#/embed?lang=de&center=2727300,1271000&z=9&topic=ech&layers=ch.bafu.landesforstinventar-vegetationshoehenmodell_lidar@,,1"
+    width="100%" 
+    height="500px" 
+    style="border:2pt;" 
+    allow="geolocation" 
+    allowfullscreen>
+</iframe>
+```
+Interaktive Ansicht des Vegetationshöhenmodell Lidar LFI der Vergation rund um Weerswilen TG.
+:::
+
 ## GIS-Daten des BLW
 
 Repräsentiert alle landwirtschaftlichen Nutzflächen der Schweiz als Polygone mit bestimmten Attributen wie z. B. der direktzahlungsberechtigten Kultur sowie der Zugehörigkeit zu Betrieben, der für den Vollzug zuständigen Kantone etc.

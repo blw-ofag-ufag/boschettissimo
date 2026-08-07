@@ -1,5 +1,5 @@
 ---
-title: Digitale Erkennung von Bäumen auf der landwirtschaftlichen Nutzfläche
+title: Baumerkennung
 ---
 
 TODO.
