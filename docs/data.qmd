@@ -16,8 +16,8 @@ Siehe: [Vegetationshöhenmodell LFI](https://opendata.swiss/de/dataset/vegetatio
 <iframe 
     src="https://map.geo.admin.ch/#/embed?lang=de&center=2727300,1271000&z=9&topic=ech&layers=ch.bafu.landesforstinventar-vegetationshoehenmodell_lidar@,,1"
     width="100%" 
-    height="500px" 
-    style="border:2pt;" 
+    height="500px"
+    style="border: 1pt solid black;"
     allow="geolocation" 
     allowfullscreen>
 </iframe>
