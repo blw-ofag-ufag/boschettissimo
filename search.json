@@ -80,6 +80,16 @@
     ]
   },
   {
+    "objectID": "aim.html#beschreibung-der-möglichen-umsetzung-des-neuen-systems",
+    "href": "aim.html#beschreibung-der-möglichen-umsetzung-des-neuen-systems",
+    "title": "2  Ziele und Grundprinzipien eines neuen Fördersystems",
+    "section": "2.2 Beschreibung der möglichen Umsetzung des neuen Systems",
+    "text": "2.2 Beschreibung der möglichen Umsetzung des neuen Systems\nIm Folgenden wird ein Vorschlag für ein mögliches neues System zur Erfassung und Bewertung von Bäumen auf der landwirtschaftlichen Nutzfläche beschrieben. Die Idee für den Vorschlag basiert auf folgenden Annahmen:\n\nDas heutige, massnahmenorientierte Fördersystem bildet den Biodiversitätswert der Bäume unzureichend ab und schränkt die Landwirtinnen und Landwirte in ihrem Hand-lungsspielraum stark ein.\nEs sind Daten verfügbar, welche für eine ergebnisorientierte Förderung der Biodiversität über Bäume genutzt werden können. Mit den in Kapitel 3.2.1 beschriebenen Datengrund-lagen können Bäume präzis erkannt werden. Verschnitten mit GIS-Daten, können Bäu-me auf solche der landwirtschaftlichen Nutzfläche eingegrenzt werden (Orthofoto, swissSURFACE3D, GIS-Daten des BLW).\nDer Wert eines Baumes für die Biodiversität kann über folgende Indikatoren angenähert werden. Die Daten dazu sind ebenfalls vorhanden, können daraus generiert werden oder könnten ohne grossen Aufwand erhoben werden:\n\nJe grösser das Kronenvolumen eines Baumes ist, desto wertvoller ist er für die Bio-diversität (Vegetationshöhenmodell).\nUnterschiedliche Arten(-gruppen) sind unterschiedlich wertvoll, beispielsweise bietet eine Eiche mehr Arten Lebensraum als eine Pappel und sind Hochstamm-Feldobstbäume sind in den Umweltzielen Landwirtschaft (2008) für viele Ziel- und Leitarten als unerlässliche oder förderliche Lebensräume beschrieben (machine learning oder manuelle Zuweisung).\nDie Kombination mit weiteren ökologisch wertvollen Elementen erhöht den Wert der Bäume für die Biodiversität (BFF-Zurechnungsflächen, siehe heutige Anforderung bei Hochstamm-Feldobstbäumen der Qualitätsstufe II).\nUnter Umständen gibt es optimale Baumdichten (Orthofoto, swissSURFACE3D; siehe heutige Anforderung bei Hochstamm-Feldobstbäumen der Qualitätsstufen I und II).\n\nEin neues Fördersystem, basierend auf der Kombination weniger Indikatoren aus vor-handenen Daten, würde den Landwirtinnen und Landwirten mehr Handlungsspielraum geben, den Vollzug vereinfachen und die Biodiversitätsleistung der geförderten Bäume besser honorieren.\n\nNachfolgend werden zunächst die vorgeschlagene Datengrundlagen beschrieben, danach die Merkmals-extraktion / Datenaufbereitung, der Prozess zur ökologischen Bewertung der Bäume sowie die notwendigen nachgelagerten Analysen.\nVorschläge für Optimierungen in der Auswahl der verwendeten Datengrundlagen und des Vorgehens können in die Diskussion mit dem Auftraggeber einfliessen.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Ziele und Grundprinzipien eines neuen Fördersystems</span>"
+    ]
+  },
+  {
     "objectID": "data.html",
     "href": "data.html",
     "title": "3  Datengrundlage",
