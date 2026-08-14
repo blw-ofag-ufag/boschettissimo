@@ -114,7 +114,7 @@
     "href": "data.html#gis-daten-des-blw",
     "title": "3  Datengrundlage",
     "section": "3.2 GIS-Daten des BLW",
-    "text": "3.2 GIS-Daten des BLW\nRepräsentiert alle landwirtschaftlichen Nutzflächen der Schweiz als Polygone mit bestimmten Attributen wie z. B. der direktzahlungsberechtigten Kultur sowie der Zugehörigkeit zu Betrieben, der für den Vollzug zuständigen Kantone etc. In der Vollzugshilfe Merkblatt Nr. 6.2 ist der Flächenkatalog mit den beitragsberechtigten Flächen und ihren Codes beschrieben. Je nach Ausprägung der Kultur sind verschiedene Codes möglich: Hecken werden beispielsweise unter folgenden Codes angemeldet: 852, 857, 858 oder 902 .",
+    "text": "3.2 GIS-Daten des BLW\nRepräsentiert alle landwirtschaftlichen Nutzflächen der Schweiz als Polygone mit bestimmten Attributen wie z. B. der direktzahlungsberechtigten Kultur sowie der Zugehörigkeit zu Betrieben, der für den Vollzug zuständigen Kantone etc. In der Vollzugshilfe Merkblatt Nr. 6.2 ist der Flächenkatalog mit den beitragsberechtigten Flächen und ihren Codes beschrieben. Je nach Ausprägung der Kultur sind verschiedene Codes möglich: Hecken werden beispielsweise unter folgenden Codes angemeldet: 852, 857, 858 oder 902 .\n\n\n\n\n\n\n\nAbbildung 3.2: Interaktive Ansicht des Vegetationshöhenmodell Lidar LFI mit darübergelegter Karte der landwirtschaftlichen Nutzungsflächen (Geobasisdaten 153.1) der Vergation rund um Weerswilen TG. Obstanlagen sind hier gut ersichtlich, da hochwachsende Vegetation innerhalb der Nutzungsflächen liegt.",
     "crumbs": [
       "<span class='chapter-number'>3</span>  <span class='chapter-title'>Datengrundlage</span>"
     ]
