@@ -31,6 +31,20 @@ Repräsentiert alle landwirtschaftlichen Nutzflächen der Schweiz als Polygone m
 In der [Vollzugshilfe Merkblatt Nr. 6.2](https://www.blw.admin.ch/dam/de/sd-web/QYLa6wGfdK8G/2026%20Merkblatt%20Nr.%206.2%20Fl%C3%A4chenkatalog%20und%20Beitragsberechtigung.pdf) ist der Flächenkatalog mit den beitragsberechtigten Flächen und ihren Codes beschrieben.
 Je nach Ausprägung der Kultur sind verschiedene Codes möglich: Hecken werden beispielsweise unter folgenden Codes angemeldet: 852, 857, 858 oder 902 .
 
+::: {#fig-vhm}
+```{=html}
+<iframe 
+    src="https://map.geo.admin.ch/#/embed?lang=de&center=2727300,1271000&z=9&topic=ech&layers=ch.bafu.landesforstinventar-vegetationshoehenmodell_lidar@,t,1;ch.blw.landwirtschaftliche-nutzungsflaechen@,t,0.6"
+    width="100%" 
+    height="500px"
+    style="border: 1pt solid black;"
+    allow="geolocation" 
+    allowfullscreen>
+</iframe>
+```
+Interaktive Ansicht des Vegetationshöhenmodell Lidar LFI mit darübergelegter Karte der landwirtschaftlichen Nutzungsflächen (Geobasisdaten 153.1) der Vergation rund um Weerswilen TG. Obstanlagen sind hier gut ersichtlich, da hochwachsende Vegetation innerhalb der Nutzungsflächen liegt.
+:::
+
 ## SWISSIMAGE
 
 Das Orthofoto SWISSIMAGE ist eine Zusammensetzung der neuen digitalen Farbluftbilder über die ganze Schweiz mit einer Bodenauflösung von 10 cm im Flachland und den wichtigsten Alpentälern sowie 25 cm in den Alpen.
