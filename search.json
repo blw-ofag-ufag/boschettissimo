@@ -164,7 +164,7 @@
     "href": "limitations.html",
     "title": "5  Bekannte Probleme",
     "section": "",
-    "text": "TODO.",
+    "text": "Datenqualität bei der landwirtschaftlichen Nutzfläche.\n\nWaldflächen nicht systematisch ausgeschnitten.\n\nDatenqualität LiDAR variert je nach Jahr.",
     "crumbs": [
       "<span class='chapter-number'>5</span>  <span class='chapter-title'>Bekannte Probleme</span>"
     ]
