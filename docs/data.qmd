@@ -25,11 +25,46 @@ Siehe: [Vegetationshöhenmodell LFI](https://opendata.swiss/de/dataset/vegetatio
 Interaktive Ansicht des Vegetationshöhenmodell Lidar LFI der Vergation rund um Weerswilen TG.
 :::
 
-## GIS-Daten des BLW
+## Geobasisdaten Landwirtschaftliche Kulturflächen
 
-Repräsentiert alle landwirtschaftlichen Nutzflächen der Schweiz als Polygone mit bestimmten Attributen wie z. B. der direktzahlungsberechtigten Kultur sowie der Zugehörigkeit zu Betrieben, der für den Vollzug zuständigen Kantone etc.
-In der [Vollzugshilfe Merkblatt Nr. 6.2](https://www.blw.admin.ch/dam/de/sd-web/QYLa6wGfdK8G/2026%20Merkblatt%20Nr.%206.2%20Fl%C3%A4chenkatalog%20und%20Beitragsberechtigung.pdf) ist der Flächenkatalog mit den beitragsberechtigten Flächen und ihren Codes beschrieben.
-Je nach Ausprägung der Kultur sind verschiedene Codes möglich: Hecken werden beispielsweise unter folgenden Codes angemeldet: 852, 857, 858 oder 902 .
+Die landwirtschaftlichen Geodaten basieren auf dem minimalen Geodatenmodell gemäss der Modelldokumentation "Landwirtschaftliche Kulturflächen" [@blw2026mgdm].
+Dieses Modell strukturiert die landwirtschaftlichen Kulturflächen in verschiedene Informationsebenen (Layers), welche die minimalen Anforderungen an Struktur und Detaillierungsgrad für den Geodatenaustausch zwischen Bund und Kantonen definieren.
+Beschrieben sind fünf Layer, wobei vier davon für dieses Projekt von Relevanz sind:
+
+- [153.1 Nutzungsflächen](@sec-153.1)
+- [153.3 Biodiversitätsförderflächen Qualitätsstufe II und Vernetzung](@sec-153.3)
+- [153.5 Perimeter Landwirtschaftliche Nutzfläche und Sömmerungsflächen](@sec-153.5)
+- [153.6 Bewirtschaftungseinheiten](@sec-153.6)
+
+Diese Layers werden in den folgenden Unterkapiteln im Detail beschrieben.[^1]
+
+[^1]: Die Reihenfolge wurde gewählt, um den Lesefluss zu verbessern und entspricht daher nicht der Reihenfolge der Identifikatoren.
+
+### Bewirtschaftungseinheiten {#sec-153.6}
+
+Das Modell "153.6 Bewirtschaftungseinheiten" beschreibt die Flächen, welche von einem bestimmten Betrieb (Ganzjahres- oder Sömmerungsbetrieb) zugeordnet sind Zur Identifikation des Betriebs wird die Betriebsnummer aus AGIS verwendet.
+Zusätzlich beinhaltet dieser Layer die Produktionsstätten. "Als Als Produktionsstätte gilt eine Einheit von Land, Gebäuden und Einrichtungen, die räumlich als solche erkennbar und getrennt von anderen Produktionsstätten ist" [@blw2026mgdm, Seite 35].
+Die Summe aller Bewirtschaftungseinheiten eines Betriebes ergibt dessen gesamte Betriebsfläche beziehungsweise den Alpperimeter im Sömmerungsgebiet.
+Diese Ebene dient als räumliche Grundlage und Erfassungshilfe für die detaillierteren Nutzungsflächen.
+
+### Perimeter Landwirtschaftliche Nutzfläche und Sömmerungsflächen {#sec-153.5}
+
+Das Modell "153.5 Perimeter Landwirtschaftliche Nutzfläche und Sömmerungsflächen" stellt die potenziell landwirtschaftlich zu bewirtschaftende Fläche nach [Art. 14 LBV](https://www.fedlex.admin.ch/eli/cc/1999/13/de#art_14) dar.
+Die Ebene dient ebenfalls als Erfassungshilfe für die Nutzungsflächen.
+Der Layer stellt die potentiell landwirtschaftlich bewirtschaftbaren Flächen dar. Dabei interessiert vor allem die Abgrenzung (Perimeter) dieser 
+Flächen.
+Der Perimeter der Landwirtschaftliche Nutzfläche und Sömmerungsflächen wird von den Kantonen festgelegt und periodisch aktua
+lisiert.
+Als Grundlage zur Erstellung dieser Flächen dient primär die Bodenbedeckung der Amtlichen Vermessung.
+Die Polygone in diesem Layer können Lücken oder Löcher aufweisen und decken die Schweiz nicht vollständig ab [@blw2026mgdm, Seite 15].
+
+### Nutzungsflächen
+
+Das Modell "153.1 Nutzungsflächen" beschreib die Nutzungsflächen selbst, also die effektiv landwirtschaftlich genutzten Flächen gemäss der Landwirtschaftlichen Begriffsverordnung (LBV) und der Direktzahlungsverordnung (DZV).
+Jede Nutzungsfläche muss zwingend innerhalb einer zugeteilten Bewirtschaftungseinheit (153.6) liegen.
+Die Geometrien sind als Multipolygone erfasst und mit einem spezifischen Nutzungscode (`LNF_Code`) versehen, welche die Hauptkultur auf dieser Fläche in einem bestimmten Jahr identifiziert.
+Bäume können in diesem Modell zusätzlich als überlagernde Flächen geometrisch erfasst werden, wobei die Anzahl der Bäume im Attribut `Anzahl_Baeume` als Zahl angehängt wird.
+Dieses Attribut ist jedoch optional und wird daher nicht von allen Kantonen erfasst.
 
 ::: {#fig-vhm}
 ```{=html}
@@ -44,6 +79,16 @@ Je nach Ausprägung der Kultur sind verschiedene Codes möglich: Hecken werden b
 ```
 Interaktive Ansicht des Vegetationshöhenmodell Lidar LFI mit darübergelegter Karte der landwirtschaftlichen Nutzungsflächen (Geobasisdaten 153.1) der Vergation rund um Weerswilen TG. Obstanlagen sind hier gut ersichtlich, da hochwachsende Vegetation innerhalb der Nutzungsflächen liegt.
 :::
+
+Für das Projekt Boschettissimo sind die Nutzungsflächen besonderes relevant, da die Direktzahlungsbeiträge auf diesen Flächen basieren.
+
+### Biodiversitätsförderflächen Qualitätsstufe II und Vernetzung
+
+Dieses Modell überlagert die Ebene der Nutzungsflächen und beschreibt spezifisch diejenigen Elemente, für welche Bundesbeiträge bezüglich biologischer Qualität und Vernetzung ausgerichtet werden.
+Der Layer ist in zwei separate Ebenen gegliedert (Qualitätsstufe II und Vernetzung), welche sich auch gegenseitig überlagern können.
+Die Flächen in diesem Modell sind grösstenteils eine Untermenge der Biodiversitätsförderflächen der Qualitätsstufe I aus dem Layer 153.1.
+Ausnahmen bilden beispielsweise Hochstamm-Feldobstbäume (QII) oder artenreiche Grün- und Streueflächen im Sömmerungsgebiet.
+Sie weisen keine direkte datentechnische Verknüpfung zu den Bewirtschaftungseinheiten auf; der Bezug zum Betrieb wird stattdessen durch einen räumlichen Flächenverschnitt mit den anderen Layern hergestellt.
 
 ## SWISSIMAGE
 
