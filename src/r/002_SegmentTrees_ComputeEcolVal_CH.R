@@ -649,7 +649,7 @@ future_lapply(
   future.packages = c("terra", "lidR", "sf", "dplyr", "ForestTools"),
   future.globals = list(
     CH_1000 = CH_1000,
-    VHM_S2_path = VHM_S2_path,
+    VHM_S2_path = VHM_S1_path,
     dem_path = dhm25_path,
     treeseg_data_local_path = treeseg_data_local_path,
     LN_2025_path = LN_2025_path,
