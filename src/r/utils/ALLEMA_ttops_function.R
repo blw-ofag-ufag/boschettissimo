@@ -332,7 +332,7 @@ for(k in seq_along(selec_fks)) {
 }
 
 #-----------------------------------------------------
-# Check regression model for Nadel / Laub differentiation
+# Check regression model for Nadel / Laub differentiation for crown diameter
 #-----------------------------------------------------
 
 # Load Nadel Laub dataset done by Christian
@@ -345,7 +345,7 @@ ALLEMA_EB_poly <- st_read(out_gpkg)
 # Join back to original ALLEMA object to be able to do the regression 
 NadelLaub_ALLEMA <- inner_join(
   ALLEMA_EB_poly[,c("FK_Quadrat","OBJECT_ID","h90","h99","hmax","diameter","geom")],
-  st_drop_geometry(NadelLaub[,c("FK_Quadrat","OBJECT_ID","evergreen")]),
+  st_drop_geometry(NadelLaub[,c("FK_Quadrat","OBJECT_ID","evergreen","MEAN_RETURN", "evergreen_ALS")]),
   by = c("FK_Quadrat","OBJECT_ID")
 )
 
@@ -409,13 +409,64 @@ print(p)
 
 
 mLaub  <- lm(diameter ~ h99,  
-  data = NadelLaub_ALLEMA[which(NadelLaub_ALLEMA$evergreen == "Laub"),])
+             data = NadelLaub_ALLEMA[which(NadelLaub_ALLEMA$evergreen == "Laub"),])
 summary(mLaub)
 
 mNadel <- lm(diameter ~ h99,  
-  data = NadelLaub_ALLEMA[which(NadelLaub_ALLEMA$evergreen == "Nadel"),])
+             data = NadelLaub_ALLEMA[which(NadelLaub_ALLEMA$evergreen == "Nadel"),])
 summary(mNadel)
 
 mh99 <- lm(diameter ~ h99,  
-  data = NadelLaub_ALLEMA)
+           data = NadelLaub_ALLEMA)
 summary(mh99)
+
+#-----------------------------------------------------
+# Check regression model for Nadel / Laub differentiation
+#-----------------------------------------------------
+
+# Join back to original ALLEMA object to be able to do the regression 
+NL_ALLEMA <- inner_join(
+  ALLEMA_EB_poly[,c("FK_Quadrat","OBJECT_ID","h90","h99","hmax","diameter","geom")],
+  st_drop_geometry(NadelLaub[,c("FK_Quadrat","OBJECT_ID","evergreen","MEAN_RETURN", "evergreen_ALS")]),
+  by = c("FK_Quadrat","OBJECT_ID")
+)
+
+# Clean out all rows that contain NA values
+NL_ALLEMA <- NL_ALLEMA[which(NL_ALLEMA$evergreen != "NA"),]
+NL_ALLEMA <- NL_ALLEMA[which(NL_ALLEMA$evergreen != 9),]
+NL_ALLEMA <- NL_ALLEMA[which(!is.na(NL_ALLEMA$MEAN_RETURN)),]
+NL_ALLEMA <- NL_ALLEMA[which(!is.na(NL_ALLEMA$evergreen_ALS)),]
+
+# Set the factors
+NL_ALLEMA$evergreen  <- factor(
+  NL_ALLEMA$evergreen,
+  levels = c(0,1),
+  labels = c("Laub", "Nadel")
+)
+
+mFunkGroup <- glm(evergreen ~ MEAN_RETURN + evergreen_ALS,
+                  data = NL_ALLEMA,
+                  family = binomial(link = "logit"))
+summary(mFunkGroup)
+
+
+m_mr   <- glm(evergreen ~ MEAN_RETURN,    data = NL_ALLEMA, family = binomial(link = "logit"))
+m_als  <- glm(evergreen ~ evergreen_ALS,  data = NL_ALLEMA, family = binomial(link = "logit"))
+m_both <- glm(evergreen ~ MEAN_RETURN + evergreen_ALS, data = NL_ALLEMA, family = binomial(link = "logit"))
+
+anova(m_mr, m_both, test = "Chisq")   # does adding evergreen_ALS help significantly?
+anova(m_als, m_both, test = "Chisq")  # does adding MEAN_RETURN help significantly?
+AIC(m_mr, m_als, m_both)              # lower AIC = better tradeoff of fit vs complexity
+
+NL_ALLEMA$pct_Laub <- predict(m_both, type = "response") * 100
+
+
+library(pROC)
+roc_obj <- roc(NL_ALLEMA$evergreen, NL_ALLEMA$pct_Laub)
+auc(roc_obj)
+plot(roc_obj)
+
+# Confusion matrix at 50% cutoff
+pred_class <- ifelse(NL_ALLEMA$pct_Laub > 50, "Laub", "Nadel")
+table(Predicted = pred_class, Actual = NL_ALLEMA$evergreen)
+mean(pred_class == NL_ALLEMA$evergreen, na.rm = TRUE)
