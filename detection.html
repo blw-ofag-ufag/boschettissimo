@@ -26,7 +26,61 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -76,6 +130,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -155,8 +238,39 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Inhaltsverzeichnis</h2>
+   
+  <ul>
+  <li><a href="#übersicht" id="toc-übersicht" class="nav-link active" data-scroll-target="#übersicht"><span class="header-section-number">4.1</span> Übersicht</a></li>
+  <li><a href="#eingangsdaten" id="toc-eingangsdaten" class="nav-link" data-scroll-target="#eingangsdaten"><span class="header-section-number">4.2</span> Eingangsdaten</a>
+  <ul class="collapse">
+  <li><a href="#vegetationshöhenmodell-vhm" id="toc-vegetationshöhenmodell-vhm" class="nav-link" data-scroll-target="#vegetationshöhenmodell-vhm"><span class="header-section-number">4.2.1</span> Vegetationshöhenmodell (VHM)</a></li>
+  <li><a href="#digitales-höhenmodell-dhm25" id="toc-digitales-höhenmodell-dhm25" class="nav-link" data-scroll-target="#digitales-höhenmodell-dhm25"><span class="header-section-number">4.2.2</span> Digitales Höhenmodell (DHM25)</a></li>
+  <li><a href="#landwirtschaftliche-nutzungsflächen-ln" id="toc-landwirtschaftliche-nutzungsflächen-ln" class="nav-link" data-scroll-target="#landwirtschaftliche-nutzungsflächen-ln"><span class="header-section-number">4.2.3</span> Landwirtschaftliche Nutzungsflächen (LN)</a></li>
+  <li><a href="#weitere-geobasisdaten-für-die-merkmalsberechnung" id="toc-weitere-geobasisdaten-für-die-merkmalsberechnung" class="nav-link" data-scroll-target="#weitere-geobasisdaten-für-die-merkmalsberechnung"><span class="header-section-number">4.2.4</span> Weitere Geobasisdaten für die Merkmalsberechnung</a></li>
+  </ul></li>
+  <li><a href="#referenzdaten-und-validierungsmethode" id="toc-referenzdaten-und-validierungsmethode" class="nav-link" data-scroll-target="#referenzdaten-und-validierungsmethode"><span class="header-section-number">4.3</span> Referenzdaten und Validierungsmethode</a></li>
+  <li><a href="#evaluierte-segmentierungsmethoden" id="toc-evaluierte-segmentierungsmethoden" class="nav-link" data-scroll-target="#evaluierte-segmentierungsmethoden"><span class="header-section-number">4.4</span> Evaluierte Segmentierungsmethoden</a></li>
+  <li><a href="#gewählte-methode" id="toc-gewählte-methode" class="nav-link" data-scroll-target="#gewählte-methode"><span class="header-section-number">4.5</span> Gewählte Methode</a>
+  <ul class="collapse">
+  <li><a href="#prinzip-höhenabhängiges-lokales-maximum-seeded-watershed" id="toc-prinzip-höhenabhängiges-lokales-maximum-seeded-watershed" class="nav-link" data-scroll-target="#prinzip-höhenabhängiges-lokales-maximum-seeded-watershed"><span class="header-section-number">4.5.1</span> Prinzip: höhenabhängiges lokales Maximum + seeded watershed</a></li>
+  </ul></li>
+  <li><a href="#verarbeitungspipeline" id="toc-verarbeitungspipeline" class="nav-link" data-scroll-target="#verarbeitungspipeline"><span class="header-section-number">4.6</span> Verarbeitungspipeline</a>
+  <ul class="collapse">
+  <li><a href="#pufferung-der-kacheln" id="toc-pufferung-der-kacheln" class="nav-link" data-scroll-target="#pufferung-der-kacheln"><span class="header-section-number">4.6.1</span> Pufferung der Kacheln</a></li>
+  <li><a href="#vorverarbeitung-pro-kachel" id="toc-vorverarbeitung-pro-kachel" class="nav-link" data-scroll-target="#vorverarbeitung-pro-kachel"><span class="header-section-number">4.6.2</span> Vorverarbeitung pro Kachel</a></li>
+  <li><a href="#segmentierung-nur-auf-nutzungsflächen" id="toc-segmentierung-nur-auf-nutzungsflächen" class="nav-link" data-scroll-target="#segmentierung-nur-auf-nutzungsflächen"><span class="header-section-number">4.6.3</span> Segmentierung nur auf Nutzungsflächen</a></li>
+  <li><a href="#filterung-der-resultate" id="toc-filterung-der-resultate" class="nav-link" data-scroll-target="#filterung-der-resultate"><span class="header-section-number">4.6.4</span> Filterung der Resultate</a></li>
+  <li><a href="#parallelisierung-und-robustheit" id="toc-parallelisierung-und-robustheit" class="nav-link" data-scroll-target="#parallelisierung-und-robustheit"><span class="header-section-number">4.6.5</span> Parallelisierung und Robustheit</a></li>
+  <li><a href="#zusammenführung" id="toc-zusammenführung" class="nav-link" data-scroll-target="#zusammenführung"><span class="header-section-number">4.6.6</span> Zusammenführung</a></li>
+  </ul></li>
+  <li><a href="#berechnete-merkmale-pro-baum" id="toc-berechnete-merkmale-pro-baum" class="nav-link" data-scroll-target="#berechnete-merkmale-pro-baum"><span class="header-section-number">4.7</span> Berechnete Merkmale pro Baum</a></li>
+  <li><a href="#verarbeitungsumfang" id="toc-verarbeitungsumfang" class="nav-link" data-scroll-target="#verarbeitungsumfang"><span class="header-section-number">4.8</span> Verarbeitungsumfang</a></li>
+  <li><a href="#eingesetzte-software" id="toc-eingesetzte-software" class="nav-link" data-scroll-target="#eingesetzte-software"><span class="header-section-number">4.9</span> Eingesetzte Software</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/blw-ofag-ufag/boschettissimo/blob/main/docs/detection.qmd" class="toc-action"><i class="bi bi-github"></i>Quellcode anzeigen</a></li><li><a href="https://github.com/blw-ofag-ufag/boschettissimo/issues/new" class="toc-action"><i class="bi empty"></i>Problem melden</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -175,14 +289,224 @@ ul.task-list li input[type="checkbox"] {
     
   </div>
   
+<div>
+  <div class="abstract">
+    <div class="block-title">Zusammenfassung</div>
+    <p>Dieses Kapitel beschreibt die technische Umsetzung der automatisierten Einzelbaumerkennung: von den verwendeten Eingangs- und Referenzdaten über die getesteten und die schliesslich gewählte Segmentierungsmethode bis zur Verarbeitungspipeline und den pro Baum berechneten Merkmalen.</p>
+  </div>
+</div>
 
 
 </header>
 
 
-<p>TODO.</p>
+<section id="übersicht" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="übersicht"><span class="header-section-number">4.1</span> Übersicht</h2>
+<p>Kernstück des neuen, ergebnisorientierten Fördersystems ist die automatisierte Detektion und physische Charakterisierung von Einzelbäumen auf der landwirtschaftlichen Nutzfläche (LN). Gemäss Pflichtenheft soll dazu ein Vegetationshöhenmodell (VHM) – allenfalls ergänzt durch LiDAR-Punktwolken und Luftbilder – mittels eines Algorithmus zur Einzelbaumerkennung prozessiert werden, um jeden Baum automatisch zu erkennen und sein Zentrum (X/Y-Koordinaten) zu bestimmen.</p>
+<p>Der gewählte Ansatz gliedert sich in vier Schritte, die im Folgenden im Detail beschrieben werden:</p>
+<ol type="1">
+<li>Aufbereitung der Eingangsdaten pro Verarbeitungskachel (VHM-Glättung, Topografie).</li>
+<li>Segmentierung der Einzelbäume mittels einer höhenadaptiven Baumspitzenerkennung, gefolgt von einer markergesteuerten Wasserscheiden-Segmentierung (<em>seeded watershed</em>).</li>
+<li>Berechnung eines Sets an geometrischen, strukturellen, topografischen und Umgebungs-Merkmalen pro erkannter Baumkrone, welche später der ökologischen Bewertung dienen.</li>
+<li>Zusammenführung der Resultate aller Kacheln zu einem gesamtschweizerischen Datensatz.</li>
+</ol>
+<p>Die Methode wurde anhand von unabhängigen Referenzdaten (ALL-EMA) evaluiert und gegenüber mehreren publizierten Segmentierungsverfahren abgewogen.</p>
+</section>
+<section id="eingangsdaten" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="eingangsdaten"><span class="header-section-number">4.2</span> Eingangsdaten</h2>
+<section id="vegetationshöhenmodell-vhm" class="level3" data-number="4.2.1">
+<h3 data-number="4.2.1" class="anchored" data-anchor-id="vegetationshöhenmodell-vhm"><span class="header-section-number">4.2.1</span> Vegetationshöhenmodell (VHM)</h3>
+<p>Die Segmentierung basiert auf einem Vegetationshöhenmodell mit 0.5 m Auflösung, das auf Basis von LiDAR-Daten des Airborne Laserscannings der Schweiz (ALS) abgeleitet wird. Da diese hochaufgelösten Daten zum Zeitpunkt der Studie nicht für die ganze Schweiz vorlagen, wurde die operationelle Verarbeitung vorerst auf die 13 Kantone beschränkt, für die eine aktuelle LiDAR-Erfassung besteht (Stand Sommer 2026): Genf, Thurgau, Schwyz, Zürich, Freiburg, Glarus, Appenzell Ausserrhoden, Waadt, Zug, St.&nbsp;Gallen, Schaffhausen, Neuenburg und Appenzell Innerrhoden.</p>
+</section>
+<section id="digitales-höhenmodell-dhm25" class="level3" data-number="4.2.2">
+<h3 data-number="4.2.2" class="anchored" data-anchor-id="digitales-höhenmodell-dhm25"><span class="header-section-number">4.2.2</span> Digitales Höhenmodell (DHM25)</h3>
+<p>Für die Ableitung von Höhe ü. M., Hangneigung und Exposition wird das DHM25 von swisstopo <span class="citation" data-cites="swisstopo">(<a href="references.html#ref-swisstopo" role="doc-biblioref"><span class="nocase">swisstopo</span> 2024</a>)</span> verwendet. Da dieses ursprünglich im Koordinatensystem LV03 ohne CRS-Tag vorliegt, wird es einmalig mittels <code>gdalwarp</code> nach LV95 (EPSG:2056) reprojiziert.</p>
+</section>
+<section id="landwirtschaftliche-nutzungsflächen-ln" class="level3" data-number="4.2.3">
+<h3 data-number="4.2.3" class="anchored" data-anchor-id="landwirtschaftliche-nutzungsflächen-ln"><span class="header-section-number">4.2.3</span> Landwirtschaftliche Nutzungsflächen (LN)</h3>
+<p>Als räumliche Referenz für die landwirtschaftliche Nutzfläche dient der Datensatz der landwirtschaftlichen Kulturflächen (Perimeter LN und Sömmerungsflächen), der im Rahmen des Vollzugs der Direktzahlungsverordnung gesamtschweizerisch erfasst wird. Die Segmentierung wird ausschliesslich innerhalb dieser Flächen (zzgl. eines Puffers, siehe unten) durchgeführt, damit keine Bäume ausserhalb der LN (z. B. im geschlossenen Wald) unnötig prozessiert werden.</p>
+</section>
+<section id="weitere-geobasisdaten-für-die-merkmalsberechnung" class="level3" data-number="4.2.4">
+<h3 data-number="4.2.4" class="anchored" data-anchor-id="weitere-geobasisdaten-für-die-merkmalsberechnung"><span class="header-section-number">4.2.4</span> Weitere Geobasisdaten für die Merkmalsberechnung</h3>
+<p>Für die spätere ökologische Bewertung werden zusätzlich folgende Datensätze herangezogen:</p>
+<ul>
+<li><strong>Wald</strong>: <code>TLM_BODENBEDECKUNG</code> (Objektart <em>Wald</em>) aus swissTLM3D <span class="citation" data-cites="swisstopo">(<a href="references.html#ref-swisstopo" role="doc-biblioref"><span class="nocase">swisstopo</span> 2024</a>)</span>, als Waldmaske.</li>
+<li><strong>Siedlung</strong>: Siedlungsflächen des Bundesamts für Raumentwicklung (ARE).</li>
+<li><strong>Biodiversitätsförderflächen (BFF)</strong>: Qualitätsstufe II und Vernetzungsflächen, kantonal geliefert und zu einem gesamtschweizerischen Datensatz zusammengeführt.</li>
+<li><strong>Kantonsgrenzen</strong> (swissBOUNDARIES3D), einzig zur Abgrenzung der aktuell prozessierten Kantone.</li>
+</ul>
+</section>
+</section>
+<section id="referenzdaten-und-validierungsmethode" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="referenzdaten-und-validierungsmethode"><span class="header-section-number">4.3</span> Referenzdaten und Validierungsmethode</h2>
+<p>Als unabhängige Referenz dient das Arealstichprobenprogramm <strong>ALL-EMA</strong> des BAFU, in dem Gehölze in 170 Untersuchungsquadraten von Fachpersonen digitalisiert werden. Da die Erhebungsjahre der ALL-EMA-Digitalisierung nicht systematisch mit dem Jahr der LiDAR-Befliegung übereinstimmen, wurden nur jene 56 Untersuchungsquadrate für die Validierung der Segmentierung verwendet, bei denen eine ALS-Befliegung innerhalb von ±1 Jahr um das Erhebungsjahr der ALL-EMA-Daten vorliegt.</p>
+<p>Die Referenzpolygone wurden zusätzlich gefiltert, um möglichst nur eindeutige Einzelbäume (statt Baumgruppen oder Hecken) zu erhalten:</p>
+<ul>
+<li>Beschränkung auf die ALL-EMA-Gehölztypen <em>Obstanlagen</em>, <em>Hochstammobst</em> und <em>Einzelbaum/Baumgruppe</em>.</li>
+<li>Ausschluss von Polygonen mit einer Rundheit (<code>roundness = 4πA/P²</code>) unter 0.95, um Mehrbaum-Gruppen auszuschliessen.</li>
+<li>Ausschluss von Polygonen ohne Vegetation im VHM (Maximalwert 0), um Digitalisierungsfehler bzw. zwischenzeitlich gerodete Bäume auszuschliessen.</li>
+</ul>
+<p>Für die eigentliche Bewertung wird für jeden Referenzbaum und jede getestete Methode die am besten überlappende segmentierte Krone gesucht (höchster <em>Intersection-over-Union</em>-Wert, IoU). Da die ALL-EMA-Polygone nur eine grobe Näherung der effektiven Baumkrone darstellen, wird für die Detektion ein bewusst tiefer Schwellenwert von IoU ≥ 0.25 verwendet. Auf dieser Basis werden pro Methode und Untersuchungsquadrat folgende Kennzahlen berechnet: Detektionsrate, mittlerer/medianer IoU, sowie Anteil über- (eine Referenzkrone überlappt mehrere segmentierte Kronen) und untersegmentierter Bäume (eine segmentierte Krone überlappt mehrere Referenzkronen).</p>
+</section>
+<section id="evaluierte-segmentierungsmethoden" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="evaluierte-segmentierungsmethoden"><span class="header-section-number">4.4</span> Evaluierte Segmentierungsmethoden</h2>
+<p>Vor der Wahl der operationellen Methode wurden verschiedene publizierte Ansätze zur Einzelbaumsegmentierung geprüft:</p>
+<p><strong>Ausgeschlossene Verfahren.</strong> Die Methoden nach <span class="citation" data-cites="li2012">Li u.&nbsp;a. (<a href="references.html#ref-li2012" role="doc-biblioref">2012</a>)</span> (direkte Segmentierung der LiDAR-3D-Punktwolke, für strukturierte, nadelholzdominierte Bestände geeignet) und <span class="citation" data-cites="dalponte2016">Dalponte und Coomes (<a href="references.html#ref-dalponte2016" role="doc-biblioref">2016</a>)</span> (Region-Growing auf Punktwolken- und Höhenmodelldaten, gut für grosse, dominante Bäume mit BHD &gt; 80 cm) wurden aufgrund ihrer Spezifizität und unbefriedigender erster Resultate ausgeschlossen.</p>
+<p><strong>Getestete Verfahren.</strong> Drei weitere Ansätze wurden konkret an einem Testgebiet (ALL-EMA-Quadrat Schafboden) getestet:</p>
+<ul>
+<li><em><span class="citation" data-cites="silva2016">Silva u.&nbsp;a. (<a href="references.html#ref-silva2016" role="doc-biblioref">2016</a>)</span></em>: Baumspitzen werden als Startpunkte verwendet; um jede Spitze wird ein Umkreis mit 0.6-facher Baumhöhe als maximaler Kronenradius definiert; überlappende Kronen werden mittels Voronoi-Tessellation getrennt und anschliessend mit dem VHM überlagert, um die effektive Krone abzugrenzen. Mit den Parametern aus dem Originalpaper resultierte eine deutliche Übersegmentierung; nach Anpassung der Parameter wurden dafür kleine Bäume nicht mehr erkannt, und der fixe Kronenradius schnitt grössere Kronen künstlich ab.</li>
+<li><strong>DeepForest</strong> <span class="citation" data-cites="deepforest">(<a href="references.html#ref-deepforest" role="doc-biblioref">Weinstein u.&nbsp;a. 2020</a>)</span>: ein Deep-Learning-Modell, das anhand von RGB-Luftbildern <em>Bounding Boxes</em> einzelner Baumkronen vorhersagt. Ohne Möglichkeit zur Parameteranpassung zeigte das vortrainierte Modell eine klare Übersegmentierung auf den Testdaten.</li>
+<li><strong>Watershed</strong>: klassische Wasserscheiden-Segmentierung auf dem VHM. Ein Vergleich von 16 unterschiedlichen Glättungsvarianten (Mittelwert- und Maximumsfilter in 3×3- und 5×5-Nachbarschaften sowie unterschiedliche Gauss-Kernel) gegen die Referenzdaten zeigte, dass die Glättung des VHM einen sehr grossen Einfluss auf die Anzahl erkannter Baumspitzen – und damit Bäume – hat: stärkere Glättung führt zu Untersegmentierung naheliegender Bäume und zum Verschwinden kleiner Bäume, schwächere Glättung zu Übersegmentierung grösserer Bäume.</li>
+</ul>
+<p>Über alle getesteten Methoden hinweg zeigte sich ein konsistentes Muster: alleinstehende, klar abgegrenzte Bäume (“einfache” Bäume) wurden von praktisch jeder Methode korrekt erkannt, während naheliegende Bäume tendenziell unter- und grosse Bäume tendenziell übersegmentiert wurden; kleine, insbesondere neu gepflanzte Bäume wurden oft gar nicht erkannt. Kein Verfahren mit fixen Parametern konnte kleine und grosse Bäume gleichzeitig zufriedenstellend abbilden – daraus resultierte die Anforderung an eine adaptive Methode.</p>
+</section>
+<section id="gewählte-methode" class="level2" data-number="4.5">
+<h2 data-number="4.5" class="anchored" data-anchor-id="gewählte-methode"><span class="header-section-number">4.5</span> Gewählte Methode</h2>
+<section id="prinzip-höhenabhängiges-lokales-maximum-seeded-watershed" class="level3" data-number="4.5.1">
+<h3 data-number="4.5.1" class="anchored" data-anchor-id="prinzip-höhenabhängiges-lokales-maximum-seeded-watershed"><span class="header-section-number">4.5.1</span> Prinzip: höhenabhängiges lokales Maximum + seeded watershed</h3>
+<p>Anstelle eines fixen Suchradius zur Detektion lokaler Maxima (Baumspitzen) wird eine variable Fenstergrösse verwendet, die von der lokalen Vegetationshöhe abhängt: an hohen Vegetationsstellen wird in einem grösseren Umkreis nach einem lokalen Maximum gesucht, an tiefen Stellen in einem kleineren. Damit wird der Grössenunterschied zwischen kleinen und grossen Bäumen in einem einzigen, kontinuierlichen Verfahren abgebildet.</p>
+<p>Die Fenstergrösse wird über eine lineare Beziehung zwischen Kronendurchmesser und Vegetationshöhe festgelegt:</p>
+<p><span class="math display">\[
+d_\text{Krone} = 0.7 \cdot h + 3.5
+\]</span></p>
+<p>Diese Koeffizienten wurden mittels linearer Regression auf den ALL-EMA-Referenzkronen bestimmt (Kronendurchmesser als Zielgrösse, 90. Perzentil-Vegetationshöhe der Krone als Prädiktor). Die so gefundenen Baumspitzen dienen anschliessend als Startpunkte (<em>seeds</em>) einer markergesteuerten Wasserscheiden-Segmentierung, welche die effektive Kronenfläche um jede Spitze abgrenzt.</p>
+<p>Konkret wird dies in R mit den Paketen <code>lidR</code> <span class="citation" data-cites="lidr">(<a href="references.html#ref-lidr" role="doc-biblioref">Roussel u.&nbsp;a. 2020</a>)</span> (Funktion <code>locate_trees()</code> mit einem <em>local maximum filter</em>, <code>lmf()</code>, dessen Fenstergrösse als Funktion statt als fixer Wert übergeben wird) und <code>ForestTools</code> <span class="citation" data-cites="foresttools">(<a href="references.html#ref-foresttools" role="doc-biblioref">Plowright 2025</a>)</span> (Funktion <code>mcws()</code>, <em>marker-controlled watershed segmentation</em>) umgesetzt:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Höhenabhängige Fenstergrösse für die Baumspitzensuche</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>find_ttops <span class="ot">&lt;-</span> <span class="cf">function</span>(h) {</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fl">3.5</span> <span class="sc">+</span> <span class="fl">0.7</span> <span class="sc">*</span> h</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Baumspitzen als lokale Maxima im (geglätteten) VHM</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>ttops <span class="ot">&lt;-</span> lidR<span class="sc">::</span><span class="fu">locate_trees</span>(</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  vhm, <span class="fu">lmf</span>(find_ttops, <span class="at">shape =</span> <span class="st">"circular"</span>, <span class="at">hmin =</span> <span class="fl">1.5</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Kronenabgrenzung mittels markergesteuerter Wasserscheiden-Segmentierung</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>crowns <span class="ot">&lt;-</span> ForestTools<span class="sc">::</span><span class="fu">mcws</span>(</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">treetops =</span> ttops,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">CHM =</span> vhm,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">minHeight =</span> <span class="fl">1.5</span>,</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">format =</span> <span class="st">"polygons"</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="In die Zwischenablage kopieren" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Ein minimaler Höhenschwellenwert von 1.5 m (<code>hmin</code>/<code>minHeight</code>) verhindert, dass Bodenrauschen oder niedrige Krautvegetation als Baum erkannt wird.</p>
+</section>
+</section>
+<section id="verarbeitungspipeline" class="level2" data-number="4.6">
+<h2 data-number="4.6" class="anchored" data-anchor-id="verarbeitungspipeline"><span class="header-section-number">4.6</span> Verarbeitungspipeline</h2>
+<p>Die operationelle Verarbeitung erfolgt gekachelt über ein landesweites 1×1-km-Raster (<code>CH_1000</code>), damit auch grössere Regionen speicher- und laufzeiteffizient prozessiert werden können.</p>
+<section id="pufferung-der-kacheln" class="level3" data-number="4.6.1">
+<h3 data-number="4.6.1" class="anchored" data-anchor-id="pufferung-der-kacheln"><span class="header-section-number">4.6.1</span> Pufferung der Kacheln</h3>
+<p>Jede Kachel wird vor der Verarbeitung um 125 m gepuffert. Dieser Wert ergibt sich aus dem grössten verwendeten Nachbarschaftsradius für die Merkmalsberechnung (100 m) zuzüglich eines Sicherheitsrands von 25 m für Kronen nahe am Kachelrand. Dadurch werden auch für Bäume nahe der Kachelgrenze vollständige, nicht abgeschnittene Nachbarschafts- und Umgebungsmerkmale berechnet.</p>
+</section>
+<section id="vorverarbeitung-pro-kachel" class="level3" data-number="4.6.2">
+<h3 data-number="4.6.2" class="anchored" data-anchor-id="vorverarbeitung-pro-kachel"><span class="header-section-number">4.6.2</span> Vorverarbeitung pro Kachel</h3>
+<p>VHM und DHM25 werden für den gepufferten Kachelausschnitt mittels <code>gdal_translate</code> (virtuelles Raster, VRT) zugeschnitten und in den Arbeitsspeicher geladen. Das VHM wird mit einem Gauss-Kernel geglättet (<code>terra::focalMat(..., type = "Gauss")</code>), um Rauschen in der Punktwolke zu dämpfen, ohne die Baumspitzen zu stark zu verwässern. Aus dem DHM25 werden Hangneigung und Exposition abgeleitet (<code>terra::terrain()</code>).</p>
+</section>
+<section id="segmentierung-nur-auf-nutzungsflächen" class="level3" data-number="4.6.3">
+<h3 data-number="4.6.3" class="anchored" data-anchor-id="segmentierung-nur-auf-nutzungsflächen"><span class="header-section-number">4.6.3</span> Segmentierung nur auf Nutzungsflächen</h3>
+<p>Für die eigentliche Baumspitzen- und Kronensegmentierung wird das VHM zusätzlich auf die LN-Parzellen (gepuffert um 25 m, um Kronen zu berücksichtigen, die über den Parzellenrand hinausragen) zugeschnitten und maskiert. Die Merkmalsberechnung selbst verwendet dagegen weiterhin das ungemaskte, gepufferte VHM, damit Nachbarschafts- und Umgebungsmerkmale die tatsächliche umliegende Vegetation widerspiegeln und nicht nur den LN-Ausschnitt.</p>
+</section>
+<section id="filterung-der-resultate" class="level3" data-number="4.6.4">
+<h3 data-number="4.6.4" class="anchored" data-anchor-id="filterung-der-resultate"><span class="header-section-number">4.6.4</span> Filterung der Resultate</h3>
+<p>Nach der Merkmalsberechnung (siehe unten) werden nur jene Baumkronen behalten, deren Zentroid sowohl innerhalb einer LN-Parzelle als auch innerhalb der ungepufferten, “wahren” Kachel liegt. Dies verhindert Duplikate zwischen benachbarten Kacheln und schliesst Bäume ausserhalb der Nutzfläche aus.</p>
+</section>
+<section id="parallelisierung-und-robustheit" class="level3" data-number="4.6.5">
+<h3 data-number="4.6.5" class="anchored" data-anchor-id="parallelisierung-und-robustheit"><span class="header-section-number">4.6.5</span> Parallelisierung und Robustheit</h3>
+<p>Die Verarbeitung der Kacheln erfolgt parallelisiert über <code>future.apply::future_lapply()</code> (fünf gleichzeitige R-Sessions). Bereits verarbeitete Kacheln werden anhand des Vorhandenseins der Ausgabedatei übersprungen, was einen Neustart nach einem Abbruch ohne doppelte Arbeit ermöglicht. Fehler in einzelnen Kacheln werden abgefangen (<code>tryCatch</code>) und in eine Logdatei geschrieben, ohne den gesamten Lauf abzubrechen – betroffene Kacheln können danach gezielt neu prozessiert werden. Jede Kachel wird als eigenes GeoPackage abgelegt.</p>
+</section>
+<section id="zusammenführung" class="level3" data-number="4.6.6">
+<h3 data-number="4.6.6" class="anchored" data-anchor-id="zusammenführung"><span class="header-section-number">4.6.6</span> Zusammenführung</h3>
+<p>Nach Abschluss aller Kacheln werden die einzelnen GeoPackages mittels eines Batch-Skripts (<code>ogr2ogr</code>) zu einem einzigen, gesamtschweizerischen Datensatz zusammengeführt.</p>
+</section>
+</section>
+<section id="berechnete-merkmale-pro-baum" class="level2" data-number="4.7">
+<h2 data-number="4.7" class="anchored" data-anchor-id="berechnete-merkmale-pro-baum"><span class="header-section-number">4.7</span> Berechnete Merkmale pro Baum</h2>
+<p>Für jede segmentierte Baumkrone wird ein umfangreiches Set an Merkmalen berechnet, das später als Grundlage der ökologischen Bewertung dient. Diese erste Merkmalsauswahl basiert auf dem Pflichtenheft sowie auf Projektdiskussionen und wird nach einer vertieften Literaturrecherche zum ökologischen Wert von Bäumen noch ergänzt.</p>
+<p><strong>Kronen-Geometrie</strong></p>
+<ul>
+<li>Fläche der Krone (<code>area_m2</code>)</li>
+<li>Kronendurchmesser (<code>diameter_m</code>, aus der Fläche unter Annahme einer Kreisform)</li>
+<li>Umfang (<code>perimeter</code>)</li>
+<li>Rundheit (<code>roundness = 4πA/P²</code>) – ein Mass dafür, wie kreisförmig die Krone ist; eine sehr runde Krone kann z. B. auf einen zurückgeschnittenen Baum hindeuten.</li>
+<li>Zentroidkoordinaten (<code>center_x</code>, <code>center_y</code>) – dienen als Schätzung der Stammposition (z. B. für die Betriebszuordnung), fliessen aber nicht in die ökologische Bewertung ein.</li>
+</ul>
+<p><strong>Kronen-Vernetzung</strong></p>
+<ul>
+<li>Distanz zur nächsten Krone (<code>nearest_crown_dist</code>; 0, falls sich Kronen berühren oder überlappen)</li>
+<li>Anzahl sich berührender/überlappender Kronen (<code>n_touching_crowns</code>)</li>
+</ul>
+<p><strong>Höhe</strong></p>
+<ul>
+<li>90.-Perzentil-Höhe der Krone im VHM (<code>height_p90</code>), robuster als das Maximum gegenüber einzelnen Ausreisserpixeln</li>
+<li>Verhältnis Höhe/Durchmesser (<code>height_diameter</code>) als grober Strukturindikator (Wert = 1 bedeutet einen Baum, der so hoch wie breit ist)</li>
+</ul>
+<p><strong>Topografie</strong> (am Kronen-Zentroid)</p>
+<ul>
+<li>Höhe ü. M. (<code>altitude</code>)</li>
+<li>Hangneigung (<code>slope</code>)</li>
+<li>Ausrichtung (<code>aspect</code>)</li>
+</ul>
+<p><strong>Zuordnung zur Nutzungsfläche</strong></p>
+<ul>
+<li>Codes aller LN-Parzellen, die den Kronen-Zentroid schneiden (<code>lnf_codes</code>). Diese dienen später dazu, Bäume nach Nutzungsflächentyp zu filtern oder unterschiedlich zu gewichten (z. B. Bäume in Hecken vs.&nbsp;auf Dauerwiesen).</li>
+</ul>
+<p><strong>Nachbarschaftsmerkmale</strong> (separat für 56 m – entspricht einer Kreisfläche von 1 ha – und 100 m Radius um den Zentroid)</p>
+<ul>
+<li>Anzahl Nachbarbäume (<code>n_neighbors</code>)</li>
+<li>Mittlere und minimale Distanz zu den Nachbarbäumen (<code>mean_neighbor_dist</code>, <code>nearest_neighbor_dist</code>)</li>
+<li>Mittelwert und Standardabweichung der Höhe (<code>height_p90</code>) der Nachbarbäume (<code>neighbor_h90_mean</code>, <code>neighbor_h90_sd</code>)</li>
+<li>Z-Score der eigenen Höhe gegenüber den Nachbarn (<code>neighbor_h90_z</code>); positive Werte zeigen einen im Vergleich zur Nachbarschaft ungewöhnlich hohen, negative Werte einen ungewöhnlich niedrigen Baum an</li>
+<li>Anteil Nachbarbäume mit einem Kronendurchmesser über 3 m (<code>prop_large_neighbors</code>)</li>
+</ul>
+<p><strong>Umgebungsmerkmale</strong></p>
+<ul>
+<li>Minimale Distanz zu Wald, Siedlung, einer BFF-Fläche Qualitätsstufe II sowie einer Vernetzungsfläche (<code>dist_to_forest</code>, <code>dist_to_settlement</code>, <code>dist_to_bff_qual</code>, <code>dist_to_bff_vern</code>)</li>
+<li>Deckungsgrad von Wald, Siedlung, BFF-Qualität II und Vernetzungsflächen innerhalb von 56 m bzw. 100 m um den Zentroid (<code>forest_cover_*</code>, <code>settlement_cover_*</code>, <code>bff_qual_cover_*</code>, <code>bff_vern_cover_*</code>)</li>
+<li>Mittlere Vegetationshöhe innerhalb der Waldflächen im 56-m- bzw. 100-m-Umkreis (<code>vhm_mean_56m</code>, <code>vhm_mean_100m</code>)</li>
+</ul>
+<p><strong>Geplante, noch nicht vollständig prozessierte Merkmale</strong></p>
+<p>Einige weitere Merkmale sind konzeptionell vorgesehen, aber noch nicht Teil der operationellen Pipeline: der Anteil Totholz in der Krone, die Unterscheidung Nadel-/Obst-/anderer Laubbaum sowie das Kronenvolumen (über voxelisierte Punktwolken). Für die Nadel-/Laub-Unterscheidung wurden bereits explorative logistische Regressionen auf Basis von LiDAR-Rückstreuungsmerkmalen (mittlere Anzahl Echos, ALS-basierter “Immergrün”-Indikator) an den ALL-EMA-Referenzdaten getestet; diese sind aber noch nicht in die produktive Merkmalsberechnung integriert.</p>
+</section>
+<section id="verarbeitungsumfang" class="level2" data-number="4.8">
+<h2 data-number="4.8" class="anchored" data-anchor-id="verarbeitungsumfang"><span class="header-section-number">4.8</span> Verarbeitungsumfang</h2>
+<p>Die aktuelle Verarbeitung deckt die 13 Kantone mit aktueller LiDAR-Erfassung ab (siehe oben) und benötigt für diesen Umfang rund eine Woche Rechenzeit.</p>
+</section>
+<section id="eingesetzte-software" class="level2" data-number="4.9">
+<h2 data-number="4.9" class="anchored" data-anchor-id="eingesetzte-software"><span class="header-section-number">4.9</span> Eingesetzte Software</h2>
+<p>Die gesamte Pipeline ist in R umgesetzt, unter Verwendung folgender zentraler Pakete und Programme:</p>
+<ul>
+<li><strong>terra</strong> und <strong>sf</strong> für Raster- resp. Vektordatenverarbeitung</li>
+<li><strong>lidR</strong> <span class="citation" data-cites="lidr">(<a href="references.html#ref-lidr" role="doc-biblioref">Roussel u.&nbsp;a. 2020</a>)</span> für die Baumspitzenerkennung (<code>locate_trees()</code>, <code>lmf()</code>)</li>
+<li><strong>ForestTools</strong> <span class="citation" data-cites="foresttools">(<a href="references.html#ref-foresttools" role="doc-biblioref">Plowright 2025</a>)</span> für die markergesteuerte Wasserscheiden-Segmentierung (<code>mcws()</code>)</li>
+<li><strong>future.apply</strong> für die Parallelisierung über Verarbeitungskacheln</li>
+<li><strong>GDAL/OGR</strong> (<code>gdal_translate</code>, <code>gdalwarp</code>, <code>ogr2ogr</code>) für schnelles Rasterzuschneiden, Reprojektion und das Zusammenführen der Kachel-Resultate</li>
+</ul>
 
 
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-dalponte2016" class="csl-entry" role="listitem">
+Dalponte, Michele, und David A. Coomes. 2016. <span>«Tree-centric mapping of forest carbon density from airborne laser scanning and hyperspectral data»</span>. <em>Methods in Ecology and Evolution</em> 7 (10): 1236–45. <a href="https://doi.org/10.1111/2041-210X.12575">https://doi.org/10.1111/2041-210X.12575</a>.
+</div>
+<div id="ref-li2012" class="csl-entry" role="listitem">
+Li, Wenkai, Qinghua Guo, Marek K. Jakubowski, und Maggi Kelly. 2012. <span>«A New Method for Segmenting Individual Trees from the Lidar Point Cloud»</span>. <em>Photogrammetric Engineering &amp; Remote Sensing</em> 78 (1): 75–84. <a href="https://doi.org/10.14358/PERS.78.1.75">https://doi.org/10.14358/PERS.78.1.75</a>.
+</div>
+<div id="ref-foresttools" class="csl-entry" role="listitem">
+Plowright, Andrew. 2025. <em>ForestTools: Analyzing Remotely Sensed Forest Data</em>. <a href="https://CRAN.R-project.org/package=ForestTools">https://CRAN.R-project.org/package=ForestTools</a>.
+</div>
+<div id="ref-lidr" class="csl-entry" role="listitem">
+Roussel, Jean-Romain, David Auty, Nicholas C. Coops, u.&nbsp;a. 2020. <span>«lidR: An R package for analysis of Airborne Laser Scanning (ALS) data»</span>. <em>Remote Sensing of Environment</em> 251: 112061. <a href="https://doi.org/10.1016/j.rse.2020.112061">https://doi.org/10.1016/j.rse.2020.112061</a>.
+</div>
+<div id="ref-silva2016" class="csl-entry" role="listitem">
+Silva, Carlos A., Andrew T. Hudak, Lee A. Vierling, u.&nbsp;a. 2016. <span>«Imputation of Individual Longleaf Pine (Pinus palustris Mill.) Tree Attributes from Field and LiDAR Data»</span>. <em>Canadian Journal of Remote Sensing</em> 42 (5): 554–73. <a href="https://doi.org/10.1080/07038992.2016.1196582">https://doi.org/10.1080/07038992.2016.1196582</a>.
+</div>
+<div id="ref-swisstopo" class="csl-entry" role="listitem">
+<span class="nocase">swisstopo</span>. 2024. <em>swisstopo – Bundesamt für Landestopografie</em>. <a href="https://www.swisstopo.admin.ch">https://www.swisstopo.admin.ch</a>.
+</div>
+<div id="ref-deepforest" class="csl-entry" role="listitem">
+Weinstein, Ben G., Sergio Marconi, Mélaine Aubry-Kientz, Gregoire Vincent, Henry Senyondo, und Ethan P. White. 2020. <span>«DeepForest: A Python package for RGB deep learning tree crown delineation»</span>. <em>Methods in Ecology and Evolution</em> 11 (12): 1743–51. <a href="https://doi.org/10.1111/2041-210X.13472">https://doi.org/10.1111/2041-210X.13472</a>.
+</div>
+</div>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -602,4 +926,4 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/blw-ofag-ufag/boschettissimo/blob/main/docs/detection.qmd" class="toc-action"><i class="bi bi-github"></i>Quellcode anzeigen</a></li><li><a href="https://github.com/blw-ofag-ufag/boschettissimo/issues/new" class="toc-action"><i class="bi empty"></i>Problem melden</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/blw-ofag-ufag/boschettissimo/blob/main/docs/detection.qmd" class="toc-action"><i class="bi bi-github"></i>Quellcode anzeigen</a></li><li><a href="https://github.com/blw-ofag-ufag/boschettissimo/issues/new" class="toc-action"><i class="bi empty"></i>Problem melden</a></li></ul></div></div></div></footer></body></html>
