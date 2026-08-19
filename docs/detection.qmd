@@ -1,5 +1,199 @@
 ---
 title: Baumerkennung
+lang: de-CH
+bibliography: references.bib
+abstract: |
+    Dieses Kapitel beschreibt die technische Umsetzung der automatisierten Einzelbaumerkennung: von den verwendeten Eingangs- und Referenzdaten über die getesteten und die schliesslich gewählte Segmentierungsmethode bis zur Verarbeitungspipeline und den pro Baum berechneten Merkmalen.
 ---
 
-TODO.
+## Übersicht
+
+Kernstück des neuen, ergebnisorientierten Fördersystems ist die automatisierte Detektion und physische Charakterisierung von Einzelbäumen auf der landwirtschaftlichen Nutzfläche (LN). Gemäss Pflichtenheft soll dazu ein Vegetationshöhenmodell (VHM) -- allenfalls ergänzt durch LiDAR-Punktwolken und Luftbilder -- mittels eines Algorithmus zur Einzelbaumerkennung prozessiert werden, um jeden Baum automatisch zu erkennen und sein Zentrum (X/Y-Koordinaten) zu bestimmen.
+
+Der gewählte Ansatz gliedert sich in vier Schritte, die im Folgenden im Detail beschrieben werden:
+
+1. Aufbereitung der Eingangsdaten pro Verarbeitungskachel (VHM-Glättung, Topografie).
+2. Segmentierung der Einzelbäume mittels einer höhenadaptiven Baumspitzenerkennung, gefolgt von einer markergesteuerten Wasserscheiden-Segmentierung (*seeded watershed*).
+3. Berechnung eines Sets an geometrischen, strukturellen, topografischen und Umgebungs-Merkmalen pro erkannter Baumkrone, welche später der ökologischen Bewertung dienen.
+4. Zusammenführung der Resultate aller Kacheln zu einem gesamtschweizerischen Datensatz.
+
+Die Methode wurde anhand von unabhängigen Referenzdaten (ALL-EMA) evaluiert und gegenüber mehreren publizierten Segmentierungsverfahren abgewogen.
+
+## Eingangsdaten
+
+### Vegetationshöhenmodell (VHM)
+
+Die Segmentierung basiert auf einem Vegetationshöhenmodell mit 0.5 m Auflösung, das auf Basis von LiDAR-Daten des Airborne Laserscannings der Schweiz (ALS) abgeleitet wird. Da diese hochaufgelösten Daten zum Zeitpunkt der Studie nicht für die ganze Schweiz vorlagen, wurde die operationelle Verarbeitung vorerst auf die 13 Kantone beschränkt, für die eine aktuelle LiDAR-Erfassung besteht (Stand Sommer 2026): Genf, Thurgau, Schwyz, Zürich, Freiburg, Glarus, Appenzell Ausserrhoden, Waadt, Zug, St. Gallen, Schaffhausen, Neuenburg und Appenzell Innerrhoden.
+
+### Digitales Höhenmodell (DHM25)
+
+Für die Ableitung von Höhe ü. M., Hangneigung und Exposition wird das DHM25 von swisstopo [@swisstopo] verwendet. Da dieses ursprünglich im Koordinatensystem LV03 ohne CRS-Tag vorliegt, wird es einmalig mittels `gdalwarp` nach LV95 (EPSG:2056) reprojiziert.
+
+### Landwirtschaftliche Nutzungsflächen (LN)
+
+Als räumliche Referenz für die landwirtschaftliche Nutzfläche dient der Datensatz der landwirtschaftlichen Kulturflächen (Perimeter LN und Sömmerungsflächen), der im Rahmen des Vollzugs der Direktzahlungsverordnung gesamtschweizerisch erfasst wird. Die Segmentierung wird ausschliesslich innerhalb dieser Flächen (zzgl. eines Puffers, siehe unten) durchgeführt, damit keine Bäume ausserhalb der LN (z. B. im geschlossenen Wald) unnötig prozessiert werden.
+
+### Weitere Geobasisdaten für die Merkmalsberechnung
+
+Für die spätere ökologische Bewertung werden zusätzlich folgende Datensätze herangezogen:
+
+- **Wald**: `TLM_BODENBEDECKUNG` (Objektart *Wald*) aus swissTLM3D [@swisstopo], als Waldmaske.
+- **Siedlung**: Siedlungsflächen des Bundesamts für Raumentwicklung (ARE).
+- **Biodiversitätsförderflächen (BFF)**: Qualitätsstufe II und Vernetzungsflächen, kantonal geliefert und zu einem gesamtschweizerischen Datensatz zusammengeführt.
+- **Kantonsgrenzen** (swissBOUNDARIES3D), einzig zur Abgrenzung der aktuell prozessierten Kantone.
+
+## Referenzdaten und Validierungsmethode
+
+Als unabhängige Referenz dient das Arealstichprobenprogramm **ALL-EMA** des BAFU, in dem Gehölze in 170 Untersuchungsquadraten von Fachpersonen digitalisiert werden. Da die Erhebungsjahre der ALL-EMA-Digitalisierung nicht systematisch mit dem Jahr der LiDAR-Befliegung übereinstimmen, wurden nur jene 56 Untersuchungsquadrate für die Validierung der Segmentierung verwendet, bei denen eine ALS-Befliegung innerhalb von ±1 Jahr um das Erhebungsjahr der ALL-EMA-Daten vorliegt.
+
+Die Referenzpolygone wurden zusätzlich gefiltert, um möglichst nur eindeutige Einzelbäume (statt Baumgruppen oder Hecken) zu erhalten:
+
+- Beschränkung auf die ALL-EMA-Gehölztypen *Obstanlagen*, *Hochstammobst* und *Einzelbaum/Baumgruppe*.
+- Ausschluss von Polygonen mit einer Rundheit (`roundness = 4πA/P²`) unter 0.95, um Mehrbaum-Gruppen auszuschliessen.
+- Ausschluss von Polygonen ohne Vegetation im VHM (Maximalwert 0), um Digitalisierungsfehler bzw. zwischenzeitlich gerodete Bäume auszuschliessen.
+
+Für die eigentliche Bewertung wird für jeden Referenzbaum und jede getestete Methode die am besten überlappende segmentierte Krone gesucht (höchster *Intersection-over-Union*-Wert, IoU). Da die ALL-EMA-Polygone nur eine grobe Näherung der effektiven Baumkrone darstellen, wird für die Detektion ein bewusst tiefer Schwellenwert von IoU ≥ 0.25 verwendet. Auf dieser Basis werden pro Methode und Untersuchungsquadrat folgende Kennzahlen berechnet: Detektionsrate, mittlerer/medianer IoU, sowie Anteil über- (eine Referenzkrone überlappt mehrere segmentierte Kronen) und untersegmentierter Bäume (eine segmentierte Krone überlappt mehrere Referenzkronen).
+
+## Evaluierte Segmentierungsmethoden
+
+Vor der Wahl der operationellen Methode wurden verschiedene publizierte Ansätze zur Einzelbaumsegmentierung geprüft:
+
+**Ausgeschlossene Verfahren.** Die Methoden nach @li2012 (direkte Segmentierung der LiDAR-3D-Punktwolke, für strukturierte, nadelholzdominierte Bestände geeignet) und @dalponte2016 (Region-Growing auf Punktwolken- und Höhenmodelldaten, gut für grosse, dominante Bäume mit BHD > 80 cm) wurden aufgrund ihrer Spezifizität und unbefriedigender erster Resultate ausgeschlossen.
+
+**Getestete Verfahren.** Drei weitere Ansätze wurden konkret an einem Testgebiet (ALL-EMA-Quadrat Schafboden) getestet:
+
+- *@silva2016*: Baumspitzen werden als Startpunkte verwendet; um jede Spitze wird ein Umkreis mit 0.6-facher Baumhöhe als maximaler Kronenradius definiert; überlappende Kronen werden mittels Voronoi-Tessellation getrennt und anschliessend mit dem VHM überlagert, um die effektive Krone abzugrenzen. Mit den Parametern aus dem Originalpaper resultierte eine deutliche Übersegmentierung; nach Anpassung der Parameter wurden dafür kleine Bäume nicht mehr erkannt, und der fixe Kronenradius schnitt grössere Kronen künstlich ab.
+- **DeepForest** [@deepforest]: ein Deep-Learning-Modell, das anhand von RGB-Luftbildern *Bounding Boxes* einzelner Baumkronen vorhersagt. Ohne Möglichkeit zur Parameteranpassung zeigte das vortrainierte Modell eine klare Übersegmentierung auf den Testdaten.
+- **Watershed**: klassische Wasserscheiden-Segmentierung auf dem VHM. Ein Vergleich von 16 unterschiedlichen Glättungsvarianten (Mittelwert- und Maximumsfilter in 3×3- und 5×5-Nachbarschaften sowie unterschiedliche Gauss-Kernel) gegen die Referenzdaten zeigte, dass die Glättung des VHM einen sehr grossen Einfluss auf die Anzahl erkannter Baumspitzen -- und damit Bäume -- hat: stärkere Glättung führt zu Untersegmentierung naheliegender Bäume und zum Verschwinden kleiner Bäume, schwächere Glättung zu Übersegmentierung grösserer Bäume.
+
+Über alle getesteten Methoden hinweg zeigte sich ein konsistentes Muster: alleinstehende, klar abgegrenzte Bäume ("einfache" Bäume) wurden von praktisch jeder Methode korrekt erkannt, während naheliegende Bäume tendenziell unter- und grosse Bäume tendenziell übersegmentiert wurden; kleine, insbesondere neu gepflanzte Bäume wurden oft gar nicht erkannt. Kein Verfahren mit fixen Parametern konnte kleine und grosse Bäume gleichzeitig zufriedenstellend abbilden -- daraus resultierte die Anforderung an eine adaptive Methode.
+
+## Gewählte Methode
+
+### Prinzip: höhenabhängiges lokales Maximum + seeded watershed
+
+Anstelle eines fixen Suchradius zur Detektion lokaler Maxima (Baumspitzen) wird eine variable Fenstergrösse verwendet, die von der lokalen Vegetationshöhe abhängt: an hohen Vegetationsstellen wird in einem grösseren Umkreis nach einem lokalen Maximum gesucht, an tiefen Stellen in einem kleineren. Damit wird der Grössenunterschied zwischen kleinen und grossen Bäumen in einem einzigen, kontinuierlichen Verfahren abgebildet.
+
+Die Fenstergrösse wird über eine lineare Beziehung zwischen Kronendurchmesser und Vegetationshöhe festgelegt:
+
+$$
+d_\text{Krone} = 0.7 \cdot h + 3.5
+$$
+
+Diese Koeffizienten wurden mittels linearer Regression auf den ALL-EMA-Referenzkronen bestimmt (Kronendurchmesser als Zielgrösse, 90. Perzentil-Vegetationshöhe der Krone als Prädiktor). Die so gefundenen Baumspitzen dienen anschliessend als Startpunkte (*seeds*) einer markergesteuerten Wasserscheiden-Segmentierung, welche die effektive Kronenfläche um jede Spitze abgrenzt.
+
+Konkret wird dies in R mit den Paketen `lidR` [@lidr] (Funktion `locate_trees()` mit einem *local maximum filter*, `lmf()`, dessen Fenstergrösse als Funktion statt als fixer Wert übergeben wird) und `ForestTools` [@foresttools] (Funktion `mcws()`, *marker-controlled watershed segmentation*) umgesetzt:
+
+```r
+# Höhenabhängige Fenstergrösse für die Baumspitzensuche
+find_ttops <- function(h) {
+  3.5 + 0.7 * h
+}
+
+# Baumspitzen als lokale Maxima im (geglätteten) VHM
+ttops <- lidR::locate_trees(
+  vhm, lmf(find_ttops, shape = "circular", hmin = 1.5)
+)
+
+# Kronenabgrenzung mittels markergesteuerter Wasserscheiden-Segmentierung
+crowns <- ForestTools::mcws(
+  treetops = ttops,
+  CHM = vhm,
+  minHeight = 1.5,
+  format = "polygons"
+)
+```
+
+Ein minimaler Höhenschwellenwert von 1.5 m (`hmin`/`minHeight`) verhindert, dass Bodenrauschen oder niedrige Krautvegetation als Baum erkannt wird.
+
+## Verarbeitungspipeline
+
+Die operationelle Verarbeitung erfolgt gekachelt über ein landesweites 1×1-km-Raster (`CH_1000`), damit auch grössere Regionen speicher- und laufzeiteffizient prozessiert werden können.
+
+### Pufferung der Kacheln
+
+Jede Kachel wird vor der Verarbeitung um 125 m gepuffert. Dieser Wert ergibt sich aus dem grössten verwendeten Nachbarschaftsradius für die Merkmalsberechnung (100 m) zuzüglich eines Sicherheitsrands von 25 m für Kronen nahe am Kachelrand. Dadurch werden auch für Bäume nahe der Kachelgrenze vollständige, nicht abgeschnittene Nachbarschafts- und Umgebungsmerkmale berechnet.
+
+### Vorverarbeitung pro Kachel
+
+VHM und DHM25 werden für den gepufferten Kachelausschnitt mittels `gdal_translate` (virtuelles Raster, VRT) zugeschnitten und in den Arbeitsspeicher geladen. Das VHM wird mit einem Gauss-Kernel geglättet (`terra::focalMat(..., type = "Gauss")`), um Rauschen in der Punktwolke zu dämpfen, ohne die Baumspitzen zu stark zu verwässern. Aus dem DHM25 werden Hangneigung und Exposition abgeleitet (`terra::terrain()`).
+
+### Segmentierung nur auf Nutzungsflächen
+
+Für die eigentliche Baumspitzen- und Kronensegmentierung wird das VHM zusätzlich auf die LN-Parzellen (gepuffert um 25 m, um Kronen zu berücksichtigen, die über den Parzellenrand hinausragen) zugeschnitten und maskiert. Die Merkmalsberechnung selbst verwendet dagegen weiterhin das ungemaskte, gepufferte VHM, damit Nachbarschafts- und Umgebungsmerkmale die tatsächliche umliegende Vegetation widerspiegeln und nicht nur den LN-Ausschnitt.
+
+### Filterung der Resultate
+
+Nach der Merkmalsberechnung (siehe unten) werden nur jene Baumkronen behalten, deren Zentroid sowohl innerhalb einer LN-Parzelle als auch innerhalb der ungepufferten, "wahren" Kachel liegt. Dies verhindert Duplikate zwischen benachbarten Kacheln und schliesst Bäume ausserhalb der Nutzfläche aus.
+
+### Parallelisierung und Robustheit
+
+Die Verarbeitung der Kacheln erfolgt parallelisiert über `future.apply::future_lapply()` (fünf gleichzeitige R-Sessions). Bereits verarbeitete Kacheln werden anhand des Vorhandenseins der Ausgabedatei übersprungen, was einen Neustart nach einem Abbruch ohne doppelte Arbeit ermöglicht. Fehler in einzelnen Kacheln werden abgefangen (`tryCatch`) und in eine Logdatei geschrieben, ohne den gesamten Lauf abzubrechen -- betroffene Kacheln können danach gezielt neu prozessiert werden. Jede Kachel wird als eigenes GeoPackage abgelegt.
+
+### Zusammenführung
+
+Nach Abschluss aller Kacheln werden die einzelnen GeoPackages mittels eines Batch-Skripts (`ogr2ogr`) zu einem einzigen, gesamtschweizerischen Datensatz zusammengeführt.
+
+## Berechnete Merkmale pro Baum
+
+Für jede segmentierte Baumkrone wird ein umfangreiches Set an Merkmalen berechnet, das später als Grundlage der ökologischen Bewertung dient. Diese erste Merkmalsauswahl basiert auf dem Pflichtenheft sowie auf Projektdiskussionen und wird nach einer vertieften Literaturrecherche zum ökologischen Wert von Bäumen noch ergänzt.
+
+**Kronen-Geometrie**
+
+- Fläche der Krone (`area_m2`)
+- Kronendurchmesser (`diameter_m`, aus der Fläche unter Annahme einer Kreisform)
+- Umfang (`perimeter`)
+- Rundheit (`roundness = 4πA/P²`) -- ein Mass dafür, wie kreisförmig die Krone ist; eine sehr runde Krone kann z. B. auf einen zurückgeschnittenen Baum hindeuten.
+- Zentroidkoordinaten (`center_x`, `center_y`) -- dienen als Schätzung der Stammposition (z. B. für die Betriebszuordnung), fliessen aber nicht in die ökologische Bewertung ein.
+
+**Kronen-Vernetzung**
+
+- Distanz zur nächsten Krone (`nearest_crown_dist`; 0, falls sich Kronen berühren oder überlappen)
+- Anzahl sich berührender/überlappender Kronen (`n_touching_crowns`)
+
+**Höhe**
+
+- 90.-Perzentil-Höhe der Krone im VHM (`height_p90`), robuster als das Maximum gegenüber einzelnen Ausreisserpixeln
+- Verhältnis Höhe/Durchmesser (`height_diameter`) als grober Strukturindikator (Wert = 1 bedeutet einen Baum, der so hoch wie breit ist)
+
+**Topografie** (am Kronen-Zentroid)
+
+- Höhe ü. M. (`altitude`)
+- Hangneigung (`slope`)
+- Ausrichtung (`aspect`)
+
+**Zuordnung zur Nutzungsfläche**
+
+- Codes aller LN-Parzellen, die den Kronen-Zentroid schneiden (`lnf_codes`). Diese dienen später dazu, Bäume nach Nutzungsflächentyp zu filtern oder unterschiedlich zu gewichten (z. B. Bäume in Hecken vs. auf Dauerwiesen).
+
+**Nachbarschaftsmerkmale** (separat für 56 m -- entspricht einer Kreisfläche von 1 ha -- und 100 m Radius um den Zentroid)
+
+- Anzahl Nachbarbäume (`n_neighbors`)
+- Mittlere und minimale Distanz zu den Nachbarbäumen (`mean_neighbor_dist`, `nearest_neighbor_dist`)
+- Mittelwert und Standardabweichung der Höhe (`height_p90`) der Nachbarbäume (`neighbor_h90_mean`, `neighbor_h90_sd`)
+- Z-Score der eigenen Höhe gegenüber den Nachbarn (`neighbor_h90_z`); positive Werte zeigen einen im Vergleich zur Nachbarschaft ungewöhnlich hohen, negative Werte einen ungewöhnlich niedrigen Baum an
+- Anteil Nachbarbäume mit einem Kronendurchmesser über 3 m (`prop_large_neighbors`)
+
+**Umgebungsmerkmale**
+
+- Minimale Distanz zu Wald, Siedlung, einer BFF-Fläche Qualitätsstufe II sowie einer Vernetzungsfläche (`dist_to_forest`, `dist_to_settlement`, `dist_to_bff_qual`, `dist_to_bff_vern`)
+- Deckungsgrad von Wald, Siedlung, BFF-Qualität II und Vernetzungsflächen innerhalb von 56 m bzw. 100 m um den Zentroid (`forest_cover_*`, `settlement_cover_*`, `bff_qual_cover_*`, `bff_vern_cover_*`)
+- Mittlere Vegetationshöhe innerhalb der Waldflächen im 56-m- bzw. 100-m-Umkreis (`vhm_mean_56m`, `vhm_mean_100m`)
+
+**Geplante, noch nicht vollständig prozessierte Merkmale**
+
+Einige weitere Merkmale sind konzeptionell vorgesehen, aber noch nicht Teil der operationellen Pipeline: der Anteil Totholz in der Krone, die Unterscheidung Nadel-/Obst-/anderer Laubbaum sowie das Kronenvolumen (über voxelisierte Punktwolken). Für die Nadel-/Laub-Unterscheidung wurden bereits explorative logistische Regressionen auf Basis von LiDAR-Rückstreuungsmerkmalen (mittlere Anzahl Echos, ALS-basierter "Immergrün"-Indikator) an den ALL-EMA-Referenzdaten getestet; diese sind aber noch nicht in die produktive Merkmalsberechnung integriert.
+
+## Verarbeitungsumfang
+
+Die aktuelle Verarbeitung deckt die 13 Kantone mit aktueller LiDAR-Erfassung ab (siehe oben) und benötigt für diesen Umfang rund eine Woche Rechenzeit.
+
+## Eingesetzte Software
+
+Die gesamte Pipeline ist in R umgesetzt, unter Verwendung folgender zentraler Pakete und Programme:
+
+- **terra** und **sf** für Raster- resp. Vektordatenverarbeitung
+- **lidR** [@lidr] für die Baumspitzenerkennung (`locate_trees()`, `lmf()`)
+- **ForestTools** [@foresttools] für die markergesteuerte Wasserscheiden-Segmentierung (`mcws()`)
+- **future.apply** für die Parallelisierung über Verarbeitungskacheln
+- **GDAL/OGR** (`gdal_translate`, `gdalwarp`, `ogr2ogr`) für schnelles Rasterzuschneiden, Reprojektion und das Zusammenführen der Kachel-Resultate
