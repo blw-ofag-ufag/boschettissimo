@@ -4,9 +4,11 @@ project:
 book:
   title: Boschettissimo
   subtitle: Digitale Erkennung und Bewertung von Bäumen auf landwirtschaftlicher Nutzfläche
+  author: WSL, BLW
   repo-url: https://github.com/blw-ofag-ufag/boschettissimo
   repo-subdir: docs
   repo-actions: [source, issue]
+  downloads: [pdf, docx]
   chapters:
     - index.qmd
     - intro.qmd
@@ -32,3 +34,5 @@ format:
   docx:
     toc: true
     number-sections: true
+  typst:
+    citeproc: true
