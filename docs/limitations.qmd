@@ -2,6 +2,13 @@
 title: Bekannte Probleme
 ---
 
-- Datenqualität bei der landwirtschaftlichen Nutzfläche.
-  - Waldflächen nicht systematisch ausgeschnitten.
-- Datenqualität LiDAR variert je nach Jahr.
+- Daten
+  - Datenqualität bei der landwirtschaftlichen Nutzfläche.
+    - Waldflächen nicht systematisch ausgeschnitten.
+    - Umgang mit Waldweiden, wie gehen wir mit der unterschiedlichen Handhabung im Vollzug um?
+    - Grenzen zwischen Sömmerungsflächen und LN.
+  - Datenqualität LiDAR variert je nach Jahr.
+- Fachlich
+  - Was passiert, wenn das Zentroid von einem erkannten Baum nicht auf der LN liegt, der Stamm aber schon?
+  - Umgang mit Bäumen in Hecken (insbesondere, wenn Hecken nicht explizit im GIS erfasst sind).
+  - Umgang mit hochwachsenden Sträuchern, die Bäumen stark ähneln
