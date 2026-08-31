@@ -254,7 +254,7 @@
     "href": "limitations.html",
     "title": "5  Bekannte Probleme",
     "section": "",
-    "text": "Datenqualität bei der landwirtschaftlichen Nutzfläche.\n\nWaldflächen nicht systematisch ausgeschnitten.\n\nDatenqualität LiDAR variert je nach Jahr.",
+    "text": "Daten\n\nDatenqualität bei der landwirtschaftlichen Nutzfläche.\n\nWaldflächen nicht systematisch ausgeschnitten.\nUmgang mit Waldweiden, wie gehen wir mit der unterschiedlichen Handhabung im Vollzug um?\nGrenzen zwischen Sömmerungsflächen und LN.\n\nDatenqualität LiDAR variert je nach Jahr.\n\nFachlich\n\nWas passiert, wenn das Zentroid von einem erkannten Baum nicht auf der LN liegt, der Stamm aber schon?\nUmgang mit Bäumen in Hecken (insbesondere, wenn Hecken nicht explizit im GIS erfasst sind).\nUmgang mit hochwachsenden Sträuchern, die Bäumen stark ähneln",
     "crumbs": [
       "<span class='chapter-number'>5</span>  <span class='chapter-title'>Bekannte Probleme</span>"
     ]
