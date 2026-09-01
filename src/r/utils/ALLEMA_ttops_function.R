@@ -470,3 +470,83 @@ plot(roc_obj)
 pred_class <- ifelse(NL_ALLEMA$pct_Laub > 50, "Laub", "Nadel")
 table(Predicted = pred_class, Actual = NL_ALLEMA$evergreen)
 mean(pred_class == NL_ALLEMA$evergreen, na.rm = TRUE)
+
+#-----------------------------------------------------
+# DO regression model for ALLEMA outside of processed 14 cantons
+#-----------------------------------------------------
+
+# Load the canton
+KT <- st_read("//katze/geolib/swissBOUNDARIES3D/2024/fgdb/swissBOUNDARIES3D_1_5_LV95_LN02.gdb",
+              query="select * from TLM_KANTONSGEBIET") %>%
+  st_zm(drop = TRUE, what = "ZM")
+
+# Keep only the 13 cantons that have the newest lidar aquisition (stand 30.07.2026)
+KT <- KT[which(KT$NAME %in% c("Genève", "Thurgau", "Schwyz", "Zürich", "Fribourg", "Glarus", "Appenzell Ausserrhoden",
+  "Vaud", "Zug", "St. Gallen", "Schaffhausen", "Neuchâtel", "Appenzell Innerrhoden" 
+)),]
+
+# Set the crs (same, but had the Z mention for TG)
+st_crs(KT) <- st_crs(ALLEMA_EB_poly)
+
+# Keep only non-intersecting polygons
+ALLEMA_EB_poly_sub <- ALLEMA_EB_poly[lengths(st_intersects(ALLEMA_EB_poly, KT)) == 0, ]
+
+
+ALLEMA_EB_poly_sub$Gehoelztyp <- as.factor(ALLEMA_EB_poly_sub$Gehoelztyp)
+
+library(ggplot2)
+library(ggpubr)
+
+# Make sure the grouping variable is a factor with readable labels
+ALLEMA_EB_poly_sub$Gehoelztyp <- factor(
+  ALLEMA_EB_poly_sub$Gehoelztyp,
+  levels = c(38, 59),
+  labels = c("Obstbäume", "andere Einzelbäume")
+)
+
+# A colorblind-friendly, print-friendly palette
+group_colors <- c("Obstbäume" = "#D55E00", "andere Einzelbäume" = "#0072B2")
+
+p <- ggplot(
+  ALLEMA_EB_poly_sub,
+  aes(x = hmax, y = diameter, color = Gehoelztyp, fill = Gehoelztyp)
+) +
+  geom_point(size = 1.6, alpha = 0.65, shape = 16) +
+  geom_smooth(
+    method = "lm", se = TRUE, alpha = 0.45, linewidth = 1.1
+  ) +
+  stat_regline_equation(
+    aes(label = after_stat(eq.label)),
+    label.x.npc = 0.05,
+    label.y.npc = c(0.97, 0.90),
+    size = 4.5,
+    show.legend = FALSE
+  ) +
+  stat_cor(
+    aes(label = after_stat(rr.label)),
+    label.x.npc = 0.05,
+    label.y.npc = c(0.92, 0.85),
+    size = 4.5,
+    show.legend = FALSE
+  ) +
+  scale_color_manual(values = group_colors) +
+  scale_fill_manual(values = group_colors) +
+  labs(
+    title = "Kronenhöhe vs. Kronendurchmesser",
+    subtitle = "Vergleich zweier Gehölztypen (VHM-basierte Kronenmaxima)",
+    x = "Maximale Vegetationshöhe in der Krone (hmax) [m]",
+    y = "Kronendurchmesser [m]",
+    color = "Gehölztyp",
+    fill = "Gehölztyp"
+  ) +
+  theme_bw(base_size = 15) +
+  theme(
+    plot.title = element_text(face = "bold", size = 18),
+    plot.subtitle = element_text(color = "grey30", size = 13),
+    legend.position = "top",
+    legend.title = element_text(face = "bold"),
+    panel.grid.minor = element_blank(),
+    plot.caption = element_text(size = 9, color = "grey50")
+  )
+
+print(p)
