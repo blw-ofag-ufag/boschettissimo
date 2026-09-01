@@ -104,9 +104,6 @@ Q_extent_wkt <- ALLEMA_Q %>%
 # detected and would unfairly count as missed. The SWISS1/SWISS2 crowns are
 # already LN-restricted by construction and don't need re-filtering.
 
-# The FileGDB driver doesn't use a spatial index for wkt_filter here (same
-# issue as the missing attribute index elsewhere), so this scans most of the
-# 1.9M-feature national layer - expect ~2 minutes, not instant
 LN_sub <- st_read(LN_2025_path, wkt_filter = Q_extent_wkt, quiet = TRUE)
 
 in_LN <- lengths(st_intersects(st_centroid(ALLEMA_EB), LN_sub)) > 0
