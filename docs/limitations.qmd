@@ -11,4 +11,6 @@ title: Bekannte Probleme
 - Fachlich
   - Was passiert, wenn das Zentroid von einem erkannten Baum nicht auf der LN liegt, der Stamm aber schon?
   - Umgang mit Bäumen in Hecken (insbesondere, wenn Hecken nicht explizit im GIS erfasst sind).
-  - Umgang mit hochwachsenden Sträuchern, die Bäumen stark ähneln
+  - Umgang mit (Hochstamm-) Bäumen in Obstanlagen resp. Definition von Obstanlagen, wenn es sich um Hochstammbäume handelt.
+  - Umgang mit hochwachsenden Sträuchern, die Bäumen stark ähneln.
+  - Umgang mit Verbuschung.
