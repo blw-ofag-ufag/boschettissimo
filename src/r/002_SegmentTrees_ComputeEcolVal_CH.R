@@ -175,7 +175,7 @@ segment_cell <- function(arg_vhm) {
   
   # Define the function that should be used to find tree tops 
   find_ttops <- function(h) {
-    pmin(3.5 + 0.7*h, 20)
+    pmin(3.5 + 0.7*h, 15)
   }
   
   # Identify the tree tops
