@@ -338,7 +338,7 @@ coverage_val <- function(arg_radius, arg_centroids, arg_polygons, arg_vhm = NULL
 }
 
 
-ecological_val_tree <- function(arg_crowns, arg_vhm, arg_dem, arg_forest, arg_settlement, arg_bff_qual, arg_bff_vern, arg_perim, arg_ln){
+ecological_val_tree <- function(arg_crowns, arg_vhm, arg_dem, arg_forest, arg_settlement, arg_bff_qual, arg_bff_vern, arg_perim, arg_ln, arg_bwe){
   
   # Geometry metrics
   #-----------------------------------------------------
@@ -415,13 +415,22 @@ ecological_val_tree <- function(arg_crowns, arg_vhm, arg_dem, arg_forest, arg_se
   # BLW metrics
   #-----------------------------------------------------
 
+  # LNF codes
   idx <- st_intersects(centroids, arg_ln)
-  
+
   arg_crowns$lnf_codes <- sapply(
     idx,
     \(i) paste(sort(unique(arg_ln$lnf_code[i])), collapse = ";")
   )
-  
+
+  # Betriebsnummer
+  idx_bwe <- st_intersects(centroids, arg_bwe)
+
+  arg_crowns$bwe_codes <- sapply(
+    idx_bwe,
+    \(i) paste(sort(unique(arg_bwe$betriebsnummer[i])), collapse = ";")
+  )
+
   # Neighborhood metrics
   #-----------------------------------------------------
   
@@ -554,6 +563,10 @@ process_cell <- function(i) {
     return(NULL)
   }
 
+  # Load the BWE parcels for the buffered perimeter, used to tag each crown
+  # with the betriebsnummer(s) it falls within
+  BWE_sub <- st_read(bwe_path, layer = "bewirtschaftungseinheit", wkt_filter = wkt)
+
   # Have a buffered version to consider crowns overpassing ln parcels
   LN_sub_buff <- LN_sub %>%
     st_buffer(25) %>%
@@ -585,7 +598,7 @@ process_cell <- function(i) {
   # unmasked VHM so neighborhood/coverage metrics near the cell border and
   # near LN parcel edges aren't truncated
   #-------------------------
-  crowns_out <- ecological_val_tree(crowns, vhm_cell, dem_cell, forest_mask, settlement, bff_qual, bff_vern, perim_buf, LN_sub)
+  crowns_out <- ecological_val_tree(crowns, vhm_cell, dem_cell, forest_mask, settlement, bff_qual, bff_vern, perim_buf, LN_sub, BWE_sub)
 
   # Only now keep crowns whose centroid is both within an LN parcel and
   # within the true (unbuffered) extent of the processed cell
@@ -654,6 +667,7 @@ future_lapply(
     dem_path = dhm25_path,
     treeseg_data_local_path = treeseg_data_local_path,
     LN_2025_path = LN_2025_path,
+    bwe_path = bwe_path,
     forest_mask = forest_mask,
     settlement = settlement,
     bff_qual = bff_qual,

@@ -18,6 +18,8 @@ dhm25_raw_path <- "//katze/geolib/dhm25/DHM25_MM_ASCII_GRID/ASCII_GRID_1part/dhm
 dhm25_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/ORIG_DATA/DEM/dhm25_grid_raster_2056.tif"
 bff_raw_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/ORIG_DATA/BLW/LW Kulturflächen_Originaldaten_2025/2025/Biodiversitätsförderflächen"
 bff_path <- file.path(bff_raw_path, "BFF_2025.gpkg")
+bwe_raw_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/ORIG_DATA/BLW/LW Kulturflächen_Originaldaten_2025/2025/Bewirtschaftungseinheiten"
+bwe_path <- file.path(bwe_raw_path, "BWE_2025.gpkg")
 trees_SWISS1_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/PROCESSED_DATA/TREE_SEG/TREE_SEG_merged_13KT_SWISS1.gpkg"
 trees_SWISS2_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/PROCESSED_DATA/TREE_SEG/TREE_SEG_merged_13KT_SWISS2.gpkg"
 VHM_ADS_2024_path <- "//speedy11-12-fs/data_17/_GEOBASISDATEN/DATA_2024/ID164.19_Vegetatonshoehenmodell/rasterdaten/landesforstinventar_vegetationshoehenmodell_stereo_2023_2056.tif"

@@ -3,6 +3,8 @@
 #-----------------------------------------------------
 # Sourcing initialization code (paths and such)
 source("src/r/001_Initialization.R")
+library(sf)
+library(dplyr)
 
 #-----------------------------------------------------
 # DHM25 - reproject from LV03 (no CRS tag) to LV95
@@ -45,3 +47,28 @@ for (layer in bff_layers) {
     append = FALSE
   )
 }
+
+#-----------------------------------------------------
+# BWE - union all cantonal geopackages into one
+#-----------------------------------------------------
+# Each canton delivers its Bewirtschaftungseinheiten (BWE) as its own
+# geopackage - union the "bewirtschaftungseinheit" layer into a single
+# Switzerland-wide geopackage.
+
+bwe_files <- list.files(bwe_raw_path, pattern = "\\.gpkg$", full.names = TRUE)
+
+# Start from a clean file so re-running this section doesn't leave stale data
+if (file.exists(bwe_path)) unlink(bwe_path)
+
+message("Merging layer bewirtschaftungseinheit")
+
+merged <- bwe_files %>%
+  lapply(st_read, layer = "bewirtschaftungseinheit", quiet = TRUE) %>%
+  bind_rows()
+
+st_write(
+  merged,
+  dsn = bwe_path,
+  layer = "bewirtschaftungseinheit",
+  append = FALSE
+)
