@@ -593,7 +593,8 @@ process_cell <- function(i) {
   in_LN   <- lengths(st_intersects(centroids, LN_sub)) > 0
   in_cell <- lengths(st_intersects(centroids, CH_1000[i, ])) > 0
 
-  crowns_in <- crowns_out[in_LN & in_cell, ]
+  crowns_in <- crowns_out[in_cell, ]
+  crowns_in$in_LN <- in_LN[in_cell]
 
   if (nrow(crowns_in) == 0) {
     message("No crowns within LN parcels and cell extent for cell ", i)
