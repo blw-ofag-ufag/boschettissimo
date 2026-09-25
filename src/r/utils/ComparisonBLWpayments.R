@@ -70,8 +70,8 @@ for (i in seq_len(nrow(KT_13))) {
     st_as_text()
 
   # Load the segmented trees
-  # EB_all <- st_read(trees_SWISS2_path, wkt_filter = KT_extent_wkt, quiet = TRUE) # SWISS2
-  EB_all <- st_read(trees_SWISS1_path, wkt_filter = KT_extent_wkt, quiet = TRUE)
+  EB_all <- st_read(trees_SWISS2_path, wkt_filter = KT_extent_wkt, quiet = TRUE) # SWISS2
+  # EB_all <- st_read(trees_SWISS1_path, wkt_filter = KT_extent_wkt, quiet = TRUE)
   n_total <- nrow(EB_all)
 
   # Filter out trees that are on forest parcels
@@ -85,14 +85,38 @@ for (i in seq_len(nrow(KT_13))) {
   n_after_dist_to_forest <- nrow(EB_sub)
 
   # Filter out trees that are on productive orchard parcels (702/703/704)
-  # and have a low neighbor height z-score
   EB_sub <- EB_sub %>%
-    filter(!(grepl("(^|;)(702|703|704)($|;)", lnf_codes) & !is.na(neighbor_h90_z_56m) & neighbor_h90_z_56m < 1))
+    filter(!(grepl("(^|;)(702|703|704)($|;)", lnf_codes)))
   n_after_orchard <- nrow(EB_sub)
 
+   # Filter out trees further trees
+  EB_sub <- EB_sub %>%
+    filter(!(grepl("(^|;)(712|713|722|723|724)($|;)", lnf_codes))) # 712: Christmas trees, 713, 722, 723, 724: Pepiniere
+  nrow(EB_sub)
+
+  # Filter out hedges
+  EB_sub <- EB_sub %>%
+    filter(!(grepl("(^|;)(852|857|858)($|;)", lnf_codes))) 
+  nrow(EB_sub)
+
+  # Filter out other stuff
+  EB_sub <- EB_sub %>%
+    filter(!(grepl("(^|;)(902|903|904|905|906|907|908|909|998)($|;)", lnf_codes))) 
+  nrow(EB_sub)
+
+  # Filter out Sommerungsweiden and Waldweiden
+  EB_sub <- EB_sub %>%
+    filter(!(grepl("(^|;)(930|933|935|936|618|625)($|;)", lnf_codes))) 
+  n_filtered <- nrow(EB_sub)
+
+  # # Filter out trees that are too small
+  # EB_sub <- EB_sub %>%
+  #   filter( height_p90 > 2)
+  # n_filtered <- nrow(EB_sub)
+
   # Filter out year that should be compared
-  # payment <- BLW_payments[BLW_payments$Kantone == kt_acronym, 11] # 2024
-  payment <- BLW_payments[BLW_payments$Kantone == kt_acronym, 4] # 2017
+  payment <- BLW_payments[BLW_payments$Kantone == kt_acronym, 11] # 2024
+  # payment <- BLW_payments[BLW_payments$Kantone == kt_acronym, 4] # 2017
 
   results[[i]] <- data.frame(
     canton = kt_acronym,
@@ -100,11 +124,12 @@ for (i in seq_len(nrow(KT_13))) {
     n_total = n_total,
     n_after_forest = n_after_forest,
     n_after_dist_to_forest = n_after_dist_to_forest,
-    n_after_orchard = n_after_orchard
+    n_after_orchard = n_after_orchard,
+    n_filtered = n_filtered
   )
 }
 
 comparison_table <- bind_rows(results)
 
-# write.csv(comparison_table, "D:/temp/comparisonBLWPayments_SWISS2.csv", row.names = FALSE)
-write.csv(comparison_table, "D:/temp/comparisonBLWPayments_SWISS1.csv", row.names = FALSE)
+write.csv(comparison_table, "notes/comparisonBLWPayments_SWISS2.csv", row.names = FALSE)
+# write.csv(comparison_table, "notes/comparisonBLWPayments_SWISS1.csv", row.names = FALSE)
