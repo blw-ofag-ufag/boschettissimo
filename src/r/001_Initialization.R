@@ -22,6 +22,8 @@ bwe_raw_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Date
 bwe_path <- file.path(bwe_raw_path, "BWE_2025.gpkg")
 trees_SWISS1_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/PROCESSED_DATA/TREE_SEG/TREE_SEG_merged_13KT_SWISS1.gpkg"
 trees_SWISS2_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/PROCESSED_DATA/TREE_SEG/TREE_SEG_merged_13KT_SWISS2.gpkg"
+filtered_trees_SWISS1_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/PROCESSED_DATA/TREE_SEG/TREE_SEG_filtered_13KT_SWISS1.gpkg"
+filtered_trees_SWISS2_path <- "//speedy16-36/data_15/_PROJEKTE/20260401_Boschettissimo/01_Daten/GIS/PROCESSED_DATA/TREE_SEG/TREE_SEG_filtered_13KT_SWISS2.gpkg"
 VHM_ADS_2024_path <- "//speedy11-12-fs/data_17/_GEOBASISDATEN/DATA_2024/ID164.19_Vegetatonshoehenmodell/rasterdaten/landesforstinventar_vegetationshoehenmodell_stereo_2023_2056.tif"
 
 # Local paths (for faster processing)

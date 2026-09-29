@@ -7,8 +7,9 @@ library(terra)
 library(sf)
 library(dplyr)
 
-# Sourcing initialization code (paths and such)
+# Sourcing initialization code (paths and such) and the shared filters
 source("src/r/001_Initialization.R")
+source("src/r/filter_trees.R")
 
 #-----------------------------------------------------
 # Cantons to assess
@@ -76,37 +77,37 @@ for (i in seq_len(nrow(KT_13))) {
 
   # Filter out trees that are on forest parcels
   EB_sub <- EB_all %>%
-    filter(!grepl("(^|;)901($|;)", lnf_codes))
+    filter_forest_parcels()
   n_after_forest <- nrow(EB_sub)
 
   # Filter out trees that are too close to the TLM forest mask
   EB_sub <- EB_sub %>%
-    filter(dist_to_forest > 2)
+    filter_forest_distance()
   n_after_dist_to_forest <- nrow(EB_sub)
 
   # Filter out trees that are on productive orchard parcels (702/703/704)
   EB_sub <- EB_sub %>%
-    filter(!(grepl("(^|;)(702|703|704)($|;)", lnf_codes)))
+    filter_orchard_parcels()
   n_after_orchard <- nrow(EB_sub)
 
-   # Filter out trees further trees
+  # Filter out Christmas trees and pepinieres
   EB_sub <- EB_sub %>%
-    filter(!(grepl("(^|;)(712|713|722|723|724)($|;)", lnf_codes))) # 712: Christmas trees, 713, 722, 723, 724: Pepiniere
+    filter_nurseries()
   nrow(EB_sub)
 
   # Filter out hedges
   EB_sub <- EB_sub %>%
-    filter(!(grepl("(^|;)(852|857|858)($|;)", lnf_codes))) 
+    filter_hedges()
   nrow(EB_sub)
 
   # Filter out other stuff
   EB_sub <- EB_sub %>%
-    filter(!(grepl("(^|;)(902|903|904|905|906|907|908|909|998)($|;)", lnf_codes))) 
+    filter_misc_lnf()
   nrow(EB_sub)
 
   # Filter out Sommerungsweiden and Waldweiden
   EB_sub <- EB_sub %>%
-    filter(!(grepl("(^|;)(930|933|935|936|618|625)($|;)", lnf_codes))) 
+    filter_pastures()
   n_filtered <- nrow(EB_sub)
 
   # # Filter out trees that are too small
