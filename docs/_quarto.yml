@@ -27,6 +27,7 @@ book:
 lang: de-CH
 
 bibliography: references.bib
+link-citations: true
 
 format:
   html:
