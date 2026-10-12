@@ -98,7 +98,13 @@ Für die Abgrenzung von Bäumen auf der landwirtschaftlichen Nutzfläche gegenü
 Im folgenden Unterkapitel sind die wichtigsten Erkenntnisse zu Datensammlungen zum Wald mit Relevanz für dieses Projekt zusammengetragen.
 
 Die wichtigste Erkenntnis vorweg: Es gibt keinen einzelnen, schweizweit einheitlichen und zugleich rechtlich verbindlichen GIS-Layer «Wald».
-Stattdessen existieren mehrere Produkte, die den Wald unterschiedlich definieren, unterschiedliche Geometrietypen aufweisen und die Schweiz unterschiedlich vollständig abdecken.
+Das hängt mit dem rechtlichen Waldbegriff zusammen: Gemäss Waldgesetz ist der Wald flächendeckend geschützt («Das Waldareal soll nicht geschmälert werden», Art. 3 @wag).[^forest]
+Der Waldbegriff ist zudem dynamisch: Einwachsender Wald wird ausserhalb statischer Waldgrenzen zu Wald, und eine durch Sturm oder Brand zerstörte Fläche bleibt rechtlich Wald [Art. 2 @wag].
+Die rechtliche Waldfläche folgt damit der tatsächlichen Bestockung und wird in keinem Datensatz flächendeckend nachgeführt.
+Rechtlich verbindlich für die Ausdehnung des Waldes sind einzig die statischen Waldgrenzen (@sec-waldgrenzen), die jedoch weder flächendeckend noch für alle Kantone vollständig sind.
+Die ebenfalls rechtlich verbindlichen Waldreservate (@sec-waldreservate) bezeichnen nur Schutzgebiete innerhalb des Waldes, nicht dessen Abgrenzung; die übrigen Produkte definieren den Wald topografisch und decken die Schweiz unterschiedlich vollständig ab.
+
+[^forest]: Der Schutz gilt für jede konkrete Waldfläche: Rodungen sind verboten und nur ausnahmsweise bewilligungsfähig, und sie sind grundsätzlich in derselben Gegend durch Realersatz zu kompensieren; nur in Gebieten mit zunehmender Waldfläche oder für bestimmte Zwecke, etwa die Rückgewinnung von in den letzten 30 Jahren eingewachsenem Kulturland, kann darauf verzichtet werden [Art. 5 und 7 @wag].
 
 ### Statische Waldgrenzen {#sec-waldgrenzen}
 
@@ -111,7 +117,7 @@ Die Nachführung liegt in der Verantwortung der Kantone, unter Oberaufsicht des 
 Für dieses Projekt sind zwei Eigenschaften entscheidend:
 Erstens enthält der Datensatz überwiegend Linien (Grenzverläufe) und keine flächendeckenden Polygone.
 Einzelne Kantone sind daran, den Wald zusätzlich als Polygone zu erfassen; je nach Kanton liegen deshalb Linien oder Polygone vor.
-Zweitens sind die Daten nicht für alle Kantone vollständig verfügbar (siehe @sec-wald-bezug).
+Zweitens sind die Daten nicht für alle Kantone vollständig verfügbar (siehe @sec-wald-schlussfolgerungen).
 
 ### Bodenbedeckung «Wald» im swissTLM3D {#sec-tlm-wald}
 
@@ -169,35 +175,6 @@ Zusätzlich existiert eine Waldmaske aus dem Schweizerischen Landesforstinventar
 Dabei wurden Obstanlagen, die sehr nahe am Wald liegen, ebenfalls als Wald klassiert.
 Für die Erkennung von Bäumen auf landwirtschaftlichen Flächen ist dies ein wesentlicher Nachteil, da gerade solche Obstanlagen für das Projekt relevant sind.
 
-### Rechtlicher Waldbegriff {#sec-waldbegriff}
-
-Gemäss Waldgesetz ist der Wald in der Schweiz grundsätzlich und flächendeckend geschützt: «Das Waldareal soll nicht geschmälert werden» [@wag, Art. 3].
-Rodungen sind verboten und nur ausnahmsweise mit Bewilligung möglich [@wag, Art. 5]; für Rodungen ist in der Regel in derselben Gegend Realersatz zu leisten [@wag, Art. 7].
-Der Schutz ist damit dynamisch: Wächst der Wald natürlich in die Fläche, wird auch der neue Baumbestand zu rechtlich geschütztem Wald (sofern keine statische Waldgrenze festgelegt ist).
-Wird der Wald durch ein Naturereignis wie Sturm oder Waldbrand zerstört, bleibt die Fläche rechtlich trotzdem Wald.
-Nach Verständnis des Projektteams ist damit primär die Gesamtfläche des Waldes geschützt, nicht zwingend für immer dasselbe Polygon.
-Ein rechtlich verbindlicher, flächendeckender Wald-Layer existiert deshalb nicht: Die statischen Waldgrenzen sind der einzige rechtlich verbindliche Datensatz, und dieser ist weder flächendeckend noch für alle Kantone vollständig.
-
-### Bezug der Daten {#sec-wald-bezug}
-
-| Datensatz | Geometrie | Bezugsquelle | Abdeckung (Stand Oktober 2026) |
-|:----------|:----------|:-------------|:-------------------------------|
-| Statische Waldgrenzen (157.1) | überwiegend Linien, teilweise Polygone | [geodienste.ch](https://geodienste.ch/services/npl_waldgrenzen) | Nicht für alle Kantone vollständig: BE, FR, GR, SO und TI sind als unvollständig gekennzeichnet; für NW, OW und VD ist eine Freigabe erforderlich. |
-| Bodenbedeckung swissTLM3D | Polygone | [swisstopo](https://www.swisstopo.admin.ch/de/landschaftsmodell-swisstlm3d) | Ganze Schweiz, einheitliches Modell |
-| Waldreservate (160.1) | Polygone | [geodienste.ch](https://geodienste.ch/services/waldreservate) | Alle Kantone vollständig, Modellversionen 1.1 und 2.0 gemischt |
-| Waldmaske LFI | nicht abgeklärt | WSL | Ganze Schweiz |
-
-: Bezugsquellen und Abdeckung der Wald-Datensätze {#tbl-wald-bezug tbl-colwidths="[20,20,20,40]"}
-
-Auf geodienste.ch sind neben den statischen Waldgrenzen auch die Waldreservate publiziert.
-Die Metadaten zu den statischen Waldgrenzen sind zudem auf [geocat.ch](https://www.geocat.ch/datahub/dataset/04c4bff9-28e7-41a9-875d-590c41387099) beschrieben.
-
-### Unterschiede zwischen den Kantonen {#sec-wald-kantone}
-
-Der swissTLM3D-Datensatz wird zentral von swisstopo erstellt und liegt damit für die ganze Schweiz nach demselben Modell vor; regionale Unterschiede bestehen in der Kartierqualität (siehe @sec-tlm-wald).
-Die statischen Waldgrenzen hingegen werden von den Kantonen erfasst und unterscheiden sich in Verfügbarkeit, Vollständigkeit, Geometrietyp (Linien oder Polygone) und Nutzungsbedingungen.
-Auch bei den Waldreservaten liefern die Kantone ihre Daten in unterschiedlichen Modellversionen.
-
 ### Waldweiden {#sec-waldweiden}
 
 Als Waldweiden gelten die bestockten Weiden (Wytweiden) nach Artikel 2 der Waldverordnung [@lbv, Art. 19 Abs. 4].
@@ -244,14 +221,28 @@ Die Antwort hängt davon ab, welcher Wald-Datensatz als Referenz dient:
 Beispiele von Waldweiden (Nutzungscodes 618 und 625) in drei Kantonen auf dem Luftbild. Die cyanfarbene Linie zeigt die Abgrenzung der erfassten Nutzungsfläche gemäss Geobasisdaten 153.1. Innerhalb der Fläche wechseln sich Baumgruppen und offene Weideplätze mosaikartig ab; die Bestockung ist in der Geometrie nicht ausgeschieden.
 :::
 
-### Folgerungen für das Projekt {#sec-wald-folgerungen}
+### Schlussfolgerungen für dieses Projekt {#sec-wald-schlussfolgerungen}
 
-- Da eine schweizweite Lösung benötigt wird, kommt zurzeit nur der swissTLM3D als Wald-Referenz in Frage, sowohl für ein mögliches Baum-Beitragssystem als auch für die Analysen in der Machbarkeitsstudie. Die Vor- und Nachteile des swissTLM3D im Rahmen eines Beitragssystems sind noch zu beschreiben; auch die Analyse von Gewinnern und Verlierern eines neuen Systems soll auf dem swissTLM3D basieren.
-- Ergänzend könnte für einen Kanton mit vollständigen statischen Waldgrenzen ein Vergleich zwischen swissTLM3D und statischer Waldgrenze gerechnet werden. Mögliche zukünftige Alternativen zum swissTLM3D können im Schlussbericht beschrieben werden.
-- Offen ist der Umgang mit Flächen, die faktisch Waldweiden sind (also viele Bäume aufweisen), aber nicht mit den Codes 618 oder 625 deklariert wurden. Ein möglicher Ansatz ist ein Verschnitt pro Kultur (LNF-Code) und Kanton, der zeigt, wie viel swissTLM3D-Waldfläche in jeder Nutzungsflächenart liegt.
-- Vermutlich sind die meisten Waldweiden mit Nadelbäumen bestockt. Da das angestrebte System nur Laubbäume berücksichtigt, ist die Frage der Waldweiden für das Projekt möglicherweise weniger relevant als zunächst angenommen.
+@tbl-wald-bezug fasst Geometrie und Verfügbarkeit der beschriebenen Datensätze zusammen.
 
-Die offenen Punkte zu Waldflächen und Waldweiden sind zudem im Kapitel «Bekannte Probleme» aufgeführt.
+| Datensatz | Geometrie | Verfügbarkeit (Stand Oktober 2026) |
+|:----------|:----------|:-----------------------------------|
+| [Statische Waldgrenzen (157.1)](https://geodienste.ch/services/npl_waldgrenzen) | überwiegend Linien, teilweise Polygone | Kantonal; BE, FR, GR, SO, TI unvollständig; NW, OW, VD nur mit Freigabe |
+| [Bodenbedeckung swissTLM3D](https://www.swisstopo.admin.ch/de/landschaftsmodell-swisstlm3d) | Polygone | Ganze Schweiz, einheitliches Modell |
+| [Waldreservate (160.1)](https://geodienste.ch/services/waldreservate) | Polygone | Alle Kantone, Modellversionen 1.1 und 2.0 gemischt |
+| Waldmaske LFI (WSL) | nicht abgeklärt | Ganze Schweiz |
+
+: Geometrie und Verfügbarkeit der Wald-Datensätze {#tbl-wald-bezug tbl-colwidths="[30,25,45]"}
+
+Die Datensätze sind heterogen: Einzig der swissTLM3D liegt für die ganze Schweiz nach demselben Modell vor, mit regionalen Unterschieden nur in der Kartierqualität (siehe @sec-tlm-wald).
+Die statischen Waldgrenzen unterscheiden sich je nach Kanton in Verfügbarkeit, Vollständigkeit, Geometrietyp und Nutzungsbedingungen, die Waldreservate in der Modellversion.
+
+Für dieses Projekt bedeutet das folgendes:
+
+- Für eine schweizweite Lösung kommt zurzeit nur der swissTLM3D als Wald-Referenz in Frage, für ein mögliches Beitragssystem ebenso wie für die Analysen der Machbarkeitsstudie (inklusive Gewinner und Verlierer); seine Vor- und Nachteile sind noch zu beschreiben.
+- Für einen Kanton mit vollständigen statischen Waldgrenzen könnte ergänzend ein Vergleich mit dem swissTLM3D gerechnet werden; zukünftige Alternativen gehören in den Schlussbericht.
+- Offen ist der Umgang mit faktischen, aber nicht deklarierten Waldweiden. Ein Verschnitt pro Kultur (LNF-Code) und Kanton könnte zeigen, wie viel swissTLM3D-Wald in jeder Nutzungsflächenart liegt.
+- Da Waldweiden vermutlich meist mit Nadelbäumen bestockt sind und das angestrebte System nur Laubbäume berücksichtigt, ist die Frage möglicherweise weniger relevant als zunächst angenommen.
 
 ## SWISSIMAGE
 
