@@ -3,15 +3,37 @@ title: Datengrundlage
 lang: de-CH
 ---
 
-Als Datengrundlage wurden folgende vier wichtige Datensammlungen identifiziert:
-Vegetationshöhenmodell, Geobasisdaten Landwirtschaftliche Kulturflächen, SWISSIMAGE und swissSURFACE3D.
-Ergänzend werden in @sec-wald die verfügbaren Geodaten zum Wald beschrieben, welche für die Abgrenzung zwischen Wald und landwirtschaftlicher Nutzfläche sowie für den Umgang mit Waldweiden relevant sind.
+Dieses Kapitel beschreibt die Datensätze, auf denen das Projekt aufbaut.
+Sie lassen sich in fünf Gruppen gliedern:
 
-## Vegetationshöhenmodell (VHM)
+1. Fernerkundungsdaten und Höhenmodelle (@sec-fernerkundung), in denen die Bäume erkannt und vermessen werden.
+2. Geobasisdaten der landwirtschaftlichen Kulturflächen (@sec-geobasisdaten-lw), welche die landwirtschaftliche Nutzfläche abgrenzen.
+3. Daten zum Wald (@sec-wald) für die Abgrenzung gegenüber dem Wald und den Umgang mit Waldweiden.
+4. Weitere Geodaten (@sec-weitere-geodaten) für die Berechnung von Umgebungsmerkmalen.
+5. Referenzdaten (@sec-allema) für die Validierung der Baumerkennung.
 
-Ein Produkt, welches von der WSL bereitgestellt wird und anzeigt, wie hoch die Vegetation auf einer bestimmten Fläche ist.
-Hat eine Auflösung von 1 × 1 m und wird alle sechs Jahre aus Luftbildern und alle sechs Jahre (um drei Jahre versetzt) aus LIDAR-Scans gerechnet.
-Siehe: [Vegetationshöhenmodell LFI](https://opendata.swiss/de/dataset/vegetationshohenmodell-lfi) und [Vegetationshöhenmodell Lidar LFI](https://opendata.swiss/de/dataset/vegetationshohenmodell-lidar-lfi).
+Wie die Datensätze in der Baumerkennung konkret eingesetzt werden, ist im Kapitel «Baumerkennung» beschrieben.
+
+## Fernerkundungsdaten und Höhenmodelle {#sec-fernerkundung}
+
+### swissSURFACE3D {#sec-swisssurface3d}
+
+swissSURFACE3D von swisstopo [@swisstopo] beschreibt die Oberfläche der Schweiz mit allen natürlichen und künstlichen Elementen in Form einer klassifizierten Punktwolke.
+Die mit einem airborne LiDAR erhobenen Daten zeichnen sich durch eine hohe Punktdichte und Genauigkeit aus.
+swissSURFACE3D wird in Kacheln von jeweils 1 km^2^ produziert; die Kachelnummerierung entspricht den Kilometerkoordinaten des südwestlichen Eckpunkts einer Kachel.
+Die Punktwolke ist die Grundlage des LiDAR-basierten Vegetationshöhenmodells (@sec-vhm).
+
+### Vegetationshöhenmodell (VHM) {#sec-vhm}
+
+Ein Vegetationshöhenmodell gibt für jede Rasterzelle die Höhe der Vegetation über dem Boden an.
+Die WSL stellt im Rahmen des Landesforstinventars (LFI) [@lfi] zwei landesweite Modelle bereit, die beide in einem sechsjährigen, um drei Jahre versetzten Zyklus nachgeführt werden (pro Jahr rund ein Sechstel der Landesfläche):
+
+- Das [Vegetationshöhenmodell LFI](https://opendata.swiss/de/dataset/vegetationshohenmodell-lfi) wird aus Stereo-Luftbildern im belaubten Zustand gerechnet und hat eine Auflösung von 1 × 1 m.
+- Das [Vegetationshöhenmodell Lidar LFI](https://opendata.swiss/de/dataset/vegetationshohenmodell-lidar-lfi) wird aus den LiDAR-Daten von swissSURFACE3D (@sec-swisssurface3d) im unbelaubten Zustand gerechnet und hat eine Auflösung von 0.5 × 0.5 m.
+
+Die Baumerkennung basiert auf dem LiDAR-basierten Modell.
+Da die aktuelle LiDAR-Erfassung noch nicht die ganze Schweiz abdeckt, liegt dieses (Stand Sommer 2026) für 13 Kantone vor: Genf, Thurgau, Schwyz, Zürich, Freiburg, Glarus, Appenzell Ausserrhoden, Waadt, Zug, St. Gallen, Schaffhausen, Neuenburg und Appenzell Innerrhoden.
+Die operationelle Verarbeitung ist deshalb vorerst auf diese Kantone beschränkt.
 
 ::: {#fig-vhm}
 ```{=html}
@@ -27,16 +49,27 @@ Siehe: [Vegetationshöhenmodell LFI](https://opendata.swiss/de/dataset/vegetatio
 Interaktive Ansicht des Vegetationshöhenmodell Lidar LFI der Vergation rund um Weerswilen TG.
 :::
 
-## Geobasisdaten Landwirtschaftliche Kulturflächen
+### SWISSIMAGE {#sec-swissimage}
+
+Das Orthofoto SWISSIMAGE von swisstopo [@swisstopo] ist eine Zusammensetzung der neuen digitalen Farbluftbilder über die ganze Schweiz mit einer Bodenauflösung von 10 cm im Flachland und den wichtigsten Alpentälern sowie 25 cm in den Alpen.
+Es wird in einem Nachführungszyklus von drei Jahren seit 2018 aktualisiert, wobei jeweils um drei Jahre versetzt alle sechs Jahre Bäume belaubt und unbelaubt fotografiert werden.
+
+### Digitales Höhenmodell (DHM25) {#sec-dhm25}
+
+Das DHM25 von swisstopo [@swisstopo] beschreibt die Geländeoberfläche ohne Vegetation und Bauten als Raster mit 25 m Maschenweite.
+Es wurde aus den Höheninformationen der Landeskarte 1:25'000 abgeleitet und liegt ursprünglich im Koordinatensystem LV03 vor.
+Im Projekt dient es zur Ableitung von Höhe über Meer, Hangneigung und Exposition am Standort jedes erkannten Baums.
+
+## Geobasisdaten Landwirtschaftliche Kulturflächen {#sec-geobasisdaten-lw}
 
 Die landwirtschaftlichen Geodaten basieren auf dem minimalen Geodatenmodell gemäss der Modelldokumentation "Landwirtschaftliche Kulturflächen" [@blw2026mgdm].
 Dieses Modell strukturiert die landwirtschaftlichen Kulturflächen in verschiedene Informationsebenen (Layers), welche die minimalen Anforderungen an Struktur und Detaillierungsgrad für den Geodatenaustausch zwischen Bund und Kantonen definieren.
 Beschrieben sind fünf Layer, wobei vier davon für dieses Projekt von Relevanz sind:
 
-- [153.1 Nutzungsflächen](@sec-153.1)
-- [153.3 Biodiversitätsförderflächen Qualitätsstufe II und Vernetzung](@sec-153.3)
-- [153.5 Perimeter Landwirtschaftliche Nutzfläche und Sömmerungsflächen](@sec-153.5)
-- [153.6 Bewirtschaftungseinheiten](@sec-153.6)
+- [153.1 Nutzungsflächen](#sec-153.1)
+- [153.3 Biodiversitätsförderflächen Qualitätsstufe II und Vernetzung](#sec-153.3)
+- [153.5 Perimeter Landwirtschaftliche Nutzfläche und Sömmerungsflächen](#sec-153.5)
+- [153.6 Bewirtschaftungseinheiten](#sec-153.6)
 
 Diese Layers werden in den folgenden Unterkapiteln im Detail beschrieben.[^1]
 
@@ -53,12 +86,11 @@ Diese Ebene dient als räumliche Grundlage und Erfassungshilfe für die detailli
 
 Das Modell "153.5 Perimeter Landwirtschaftliche Nutzfläche und Sömmerungsflächen" stellt die potenziell landwirtschaftlich zu bewirtschaftende Fläche nach [Art. 14 LBV](https://www.fedlex.admin.ch/eli/cc/1999/13/de#art_14) dar.
 Die Ebene dient ebenfalls als Erfassungshilfe für die Nutzungsflächen.
-Der Layer stellt die potentiell landwirtschaftlich bewirtschaftbaren Flächen dar. Dabei interessiert vor allem die Abgrenzung (Perimeter) dieser 
-Flächen.
-Der Perimeter der Landwirtschaftliche Nutzfläche und Sömmerungsflächen wird von den Kantonen festgelegt und periodisch aktua
-lisiert.
+Der Layer stellt die potentiell landwirtschaftlich bewirtschaftbaren Flächen dar. Dabei interessiert vor allem die Abgrenzung (Perimeter) dieser Flächen.
+Der Perimeter der Landwirtschaftliche Nutzfläche und Sömmerungsflächen wird von den Kantonen festgelegt und periodisch aktualisiert.
 Als Grundlage zur Erstellung dieser Flächen dient primär die Bodenbedeckung der Amtlichen Vermessung.
 Die Polygone in diesem Layer können Lücken oder Löcher aufweisen und decken die Schweiz nicht vollständig ab [@blw2026mgdm, Seite 15].
+Im Projekt dient dieser Perimeter als räumliche Referenz: Die Baumerkennung wird nur innerhalb dieser Flächen durchgeführt.
 
 ### Nutzungsflächen {#sec-153.1}
 
@@ -68,7 +100,7 @@ Die Geometrien sind als Multipolygone erfasst und mit einem spezifischen Nutzung
 Bäume können in diesem Modell zusätzlich als überlagernde Flächen geometrisch erfasst werden, wobei die Anzahl der Bäume im Attribut `Anzahl_Baeume` als Zahl angehängt wird.
 Dieses Attribut ist jedoch optional und wird daher nicht von allen Kantonen erfasst.
 
-::: {#fig-vhm}
+::: {#fig-vhm-ln}
 ```{=html}
 <iframe 
     src="https://map.geo.admin.ch/#/embed?lang=de&center=2727300,1271000&z=9&topic=ech&layers=ch.bafu.landesforstinventar-vegetationshoehenmodell_lidar@,t,1;ch.blw.landwirtschaftliche-nutzungsflaechen@,t,0.6"
@@ -91,6 +123,7 @@ Der Layer ist in zwei separate Ebenen gegliedert (Qualitätsstufe II und Vernetz
 Die Flächen in diesem Modell sind grösstenteils eine Untermenge der Biodiversitätsförderflächen der Qualitätsstufe I aus dem Layer 153.1.
 Ausnahmen bilden beispielsweise Hochstamm-Feldobstbäume (QII) oder artenreiche Grün- und Streueflächen im Sömmerungsgebiet.
 Sie weisen keine direkte datentechnische Verknüpfung zu den Bewirtschaftungseinheiten auf; der Bezug zum Betrieb wird stattdessen durch einen räumlichen Flächenverschnitt mit den anderen Layern hergestellt.
+Die Daten werden von den Kantonen geliefert und für das Projekt zu einem gesamtschweizerischen Datensatz zusammengeführt; sie dienen der Berechnung von Umgebungsmerkmalen der erkannten Bäume (Distanz zu und Deckungsgrad von Flächen der Qualitätsstufe II und Vernetzungsflächen).
 
 ## Daten zum Wald {#sec-wald}
 
@@ -244,13 +277,22 @@ Für dieses Projekt bedeutet das folgendes:
 - Offen ist der Umgang mit faktischen, aber nicht deklarierten Waldweiden. Ein Verschnitt pro Kultur (LNF-Code) und Kanton könnte zeigen, wie viel swissTLM3D-Wald in jeder Nutzungsflächenart liegt.
 - Da Waldweiden vermutlich meist mit Nadelbäumen bestockt sind und das angestrebte System nur Laubbäume berücksichtigt, ist die Frage möglicherweise weniger relevant als zunächst angenommen.
 
-## SWISSIMAGE
+## Weitere Geodaten {#sec-weitere-geodaten}
 
-Das Orthofoto SWISSIMAGE ist eine Zusammensetzung der neuen digitalen Farbluftbilder über die ganze Schweiz mit einer Bodenauflösung von 10 cm im Flachland und den wichtigsten Alpentälern sowie 25 cm in den Alpen.
-Es wird in einem Nachführungszyklus von drei Jahren seit 2018 aktualisiert, wobei jeweils um drei Jahre versetzt alle sechs Jahre Bäume belaubt und unbelaubt fotografiert werden. 
+### Siedlungsflächen (ARE) {#sec-siedlung}
 
-## swissSURFACE3D
+Die Siedlungsflächen des Bundesamts für Raumentwicklung (ARE) bilden die bebauten Gebiete der Schweiz ab.
+Im Projekt werden sie für Umgebungsmerkmale der erkannten Bäume verwendet, namentlich für die Distanz zur nächsten Siedlung und den Siedlungsanteil im Umkreis eines Baums.
 
-Beschreibt die Oberfläche der Schweiz mit allen natürlichen und künstlichen Elementen in Form einer klassifizierten Punktwolke.
-Die mit einem airborne LiDAR erhobenen Daten zeichnen sich durch eine hohe Punktdichte und Genauigkeit aus. swissSURFACE3D wird in Kacheln von jeweils 1 km^2^ produziert.
-Die Kachelnummerierung entspricht den Kilometerkoor-dinaten des südwestlichen Eckpunkts einer Kachel.
+### Kantonsgrenzen (swissBOUNDARIES3D) {#sec-swissboundaries}
+
+swissBOUNDARIES3D von swisstopo [@swisstopo] enthält die administrativen Grenzen der Schweiz (Landes-, Kantons-, Bezirks- und Gemeindegrenzen).
+Im Projekt werden einzig die Kantonsgrenzen verwendet, um die aktuell prozessierten Kantone abzugrenzen (@sec-vhm).
+
+## Referenzdaten ALL-EMA {#sec-allema}
+
+Als unabhängige Referenz für die Validierung der Baumerkennung dient das Monitoringprogramm ALL-EMA («Arten und Lebensräume Landwirtschaft»), das Agroscope im Auftrag von BLW und BAFU durchführt.
+In 170 Untersuchungsquadraten werden Gehölze von Fachpersonen als Polygone digitalisiert und nach Gehölztyp klassiert, unter anderem als Obstanlagen, Hochstammobst oder Einzelbaum/Baumgruppe.
+Die Erhebungsjahre der einzelnen Quadrate variieren und stimmen nicht systematisch mit den Jahren der LiDAR-Befliegung überein.
+Die Gehölzpolygone stellen zudem nur eine grobe Näherung der effektiven Baumkrone dar.
+Beides ist bei der Verwendung als Referenz zu berücksichtigen (siehe Kapitel «Baumerkennung»).

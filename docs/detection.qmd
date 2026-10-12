@@ -21,30 +21,18 @@ Die Methode wurde anhand von unabhängigen Referenzdaten (ALL-EMA) evaluiert und
 
 ## Eingangsdaten
 
-### Vegetationshöhenmodell (VHM)
+Die verwendeten Datensätze sind im Kapitel «Datengrundlage» beschrieben; hier wird nur ihre Rolle in der Baumerkennung zusammengefasst.
 
-Die Segmentierung basiert auf einem Vegetationshöhenmodell mit 0.5 m Auflösung, das auf Basis von LiDAR-Daten des Airborne Laserscannings der Schweiz (ALS) abgeleitet wird. Da diese hochaufgelösten Daten zum Zeitpunkt der Studie nicht für die ganze Schweiz vorlagen, wurde die operationelle Verarbeitung vorerst auf die 13 Kantone beschränkt, für die eine aktuelle LiDAR-Erfassung besteht (Stand Sommer 2026): Genf, Thurgau, Schwyz, Zürich, Freiburg, Glarus, Appenzell Ausserrhoden, Waadt, Zug, St. Gallen, Schaffhausen, Neuenburg und Appenzell Innerrhoden.
+- **Vegetationshöhenmodell** (@sec-vhm): Die Segmentierung basiert auf dem LiDAR-basierten VHM mit 0.5 m Auflösung. Da dieses noch nicht für die ganze Schweiz vorliegt, ist die operationelle Verarbeitung vorerst auf die 13 Kantone mit aktueller LiDAR-Erfassung beschränkt.
+- **Digitales Höhenmodell DHM25** (@sec-dhm25): für die Ableitung von Höhe ü. M., Hangneigung und Exposition. Da es ursprünglich im Koordinatensystem LV03 ohne CRS-Tag vorliegt, wird es einmalig mittels `gdalwarp` nach LV95 (EPSG:2056) reprojiziert.
+- **Landwirtschaftliche Nutzfläche** (@sec-153.5 und @sec-153.1): räumliche Referenz für die LN. Die Segmentierung wird ausschliesslich innerhalb dieser Flächen (zzgl. eines Puffers, siehe unten) durchgeführt, damit keine Bäume ausserhalb der LN (z. B. im geschlossenen Wald) unnötig prozessiert werden.
+- **Wald** (@sec-tlm-wald): Objektart *Wald* der Bodenbedeckung aus swissTLM3D, als Waldmaske für die Merkmalsberechnung.
+- **Siedlung** (@sec-siedlung) und **Biodiversitätsförderflächen** (@sec-153.3): für die Umgebungsmerkmale.
+- **Kantonsgrenzen** (@sec-swissboundaries): einzig zur Abgrenzung der aktuell prozessierten Kantone.
 
-### Digitales Höhenmodell (DHM25)
+## Validierungsmethode
 
-Für die Ableitung von Höhe ü. M., Hangneigung und Exposition wird das DHM25 von swisstopo [@swisstopo] verwendet. Da dieses ursprünglich im Koordinatensystem LV03 ohne CRS-Tag vorliegt, wird es einmalig mittels `gdalwarp` nach LV95 (EPSG:2056) reprojiziert.
-
-### Landwirtschaftliche Nutzungsflächen (LN)
-
-Als räumliche Referenz für die landwirtschaftliche Nutzfläche dient der Datensatz der landwirtschaftlichen Kulturflächen (Perimeter LN und Sömmerungsflächen), der im Rahmen des Vollzugs der Direktzahlungsverordnung gesamtschweizerisch erfasst wird. Die Segmentierung wird ausschliesslich innerhalb dieser Flächen (zzgl. eines Puffers, siehe unten) durchgeführt, damit keine Bäume ausserhalb der LN (z. B. im geschlossenen Wald) unnötig prozessiert werden.
-
-### Weitere Geobasisdaten für die Merkmalsberechnung
-
-Für die spätere ökologische Bewertung werden zusätzlich folgende Datensätze herangezogen:
-
-- **Wald**: `TLM_BODENBEDECKUNG` (Objektart *Wald*) aus swissTLM3D [@swisstopo], als Waldmaske.
-- **Siedlung**: Siedlungsflächen des Bundesamts für Raumentwicklung (ARE).
-- **Biodiversitätsförderflächen (BFF)**: Qualitätsstufe II und Vernetzungsflächen, kantonal geliefert und zu einem gesamtschweizerischen Datensatz zusammengeführt.
-- **Kantonsgrenzen** (swissBOUNDARIES3D), einzig zur Abgrenzung der aktuell prozessierten Kantone.
-
-## Referenzdaten und Validierungsmethode
-
-Als unabhängige Referenz dient das Arealstichprobenprogramm **ALL-EMA** des BAFU, in dem Gehölze in 170 Untersuchungsquadraten von Fachpersonen digitalisiert werden. Da die Erhebungsjahre der ALL-EMA-Digitalisierung nicht systematisch mit dem Jahr der LiDAR-Befliegung übereinstimmen, wurden nur jene 56 Untersuchungsquadrate für die Validierung der Segmentierung verwendet, bei denen eine ALS-Befliegung innerhalb von ±1 Jahr um das Erhebungsjahr der ALL-EMA-Daten vorliegt.
+Als unabhängige Referenz dienen die Gehölzpolygone des Monitoringprogramms ALL-EMA (@sec-allema). Da deren Erhebungsjahre nicht systematisch mit dem Jahr der LiDAR-Befliegung übereinstimmen, wurden nur jene 56 der 170 Untersuchungsquadrate für die Validierung der Segmentierung verwendet, bei denen eine ALS-Befliegung innerhalb von ±1 Jahr um das Erhebungsjahr der ALL-EMA-Daten vorliegt.
 
 Die Referenzpolygone wurden zusätzlich gefiltert, um möglichst nur eindeutige Einzelbäume (statt Baumgruppen oder Hecken) zu erhalten:
 
@@ -186,7 +174,7 @@ Einige weitere Merkmale sind konzeptionell vorgesehen, aber noch nicht Teil der 
 
 ## Verarbeitungsumfang
 
-Die aktuelle Verarbeitung deckt die 13 Kantone mit aktueller LiDAR-Erfassung ab (siehe oben) und benötigt für diesen Umfang rund eine Woche Rechenzeit.
+Die aktuelle Verarbeitung deckt die 13 Kantone mit aktueller LiDAR-Erfassung ab (siehe @sec-vhm) und benötigt für diesen Umfang rund eine Woche Rechenzeit.
 
 ## Eingesetzte Software
 
