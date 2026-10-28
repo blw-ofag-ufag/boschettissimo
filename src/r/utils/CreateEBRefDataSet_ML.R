@@ -22,8 +22,8 @@ swissimage_selection   <- "closest_summer" # "closest": SWISSIMAGE year closest 
                                            # "closest_summer": closest SWISSIMAGE flown in summer_months,
                                            #   falls back to "closest" if there is none
 summer_months          <- 5:9              # months considered as summer (leaf-on)
-summer_max_extra_years <- 3                # a summer tile can be at most this many years further from
-                                           #   LubiJahr_max than the closest tile (one flight cycle)
+summer_max_years_diff  <- 3                # a summer tile can be at most this many years away from
+                                           #   LubiJahr_max, otherwise fall back to "closest"
 swissimage_gsd         <- 0.1              # [m] resolution of the tiles to download (0.1 or 2)
 
 ALLEMA_ML_path <- paste0(orig_data_path, "ALLEMA_ML/")
@@ -292,7 +292,7 @@ getFlightDates <- function(quad_geom, year, source_gsd){
 }
 
 # Function selecting the SWISSIMAGE tile to use for a Quadrant
-selectSwissimageTile <- function(tiles, lubi_year, selection, max_extra_years){
+selectSwissimageTile <- function(tiles, lubi_year, selection, max_years_diff){
 
   selection <- match.arg(selection, c("closest", "closest_summer"))
 
@@ -303,7 +303,7 @@ selectSwissimageTile <- function(tiles, lubi_year, selection, max_extra_years){
 
   if (selection == "closest_summer") {
     summer_tiles <- tiles %>%
-      filter(summer, year_diff <= min(year_diff) + max_extra_years)
+      filter(summer, year_diff <= max_years_diff)
 
     if (nrow(summer_tiles) > 0) {
       return(summer_tiles[1, ])
@@ -328,7 +328,7 @@ SWISSIMAGE_Q <- map(seq_len(nrow(ALLEMA_Q_ref)), function(i) {
   tiles$summer <- map_lgl(tiles$flight_dates, ~ length(.x) > 0 && all(as.integer(format(.x, "%m")) %in% summer_months))
   tiles$flight_dates <- map_chr(tiles$flight_dates, ~ paste(.x, collapse = ", "))
 
-  selectSwissimageTile(tiles, ALLEMA_Q_ref$LubiJahr_max[i], swissimage_selection, summer_max_extra_years) %>%
+  selectSwissimageTile(tiles, ALLEMA_Q_ref$LubiJahr_max[i], swissimage_selection, summer_max_years_diff) %>%
     mutate(FK_Quadrat = ALLEMA_Q_ref$ID_Quadrat[i], LubiJahr_max = ALLEMA_Q_ref$LubiJahr_max[i], .before = 1)
 
 }, .progress = TRUE) %>%
@@ -336,8 +336,8 @@ SWISSIMAGE_Q <- map(seq_len(nrow(ALLEMA_Q_ref)), function(i) {
 
 # Get some idea about the selected SWISSIMAGE tiles (numbers for closest_summer with May-September and 3 years)
 table(SWISSIMAGE_Q$year_diff) # 98 of the 164 Quadrants get a tile of their LubiJahr_max ("closest": 109)
-table(SWISSIMAGE_Q$summer) # 152 summer tiles, 12 Quadrants fell back to the closest tile
-table(SWISSIMAGE_Q$source_gsd, useNA = "ifany") # 116 tiles made from 10 cm images, 46 from 25 cm images (Alps), 2 unknown
+table(SWISSIMAGE_Q$summer) # 124 summer tiles, 40 Quadrants fell back to the closest tile
+table(SWISSIMAGE_Q$source_gsd, useNA = "ifany") # 118 tiles made from 10 cm images, 46 from 25 cm images (Alps)
 
 #-----------------------------------------------------
 # Download the selected SWISSIMAGE tiles
