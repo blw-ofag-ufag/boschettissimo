@@ -19,6 +19,10 @@ cmd <- sprintf(
 )
 system(cmd)
 
+#*******************************************************
+# BLW DATA 2025 - PROXY SWISS2
+#*******************************************************
+
 #-----------------------------------------------------
 # BFF - union all cantonal geopackages into one
 #-----------------------------------------------------
@@ -26,23 +30,23 @@ system(cmd)
 # geopackage, all sharing the same two layers - union them into a single
 # Switzerland-wide geopackage.
 
-bff_files <- list.files(bff_raw_path, pattern = "\\.gpkg$", full.names = TRUE)
-bff_layers <- st_layers(bff_files[1])$name
+bff_2025_files <- list.files(bff_2025_raw_path, pattern = "\\.gpkg$", full.names = TRUE)
+bff_2025_layers <- st_layers(bff_2025_files[1])$name
 
 # Start from a clean file so re-running this section doesn't leave stale data
-if (file.exists(bff_path)) unlink(bff_path)
+if (file.exists(bff_2025_path)) unlink(bff_2025_path)
 
-for (layer in bff_layers) {
+for (layer in bff_2025_layers) {
 
   message("Merging layer ", layer)
 
-  merged <- bff_files %>%
+  merged <- bff_2025_files %>%
     lapply(st_read, layer = layer, quiet = TRUE) %>%
     bind_rows()
 
   st_write(
     merged,
-    dsn = bff_path,
+    dsn = bff_2025_path,
     layer = layer,
     append = FALSE
   )
@@ -55,20 +59,51 @@ for (layer in bff_layers) {
 # geopackage - union the "bewirtschaftungseinheit" layer into a single
 # Switzerland-wide geopackage.
 
-bwe_files <- list.files(bwe_raw_path, pattern = "\\.gpkg$", full.names = TRUE)
+bwe_2025_files <- list.files(bwe_2025_raw_path, pattern = "\\.gpkg$", full.names = TRUE)
 
 # Start from a clean file so re-running this section doesn't leave stale data
-if (file.exists(bwe_path)) unlink(bwe_path)
+if (file.exists(bwe_2025_path)) unlink(bwe_2025_path)
 
 message("Merging layer bewirtschaftungseinheit")
 
-merged <- bwe_files %>%
+merged <- bwe_2025_files %>%
   lapply(st_read, layer = "bewirtschaftungseinheit", quiet = TRUE) %>%
   bind_rows()
 
 st_write(
   merged,
-  dsn = bwe_path,
+  dsn = bwe_2025_path,
   layer = "bewirtschaftungseinheit",
   append = FALSE
 )
+
+
+#-----------------------------------------------------
+# NF - union all cantonal geopackages into one
+#-----------------------------------------------------
+# Each canton delivers its Nutzungsflaechen (NF) as its own
+# geopackage - union the "nutzungsflaechen" layer into a single
+# Switzerland-wide geopackage.
+
+nf_2025_files <- list.files(nf_2025_raw_path, pattern = "nutzungsflaechen.*\\.gpkg$", full.names = TRUE)
+
+# Start from a clean file so re-running this section doesn't leave stale data
+if (file.exists(nf_2025_path)) unlink(nf_2025_path)
+
+message("Merging layer nutzungsflaechen")
+
+merged <- nf_2025_files %>%
+  lapply(st_read, layer = "nutzungsflaechen", quiet = TRUE) %>%
+  bind_rows()
+
+st_write(
+  merged,
+  dsn = nf_2025_path,
+  layer = "nutzungsflaechen",
+  append = FALSE
+)
+
+#*******************************************************
+# BLW DATA 2021 - PROXY SWISS1
+#*******************************************************
+
