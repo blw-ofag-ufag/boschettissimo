@@ -92,36 +92,46 @@ neighborhood_val <- function(arg_neigh_dist, arg_centroids, arg_crowns){
   return(neigh_df)
 }
 
+covered_area_val <- function(arg_zones, arg_polygons){
+
+  #-----------------------------------------------------
+  # Area (m2) of each zone (e.g. disk or crown) covered by arg_polygons -
+  # 0 everywhere if there is nothing to intersect with
+  #-----------------------------------------------------
+
+  covered_area <- numeric(length(st_geometry(arg_zones)))
+
+  if (nrow(arg_polygons) == 0) {
+    return(covered_area)
+  }
+
+  # Dissolve once so overlapping polygons aren't double-counted
+  polygons_union <- st_union(arg_polygons)
+
+  # Intersect all zones at once and map the resulting area back by zone id
+  zones_sf <- st_sf(id = seq_along(covered_area), geometry = st_geometry(arg_zones))
+  st_agr(zones_sf) <- "constant"
+  inter <- st_intersection(zones_sf, polygons_union)
+
+  covered_area[inter$id] <- as.numeric(st_area(inter))
+
+  covered_area
+}
+
 coverage_val <- function(arg_radius, arg_centroids, arg_polygons, arg_vhm = NULL){
 
   #-----------------------------------------------------
-  # Proportion of a disk around each centroid covered by arg_polygons,
-  # and (optionally) the mean VHM value within that same disk
+  # Proportion and area (m2) of a disk around each centroid covered by
+  # arg_polygons, and (optionally) the mean VHM value within that same disk
   #-----------------------------------------------------
 
   # Build a disk of the given radius around each centroid
   disks <- st_buffer(arg_centroids, dist = arg_radius)
   disk_area <- as.numeric(st_area(disks))
 
-  # Cover proportion - 0 everywhere if there is nothing to intersect with
-  if (nrow(arg_polygons) == 0) {
-    cover <- rep(0, nrow(disks))
-  } else {
+  covered_area <- covered_area_val(disks, arg_polygons)
 
-    # Union once so overlapping polygons aren't double-counted
-    polygons_union <- st_union(arg_polygons)
-
-    # Intersect all disks at once and map the resulting area back by disk id
-    disks_sf <- st_sf(id = seq_len(nrow(disks)), geometry = st_geometry(disks))
-    inter <- st_intersection(disks_sf, polygons_union)
-
-    covered_area <- numeric(nrow(disks))
-    covered_area[inter$id] <- as.numeric(st_area(inter))
-
-    cover <- covered_area / disk_area
-  }
-
-  out <- data.frame(cover = cover)
+  out <- data.frame(cover = covered_area / disk_area, area = covered_area)
 
   # Mean VHM value within the disk, reusing the same disk geometry
   if (!is.null(arg_vhm)) {
@@ -266,7 +276,7 @@ nearest_dist_val <- function(arg_centroids, arg_polygons, arg_radius = 1000){
 }
 
 
-ecological_val_tree <- function(arg_crowns, arg_vhm, arg_dem, arg_forest, arg_settlement, arg_bff_qual, arg_bff_vern, arg_hedges, arg_water, arg_perim, arg_ln, arg_bwe, arg_habitat){
+ecological_val_tree <- function(arg_crowns, arg_vhm, arg_dem, arg_forest, arg_settlement, arg_bff_qual, arg_bff_vern, arg_hedges, arg_water, arg_perim, arg_ln, arg_bwe, arg_habitat, arg_deadwood){
 
   # Geometry metrics
   #-----------------------------------------------------
@@ -339,6 +349,32 @@ ecological_val_tree <- function(arg_crowns, arg_vhm, arg_dem, arg_forest, arg_se
   arg_crowns$altitude <- topo$altitude
   arg_crowns$slope    <- topo$slope
   arg_crowns$aspect   <- topo$aspect
+
+  # Deadwood metrics
+  #-----------------------------------------------------
+  # arg_deadwood stacks the detections of several SWISSIMAGE flight years
+  # (overlapping each other), so covered_area_val dissolves them into deadwood
+  # detected at least once - work on a (repaired if needed) copy of the crown
+  # geometries, arg_crowns itself stays untouched
+  crowns_geom <- st_geometry(arg_crowns)
+  if (any(!st_is_valid(crowns_geom))) {
+    crowns_geom <- st_make_valid(crowns_geom)
+  }
+
+  # Share of the crown area covered by deadwood (in %)
+  arg_crowns$deadwood_crown_pct <- 100 * covered_area_val(crowns_geom, arg_deadwood) / arg_crowns$area_m2
+
+  # Number of flight years with deadwood on the crown 
+  if (nrow(arg_deadwood) == 0) {
+    arg_crowns$deadwood_n_years <- 0L
+  } else {
+    idx_dw <- st_relate(crowns_geom, arg_deadwood, pattern = "2********")
+    arg_crowns$deadwood_n_years <- vapply(
+      idx_dw,
+      \(i) length(unique(arg_deadwood$year[i])),
+      integer(1)
+    )
+  }
 
   # BLW metrics
   #-----------------------------------------------------
@@ -419,6 +455,14 @@ ecological_val_tree <- function(arg_crowns, arg_vhm, arg_dem, arg_forest, arg_se
   arg_crowns$bff_qual_cover_100m <- cov_bff_qual_100m$cover
   arg_crowns$bff_vern_cover_56m  <- cov_bff_vern_56m$cover
   arg_crowns$bff_vern_cover_100m <- cov_bff_vern_100m$cover
+
+  # Deadwood area within radius
+  #-----------------------------------------------------
+  # Area (m2) of deadwood detected at least once (all flight years dissolved),
+  # including the focal crown's own deadwood - arg_deadwood is already
+  # restricted to the buffered cell
+  arg_crowns$deadwood_area_56m  <- coverage_val(56,  centroids, arg_deadwood)$area
+  arg_crowns$deadwood_area_100m <- coverage_val(100, centroids, arg_deadwood)$area
 
   # Habitat composition within radius
   #-----------------------------------------------------

@@ -35,7 +35,8 @@ filtered_trees_SWISS2_path <- paste0(processed_data_path,"TREE_SEG/TREE_SEG_filt
 orchards_SWISS1_path <- paste0(processed_data_path,"TREE_SEG/TREE_SEG_orchards_13KT_SWISS1.gpkg")
 orchards_SWISS2_path <- paste0(processed_data_path,"TREE_SEG/TREE_SEG_orchards_13KT_SWISS2.gpkg")
 VHM_ADS_2024_path <- "//speedy11-12-fs/data_17/_GEOBASISDATEN/DATA_2024/ID164.19_Vegetatonshoehenmodell/rasterdaten/landesforstinventar_vegetationshoehenmodell_stereo_2023_2056.tif"
-
+deadwood_path <- paste0(orig_data_path,"DEADWOOD/swissimage_deadwood.gpkg")
+  
 # Local paths (for faster processing)
 treeseg_data_local_path <- "D:/BOSCHETTISSIMO/PROCESSED_DATA/TREE_SEG/"
 habitatmap_local_path <- "D:/BOSCHETTISSIMO/ORIG_DATA/HABITAT_MAP/habitatmap.gpkg"

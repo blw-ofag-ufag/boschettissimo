@@ -169,6 +169,18 @@ process_cell <- function(i) {
     habitat_sub <- st_make_valid(habitat_sub)
   }
 
+  # Load the deadwood polygons for the buffered perimeter. The layer appends
+  # the detections of each SWISSIMAGE flight year (2017-2025, one source file
+  # per year), which overlap between years but not within a year - keep the
+  # year (for the number of years with deadwood on a crown); the years are
+  # dissolved together in ecological_val_tree when computing the areas
+  deadwood_sub <- st_read(deadwood_path, layer = "deadwood", wkt_filter = wkt)
+  deadwood_sub$year <- as.integer(regmatches(deadwood_sub$source_gpkg, regexpr("[0-9]{4}", deadwood_sub$source_gpkg)))
+  deadwood_sub <- deadwood_sub["year"]
+  if (any(!st_is_valid(deadwood_sub))) {
+    deadwood_sub <- st_make_valid(deadwood_sub)
+  }
+
   # Have a buffered version to consider crowns overpassing ln parcels
   LN_sub_buff <- LN_sub %>%
     st_buffer(25) %>%
@@ -200,7 +212,7 @@ process_cell <- function(i) {
   # unmasked VHM so neighborhood/coverage metrics near the cell border and
   # near LN parcel edges aren't truncated
   #-------------------------
-  crowns_out <- ecological_val_tree(crowns, vhm_cell, dem_cell, forest_mask, settlement, bff_qual, bff_vern, hedges, water_mask, perim_buf, LN_sub, BWE_sub, habitat_sub)
+  crowns_out <- ecological_val_tree(crowns, vhm_cell, dem_cell, forest_mask, settlement, bff_qual, bff_vern, hedges, water_mask, perim_buf, LN_sub, BWE_sub, habitat_sub, deadwood_sub)
 
   # Only now keep crowns whose centroid is both within an LN parcel and
   # within the true (unbuffered) extent of the processed cell
@@ -271,6 +283,7 @@ future_lapply(
     LN_path = LN_path,
     bwe_path = bwe_path,
     habitatmap_local_path = habitatmap_local_path,
+    deadwood_path = deadwood_path,
     forest_mask = forest_mask,
     water_mask = water_mask,
     settlement = settlement,
@@ -282,6 +295,7 @@ future_lapply(
     segment_cell = segment_cell,
     ecological_val_tree = ecological_val_tree,
     neighborhood_val = neighborhood_val,
+    covered_area_val = covered_area_val,
     coverage_val = coverage_val,
     habitat_val = habitat_val,
     bbox_subset = bbox_subset,
