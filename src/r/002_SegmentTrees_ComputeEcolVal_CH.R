@@ -16,91 +16,86 @@ source("src/r/segment_trees.R")
 source("src/r/compute_ecol_val.R")
 
 # Load the grid for processing 
-CH_1000 <- rast(CH_1000_path) %>%
-  as.polygons(values=TRUE, dissolve=FALSE) %>%
-  st_as_sf()
+CH_1000 <- st_read(CH_1000_path, layer="grid_1000")
 
 # Load the forest layer
 forest_mask <- st_read(swisstlm3d_path, query="SELECT * FROM tlm_bb_bodenbedeckung t where t.OBJEKTART = 'Wald'")
 
+# Load the open water layer
+water_mask <- st_read(swisstlm3d_path, query="SELECT * FROM tlm_bb_bodenbedeckung t where t.OBJEKTART = 'Fliessgewaesser' OR t.OBJEKTART = 'Stehende Gewaesser'")
+
 # Load the Gebeaude footprint layer
 settlement <- st_read(settlement_path)
 
-# Load the BFF layers
-bff_qual <- st_read(bff_path, layer = "bff_qualitaet_2_flaechen")
-bff_vern <- st_read(bff_path, layer = "bff_vernetzung_flaechen")
+# SELECT SWISS1 OR SWISS2 RUN
+SWISS_RUN <- "SWISS1"
+stopifnot(SWISS_RUN %in% c("SWISS1", "SWISS2"))
 
-#-----------------------------------------------------
-# TEMP! - Filter on cantons available with S2
-#-----------------------------------------------------
+if(SWISS_RUN == "SWISS1"){
 
-# Load the canton
-KT <- st_read("//katze/geolib/swissBOUNDARIES3D/2024/fgdb/swissBOUNDARIES3D_1_5_LV95_LN02.gdb",
-              query="select * from TLM_KANTONSGEBIET") %>%
-  st_zm(drop = TRUE, what = "ZM")
+  # Set the VHM of the corresponding ALS acquisition
+  vhm_path <- VHM_S1_path
 
-# Keep only the 13 cantons that have the newest lidar aquisition (stand 30.07.2026)
-KT <- KT[which(KT$NAME %in% c("Genève", "Thurgau", "Schwyz", "Zürich", "Fribourg", "Glarus", "Appenzell Ausserrhoden",
-  "Vaud", "Zug", "St. Gallen", "Schaffhausen", "Neuchâtel", "Appenzell Innerrhoden" 
-)),]
+  # Load the BFF layers
+  bff_qual <- st_read(bff_2021_path, layer = "bff_qualitaet_2_flaechen")
+  bff_vern <- st_read(bff_2021_path, layer = "bff_vernetzung_flaechen")
 
-# Set the crs (same, but had the Z mention for TG)
-st_crs(KT) <- st_crs(CH_1000)
+  # Load the hedges
+  hedges <- st_read(nf_2021_path, query = "select * from nutzungsflaechen where lnf_code in (852,857,858)")
 
-# Keep only intersecting polygons
-CH_1000 <- CH_1000[lengths(st_intersects(CH_1000, KT)) > 0, ]
+  # Set the correct year for the bewirtschaftungseinheit layer
+  bwe_path <- bwe_2021_path
+  LN_path <- nf_2021_path
 
+} else {
 
-# #-----------------------------------------------------
-# # TEMP! - Filter on Ebertswil, Uerzlikon, Rossau
-# #-----------------------------------------------------
-# 
-# # Load the canton
-# ZU <- st_read("//katze/geolib/swissBOUNDARIES3D/2024/fgdb/swissBOUNDARIES3D_1_5_LV95_LN02.gdb",
-#               query="select * from TLM_KANTONSGEBIET t where t.NAME = 'Zürich'") %>%
-#   st_zm(drop = TRUE, what = "ZM")
-# 
-# # Set the crs (same, but had the Z mention for ZU)
-# st_crs(ZU) <- st_crs(CH_1000)
-# 
-# # Keep only intersecting polygons
-# CH_1000 <- CH_1000[st_intersects(CH_1000, ZU, sparse = FALSE), ]
-# 
-# # Keep only polygons around Ebertswil, Uerzlikon, Rossau
-# CH_1000 <- CH_1000[c(1756:1763, 1786:1793, 1816:1823), ]
-# 
-# # Adapt output path
-# treeseg_data_local_path <- "D:/BOSCHETTISSIMO/PROCESSED_DATA/TREE_SEG_Uerzlikon/"
+  # Set the VHM of the corresponding ALS acquisition
+  vhm_path <- VHM_S2_path
 
-# #-----------------------------------------------------
-# # TEMP! - Filter on canton TG
-# #-----------------------------------------------------
+  # Load the BFF layers
+  bff_qual <- st_read(bff_2025_path, layer = "bff_qualitaet_2_flaechen")
+  bff_vern <- st_read(bff_2025_path, layer = "bff_vernetzung_flaechen")
 
-# # Load the canton
-# TG <- st_read("//katze/geolib/swissBOUNDARIES3D/2024/fgdb/swissBOUNDARIES3D_1_5_LV95_LN02.gdb",
-#               query="select * from TLM_KANTONSGEBIET t where t.NAME = 'Thurgau'") %>%
-#   st_zm(drop = TRUE, what = "ZM")
+  # Load the hedges
+  hedges <- st_read(nf_2025_path, query = "select * from nutzungsflaechen where lnf_code in (852,857,858)")
 
-# # Set the crs (same, but had the Z mention for TG)
-# st_crs(TG) <- st_crs(CH_1000)
+  # Set the correct year for the bewirtschaftungseinheit layer
+  bwe_path <- bwe_2025_path
+  LN_path <- nf_2025_path
 
-# # Keep only intersecting polygons
-# CH_1000 <- CH_1000[st_intersects(CH_1000, TG, sparse = FALSE), ]
+  # TEMP! - Filter on cantons available with S2
+  #-----------------------------------------------------
+  # Load the canton
+  KT <- st_read("//katze/geolib/swissBOUNDARIES3D/2024/fgdb/swissBOUNDARIES3D_1_5_LV95_LN02.gdb",
+                query="select * from TLM_KANTONSGEBIET") %>%
+    st_zm(drop = TRUE, what = "ZM")
 
-# #-----------------------------------------------------
-# # TEMP! - Filter on canton VD
-# #-----------------------------------------------------
-# 
-# # Load the canton
-# VD <- st_read("//katze/geolib/swissBOUNDARIES3D/2024/fgdb/swissBOUNDARIES3D_1_5_LV95_LN02.gdb", 
-#               query="select * from TLM_KANTONSGEBIET t where t.NAME = 'Vaud'") %>%
-#   st_zm(drop = TRUE, what = "ZM") 
-# 
-# # Set the crs (same, but had the Z mention for TG)
-# st_crs(VD) <- st_crs(CH_1000)
-# 
-# # Keep only intersecting polygons
-# CH_1000 <- CH_1000[st_intersects(CH_1000, VD, sparse = FALSE), ]
+  # Keep only the 13 cantons that have the newest lidar aquisition (stand 30.07.2026)
+  KT <- KT[which(KT$NAME %in% c("Genève", "Thurgau", "Schwyz", "Zürich", "Fribourg", "Glarus", "Appenzell Ausserrhoden",
+    "Vaud", "Zug", "St. Gallen", "Schaffhausen", "Neuchâtel", "Appenzell Innerrhoden" 
+  )),]
+
+  # Set the crs (same, but had the Z mention for TG)
+  st_crs(KT) <- st_crs(CH_1000)
+
+  # Keep only intersecting polygons
+  CH_1000 <- CH_1000[lengths(st_intersects(CH_1000, KT)) > 0, ]
+}
+
+# Reduce the context layers to their geometry plus the bounding box of each
+# feature, so ecological_val_tree can preselect the features near a cell
+# without a GEOS operation on the whole Switzerland-wide layer (also makes
+# the copies sent to the parallel workers lighter)
+forest_mask <- add_bbox_cols(forest_mask)
+water_mask  <- add_bbox_cols(water_mask)
+settlement  <- add_bbox_cols(settlement)
+bff_qual    <- add_bbox_cols(bff_qual)
+bff_vern    <- add_bbox_cols(bff_vern)
+hedges      <- add_bbox_cols(hedges)
+
+# Write each run to its own folder 
+treeseg_data_local_path <- paste0(treeseg_data_local_path, SWISS_RUN, "/")
+dir.create(treeseg_data_local_path, recursive = TRUE, showWarnings = FALSE)
 
 
 #-----------------------------------------------------
@@ -141,7 +136,7 @@ process_cell <- function(i) {
   wkt <- perim_buf |>
     st_geometry() |>
     st_as_text()
-  LN_sub <- st_read(LN_2025_path, wkt_filter = wkt)
+  LN_sub <- st_read(LN_path, wkt_filter = wkt, layer = "nutzungsflaechen")
 
   # If no LN parcel skip this iteration
   if (is.null(LN_sub) || nrow(LN_sub)==0) {
@@ -149,9 +144,30 @@ process_cell <- function(i) {
     return(NULL)
   }
 
-  # Load the BWE parcels for the buffered perimeter, used to tag each crown
-  # with the betriebsnummer(s) it falls within
-  BWE_sub <- st_read(bwe_path, layer = "bewirtschaftungseinheit", wkt_filter = wkt)
+  # The 2021 data keep the original BLW field names - align the ones used in
+  # ecological_val_tree with the 2025 names (no-op for the 2025 data):
+  #   - LNF_Code      -> lnf_code
+  #   - Identifikator -> betriebsnummer (2021 "Betrieb" is a GUID, while
+  #     "Identifikator" has the same "KTxxxx/ x/ xx" format as 2025 betriebsnummer)
+  LN_sub <- rename(LN_sub, any_of(c(lnf_code = "LNF_Code")))
+
+  # Load the BWE parcels for the buffered perimeter
+  BWE_sub <- st_read(bwe_path, layer = "bewirtschaftungseinheit", wkt_filter = wkt) %>%
+    rename(any_of(c(betriebsnummer = "Identifikator")))
+
+  # Load the habitat map polygons for the buffered perimeter 
+  habitat_sub <- st_read(habitatmap_local_path, layer = "habitatmap", wkt_filter = wkt)["TypoCH_NUM"]
+  st_agr(habitat_sub) <- "constant"
+
+  # Making sure layer is valid
+  habitat_sub <- tryCatch(
+    st_crop(habitat_sub, st_bbox(perim_buf)),
+    error = function(e) st_crop(st_make_valid(habitat_sub), st_bbox(perim_buf))
+  )
+  habitat_sub <- habitat_sub[as.numeric(st_area(habitat_sub)) > 0, ]
+  if (any(!st_is_valid(habitat_sub))) {
+    habitat_sub <- st_make_valid(habitat_sub)
+  }
 
   # Have a buffered version to consider crowns overpassing ln parcels
   LN_sub_buff <- LN_sub %>%
@@ -160,7 +176,7 @@ process_cell <- function(i) {
 
   # Get the VHM and topography of the buffered cell
   #-------------------------
-  vhm_cell <- vhm_cell_prep(e_buf, VHM_S2_path)
+  vhm_cell <- vhm_cell_prep(e_buf, vhm_path)
   dem_cell <- dem_cell_prep(e_buf, dem_path)
 
   # Make a separate copy restricted to the LN parcels (+25m) to segment on,
@@ -184,7 +200,7 @@ process_cell <- function(i) {
   # unmasked VHM so neighborhood/coverage metrics near the cell border and
   # near LN parcel edges aren't truncated
   #-------------------------
-  crowns_out <- ecological_val_tree(crowns, vhm_cell, dem_cell, forest_mask, settlement, bff_qual, bff_vern, perim_buf, LN_sub, BWE_sub)
+  crowns_out <- ecological_val_tree(crowns, vhm_cell, dem_cell, forest_mask, settlement, bff_qual, bff_vern, hedges, water_mask, perim_buf, LN_sub, BWE_sub, habitat_sub)
 
   # Only now keep crowns whose centroid is both within an LN parcel and
   # within the true (unbuffered) extent of the processed cell
@@ -249,20 +265,26 @@ future_lapply(
   future.packages = c("terra", "lidR", "sf", "dplyr", "ForestTools"),
   future.globals = list(
     CH_1000 = CH_1000,
-    VHM_S2_path = VHM_S2_path,
+    vhm_path = vhm_path,
     dem_path = dhm25_path,
     treeseg_data_local_path = treeseg_data_local_path,
-    LN_2025_path = LN_2025_path,
+    LN_path = LN_path,
     bwe_path = bwe_path,
+    habitatmap_local_path = habitatmap_local_path,
     forest_mask = forest_mask,
+    water_mask = water_mask,
     settlement = settlement,
     bff_qual = bff_qual,
     bff_vern = bff_vern,
+    hedges = hedges,
     vhm_cell_prep = vhm_cell_prep,
     dem_cell_prep = dem_cell_prep,
     segment_cell = segment_cell,
     ecological_val_tree = ecological_val_tree,
     neighborhood_val = neighborhood_val,
-    coverage_val = coverage_val
+    coverage_val = coverage_val,
+    habitat_val = habitat_val,
+    bbox_subset = bbox_subset,
+    nearest_dist_val = nearest_dist_val
   )
 )

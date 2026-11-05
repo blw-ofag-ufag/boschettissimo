@@ -12,10 +12,10 @@ filter_forest_parcels <- function(trees) {
     filter(!grepl("(^|;)901($|;)", lnf_codes))
 }
 
-# Trees too close to the TLM forest mask
+# Trees too close to the TLM forest mask 
 filter_forest_distance <- function(trees, min_dist = 2) {
   trees %>%
-    filter(dist_to_forest > min_dist)
+    filter(is.na(dist_to_forest) | dist_to_forest > min_dist)
 }
 
 # Trees on productive orchard parcels (702/703/704)

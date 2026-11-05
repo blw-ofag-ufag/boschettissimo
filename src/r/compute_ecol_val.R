@@ -132,8 +132,141 @@ coverage_val <- function(arg_radius, arg_centroids, arg_polygons, arg_vhm = NULL
   out
 }
 
+habitat_val <- function(arg_radius, arg_centroids, arg_habitat, arg_n_top = 5, arg_min_area = 0){
 
-ecological_val_tree <- function(arg_crowns, arg_vhm, arg_dem, arg_forest, arg_settlement, arg_bff_qual, arg_bff_vern, arg_perim, arg_ln, arg_bwe){
+  #-----------------------------------------------------
+  # Habitat composition of a disk around each centroid, from the habitat map
+  # (wall-to-wall, non-overlapping polygons, classes given by TypoCH_NUM):
+  #   - n_habitats: number of distinct habitats covering more than
+  #     arg_min_area m2 of the disk
+  #   - habitat_topk / habitat_topk_pct: the arg_n_top habitats covering the
+  #     largest area, with their share of the disk area (in %) - NA where
+  #     fewer habitats are present
+  #-----------------------------------------------------
+
+  n <- nrow(arg_centroids)
+
+  # Output skeleton - 0 habitats and NA top habitats by default
+  out <- data.frame(n_habitats = integer(n))
+  for (k in seq_len(arg_n_top)) {
+    out[[paste0("habitat_top", k)]]         <- NA_integer_
+    out[[paste0("habitat_top", k, "_pct")]] <- NA_real_
+  }
+
+  # Nothing to intersect with
+  if (nrow(arg_habitat) == 0) {
+    return(out)
+  }
+
+  # Build a disk of the given radius around each centroid
+  disks <- st_buffer(arg_centroids, dist = arg_radius)
+  disk_area <- as.numeric(st_area(disks))
+  disks_sf <- st_sf(disk_id = seq_len(n), geometry = st_geometry(disks))
+
+  # Habitat class only - attributes are constant within each geometry (avoids
+  # sf's "spatially constant" warning on intersection)
+  hab <- arg_habitat["TypoCH_NUM"]
+  st_agr(disks_sf) <- "constant"
+  st_agr(hab)      <- "constant"
+
+  # Intersect all disks at once, then sum the area per disk and habitat class
+  # (several polygons of the same class can fall within one disk)
+  inter <- st_intersection(disks_sf, hab)
+
+  hab_area <- inter %>%
+    st_drop_geometry() %>%
+    mutate(area = as.numeric(st_area(inter))) %>%
+    group_by(disk_id, TypoCH_NUM) %>%
+    summarise(area = sum(area), .groups = "drop") %>%
+    filter(area > arg_min_area)
+
+  if (nrow(hab_area) == 0) {
+    return(out)
+  }
+
+  # Number of distinct habitats per disk
+  n_hab <- count(hab_area, disk_id)
+  out$n_habitats[n_hab$disk_id] <- n_hab$n
+
+  # Habitats ranked by area within each disk, with their share of the disk
+  top <- hab_area %>%
+    mutate(pct = 100 * area / disk_area[disk_id]) %>%
+    arrange(disk_id, desc(area)) %>%
+    group_by(disk_id) %>%
+    mutate(rank = row_number()) %>%
+    ungroup() %>%
+    filter(rank <= arg_n_top)
+
+  for (k in seq_len(arg_n_top)) {
+    top_k <- top[top$rank == k, ]
+    out[[paste0("habitat_top", k)]][top_k$disk_id]         <- top_k$TypoCH_NUM
+    out[[paste0("habitat_top", k, "_pct")]][top_k$disk_id] <- top_k$pct
+  }
+
+  out
+}
+
+add_bbox_cols <- function(arg_polygons){
+
+  #-----------------------------------------------------
+  # Keep only the geometry of a (Switzerland-wide) context layer, plus the
+  # bounding box of each feature as columns - computed once before the cell
+  # processing, so features near a cell can then be preselected with plain
+  # numeric comparisons (bbox_subset) instead of a GEOS operation that would
+  # convert the whole layer for every cell
+  #-----------------------------------------------------
+
+  bb <- vapply(st_geometry(arg_polygons), \(g) as.numeric(st_bbox(g)), numeric(4))
+
+  st_sf(
+    bb_xmin = bb[1, ], bb_ymin = bb[2, ],
+    bb_xmax = bb[3, ], bb_ymax = bb[4, ],
+    geometry = st_geometry(arg_polygons)
+  )
+}
+
+bbox_subset <- function(arg_polygons, arg_bbox, arg_dist = 0){
+
+  #-----------------------------------------------------
+  # Features of a layer prepared with add_bbox_cols whose bounding box
+  # intersects arg_bbox expanded by arg_dist on every side - a superset of
+  # all features within arg_dist of anything inside arg_bbox
+  #-----------------------------------------------------
+
+  keep <- arg_polygons$bb_xmax >= arg_bbox[["xmin"]] - arg_dist &
+          arg_polygons$bb_xmin <= arg_bbox[["xmax"]] + arg_dist &
+          arg_polygons$bb_ymax >= arg_bbox[["ymin"]] - arg_dist &
+          arg_polygons$bb_ymin <= arg_bbox[["ymax"]] + arg_dist
+
+  # which() also drops features with an empty geometry (NA bounding box)
+  arg_polygons[which(keep), ]
+}
+
+nearest_dist_val <- function(arg_centroids, arg_polygons, arg_radius = 1000){
+
+  #-----------------------------------------------------
+  # Distance from each centroid to the nearest feature of a layer prepared
+  # with add_bbox_cols (0 if the centroid lies within one) - NA if there is
+  # no feature within arg_radius
+  #-----------------------------------------------------
+
+  # Candidates: features near the box around all centroids
+  cand <- bbox_subset(arg_polygons, st_bbox(arg_centroids), arg_radius)
+  if (nrow(cand) == 0) {
+    return(rep(NA_real_, nrow(arg_centroids)))
+  }
+
+  nearest_idx <- st_nearest_feature(arg_centroids, cand)
+  d <- as.numeric(st_distance(arg_centroids, cand[nearest_idx, ], by_element = TRUE))
+
+  # The nearest candidate is guaranteed to be the true nearest feature only
+  # within arg_radius (any closer feature is then a candidate too) - beyond it
+  # a closer feature could lie outside the candidate box, so set those to NA
+  ifelse(d <= arg_radius, d, NA_real_)
+}
+
+
+ecological_val_tree <- function(arg_crowns, arg_vhm, arg_dem, arg_forest, arg_settlement, arg_bff_qual, arg_bff_vern, arg_hedges, arg_water, arg_perim, arg_ln, arg_bwe, arg_habitat){
 
   # Geometry metrics
   #-----------------------------------------------------
@@ -239,45 +372,24 @@ ecological_val_tree <- function(arg_crowns, arg_vhm, arg_dem, arg_forest, arg_se
   colnames(df_56m) <- paste0(colnames(df_56m), "_56m")
   arg_crowns <- cbind(arg_crowns, df_56m)
 
-  # Forest and settlement distances
+  # Forest, settlement, BFF, hedge and open water distances
   #-----------------------------------------------------
-  forest <- st_filter(arg_forest, arg_perim, .predicate = st_intersects)
-  if (nrow(forest) > 0) {
-    f_nearest_idx <- st_nearest_feature(centroids, forest)
-    f_min_dist <- st_distance(centroids, forest[f_nearest_idx, ], by_element = TRUE)
-  } else {
-    f_min_dist <- rep(NA_real_, nrow(centroids))
-  }
-  arg_crowns$dist_to_forest <- f_min_dist
+  # Distance to the nearest feature of the whole layer (not only within the
+  # buffered cell) - NA if there is none within 1km
+  arg_crowns$dist_to_forest     <- nearest_dist_val(centroids, arg_forest)
+  arg_crowns$dist_to_settlement <- nearest_dist_val(centroids, arg_settlement)
+  arg_crowns$dist_to_bff_qual   <- nearest_dist_val(centroids, arg_bff_qual)
+  arg_crowns$dist_to_bff_vern   <- nearest_dist_val(centroids, arg_bff_vern)
+  arg_crowns$dist_to_hedges     <- nearest_dist_val(centroids, arg_hedges)
+  arg_crowns$dist_to_water      <- nearest_dist_val(centroids, arg_water)
 
-  sied <- st_filter(arg_settlement, arg_perim, .predicate = st_intersects)
-  if (nrow(sied) > 0) {
-    s_nearest_idx <- st_nearest_feature(centroids, sied)
-    s_min_dist <- st_distance(centroids, sied[s_nearest_idx, ], by_element = TRUE)
-  } else {
-    s_min_dist <- rep(NA_real_, nrow(centroids))
-  }
-  arg_crowns$dist_to_settlement <- s_min_dist
-
-  # BFF distances
-  #-----------------------------------------------------
-  bffq <- st_filter(arg_bff_qual, arg_perim, .predicate = st_intersects)
-  if (nrow(bffq) > 0) {
-    bq_nearest_idx <- st_nearest_feature(centroids, bffq)
-    bq_min_dist <- st_distance(centroids, bffq[bq_nearest_idx, ], by_element = TRUE)
-  } else {
-    bq_min_dist <- rep(NA_real_, nrow(centroids))
-  }
-  arg_crowns$dist_to_bff_qual <- bq_min_dist
-
-  bffv <- st_filter(arg_bff_vern, arg_perim, .predicate = st_intersects)
-  if (nrow(bffv) > 0) {
-    bv_nearest_idx <- st_nearest_feature(centroids, bffv)
-    bv_min_dist <- st_distance(centroids, bffv[bv_nearest_idx, ], by_element = TRUE)
-  } else {
-    bv_min_dist <- rep(NA_real_, nrow(centroids))
-  }
-  arg_crowns$dist_to_bff_vern <- bv_min_dist
+  # Features near the buffered cell, for the cover metrics below (a bounding
+  # box preselection is enough, as the cover itself is an exact intersection)
+  perim_bbox <- st_bbox(arg_perim)
+  forest <- bbox_subset(arg_forest,     perim_bbox)
+  sied   <- bbox_subset(arg_settlement, perim_bbox)
+  bffq   <- bbox_subset(arg_bff_qual,   perim_bbox)
+  bffv   <- bbox_subset(arg_bff_vern,   perim_bbox)
 
   # Forest and settlement cover, and mean VHM within radius
   #-----------------------------------------------------
@@ -307,6 +419,19 @@ ecological_val_tree <- function(arg_crowns, arg_vhm, arg_dem, arg_forest, arg_se
   arg_crowns$bff_qual_cover_100m <- cov_bff_qual_100m$cover
   arg_crowns$bff_vern_cover_56m  <- cov_bff_vern_56m$cover
   arg_crowns$bff_vern_cover_100m <- cov_bff_vern_100m$cover
+
+  # Habitat composition within radius
+  #-----------------------------------------------------
+  # Number of distinct habitats (TypoCH_NUM) and top 5 habitats by area with
+  # their share of the disk (in %) - arg_habitat is already restricted to the
+  # buffered cell
+  hab_56m  <- habitat_val(56,  centroids, arg_habitat)
+  hab_100m <- habitat_val(100, centroids, arg_habitat)
+
+  colnames(hab_56m)  <- paste0(colnames(hab_56m),  "_56m")
+  colnames(hab_100m) <- paste0(colnames(hab_100m), "_100m")
+
+  arg_crowns <- cbind(arg_crowns, hab_56m, hab_100m)
 
   return(arg_crowns)
 }
