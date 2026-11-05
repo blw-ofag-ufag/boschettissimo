@@ -169,11 +169,7 @@ process_cell <- function(i) {
     habitat_sub <- st_make_valid(habitat_sub)
   }
 
-  # Load the deadwood polygons for the buffered perimeter. The layer appends
-  # the detections of each SWISSIMAGE flight year (2017-2025, one source file
-  # per year), which overlap between years but not within a year - keep the
-  # year (for the number of years with deadwood on a crown); the years are
-  # dissolved together in ecological_val_tree when computing the areas
+  # Load the deadwood polygons for the buffered perimeter. 
   deadwood_sub <- st_read(deadwood_path, layer = "deadwood", wkt_filter = wkt)
   deadwood_sub$year <- as.integer(regmatches(deadwood_sub$source_gpkg, regexpr("[0-9]{4}", deadwood_sub$source_gpkg)))
   deadwood_sub <- deadwood_sub["year"]
