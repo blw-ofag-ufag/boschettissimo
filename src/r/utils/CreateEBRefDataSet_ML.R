@@ -581,5 +581,91 @@ table(ALLEMA_EB_ML$image_source, has_image = !is.na(ALLEMA_EB_ML$SwissImage_link
 ALLEMA_EB_ML_no_image <- ALLEMA_EB_ML %>%
   filter(is.na(SwissImage_link))
 
-missing_images <- unique(data.frame(FK_Quadrat = ALLEMA_EB_ML_no_image$FK_Quadrat,date =ALLEMA_EB_ML_no_image$Lubi_date)) 
+missing_images <- unique(data.frame(FK_Quadrat = ALLEMA_EB_ML_no_image$FK_Quadrat,date =ALLEMA_EB_ML_no_image$Lubi_date))
 nrow(missing_images)
+
+#-----------------------------------------------------
+# Adding the GSD of the images
+#* SwissImage_gsd [m]: resolution of the images the image of each object was made from
+#*   stac: the SWISSIMAGE 10 cm tiles are all delivered at 0.1, but over the Alps they are made from 25 cm images
+#*         resampled to 10 cm --> resolution of the source images, from the swisstopo SWISSIMAGE tiling metadata
+#*         (ch.swisstopo.swissimage-product.metadata, one line per 1km tile and flight year)
+#*   swisstopo, wsl_intern: pixel size of the tif (delivered at their native resolution, e.g. DOP25 -> 0.25)
+#*   manual (still no image): NA
+#* Needs identify_url (see "Finding the SWISSIMAGE tile of the LubiJahr of each object")
+#-----------------------------------------------------
+
+# Function getting the resolution [m] of the images the SWISSIMAGE tiles (one per flight year) of a 1km tile were made from
+getSourceGsd <- function(tile_id){
+
+  # Centre of the 1km tile (tile_id gives the km coordinates of its lower left corner, e.g. "2677-1214")
+  centre <- as.integer(strsplit(tile_id, "-")[[1]]) * 1000L + 500L
+
+  response <- httr::RETRY(
+    "GET",
+    identify_url,
+    query = list(
+      geometryType = "esriGeometryPoint",
+      geometry = paste(centre, collapse = ","),
+      layers = "all:ch.swisstopo.swissimage-product.metadata",
+      sr = 2056,
+      tolerance = 0,
+      returnGeometry = "false",
+      limit = 200
+    ),
+    quiet = TRUE
+  )
+  httr::stop_for_status(response)
+
+  attributes <- jsonlite::fromJSON(httr::content(response, as = "text", encoding = "UTF-8"))$results$attributes
+
+  if (is.null(attributes)) {
+    warning("No SWISSIMAGE metadata found for the tile ", tile_id)
+    return(tibble(tile_id = character(), LubiJahr = integer(), SwissImage_gsd = numeric()))
+  }
+
+  # One line per flight year and per year of the "journey through time" (other tile ids, e.g. "1187-44"),
+  # only the lines of the 1km tile are kept (if a year has several resolutions, the coarsest one is kept)
+  attributes %>%
+    filter(kbnum == sub("-", "_", tile_id)) %>%
+    group_by(LubiJahr = as.integer(flightyear)) %>%
+    summarise(SwissImage_gsd = max(as.numeric(sub(" cm", "", gsd)) / 100), .groups = "drop") %>%
+    mutate(tile_id = tile_id, .before = 1)
+}
+
+# Function getting the pixel size [m] of a tif (only its header is read)
+getPixelSize <- function(tif){
+  jsonlite::fromJSON(sf::gdal_utils("info", tif, options = "-json", quiet = TRUE))$geoTransform[2]
+}
+
+# Import the data for the ML
+ALLEMA_EB_ML <- st_read(paste0(ALLEMA_ML_path, "ALLEMA_EB_ML.gpkg"))
+
+# Resolution of the source images of the STAC tiles, for the 1km tiles of the objects whose image comes from the STAC
+SWISSIMAGE_gsd <- ALLEMA_EB_ML %>%
+  st_drop_geometry() %>%
+  filter(image_source == "stac") %>%
+  distinct(tile_id) %>%
+  pull(tile_id) %>%
+  map(getSourceGsd, .progress = TRUE) %>%
+  list_rbind()
+
+# Pixel size of the tifs delivered by swisstopo and of the WSL intern images
+TIF_gsd <- ALLEMA_EB_ML %>%
+  st_drop_geometry() %>%
+  filter(image_source %in% c("swisstopo", "wsl_intern")) %>%
+  distinct(SwissImage_link) %>%
+  mutate(tif_gsd = map_dbl(SwissImage_link, getPixelSize, .progress = TRUE))
+
+ALLEMA_EB_ML <- ALLEMA_EB_ML %>%
+  left_join(SWISSIMAGE_gsd, by = join_by(tile_id, LubiJahr), relationship = "many-to-one") %>%
+  left_join(TIF_gsd, by = "SwissImage_link", relationship = "many-to-one") %>%
+  mutate(SwissImage_gsd = if_else(image_source == "stac", SwissImage_gsd, tif_gsd)) %>%
+  select(-tif_gsd) %>%
+  relocate(SwissImage_gsd, .after = SwissImage_link)
+
+# Get some idea about the GSD (only the "manual" objects should be NA)
+table(ALLEMA_EB_ML$image_source, gsd = ALLEMA_EB_ML$SwissImage_gsd, useNA = "ifany")
+
+# Export it
+st_write(ALLEMA_EB_ML, paste0(ALLEMA_ML_path, "ALLEMA_EB_ML_v4.gpkg"), append = FALSE)
