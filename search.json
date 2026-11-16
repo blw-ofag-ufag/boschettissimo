@@ -250,13 +250,33 @@
     ]
   },
   {
+    "objectID": "evaluation.html",
+    "href": "evaluation.html",
+    "title": "5  Ökologische Bewertung der Bäume",
+    "section": "",
+    "text": "TODO: Tabelle mit allen Merkmalen, siehe https://github.com/blw-ofag-ufag/boschettissimo/issues/10.\nTODO: Beschreibung möglicher Funktionen zur Konstruktion des Indikators (Beitragsdesign).",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Ökologische Bewertung der Bäume</span>"
+    ]
+  },
+  {
+    "objectID": "variants.html",
+    "href": "variants.html",
+    "title": "8  Varianten eines neuen Systems",
+    "section": "",
+    "text": "TODO: Bei teschnischer Umsetzung, wer hat Zugriff auf welche Daten etc.?\nTODO: Übersichtstabelle mit Varianten + Kosten für alle Stakeholder.",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>Varianten eines neuen Systems</span>"
+    ]
+  },
+  {
     "objectID": "limitations.html",
     "href": "limitations.html",
-    "title": "5  Bekannte Probleme",
+    "title": "9  Bekannte Probleme",
     "section": "",
     "text": "Daten\n\nDatenqualität bei der landwirtschaftlichen Nutzfläche.\n\nWaldflächen nicht systematisch ausgeschnitten.\nUmgang mit Waldweiden, wie gehen wir mit der unterschiedlichen Handhabung im Vollzug um?\nGrenzen zwischen Sömmerungsflächen und LN.\n\nDatenqualität LiDAR variert je nach Jahr.\n\nFachlich\n\nWas passiert, wenn das Zentroid von einem erkannten Baum nicht auf der LN liegt, der Stamm aber schon?\nUmgang mit Bäumen in Hecken (insbesondere, wenn Hecken nicht explizit im GIS erfasst sind).\nUmgang mit hochwachsenden Sträuchern, die Bäumen stark ähneln",
     "crumbs": [
-      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Bekannte Probleme</span>"
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>Bekannte Probleme</span>"
     ]
   },
   {
