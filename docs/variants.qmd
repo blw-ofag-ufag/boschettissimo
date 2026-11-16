@@ -1,0 +1,9 @@
+---
+title: Varianten eines neuen Systems
+lang: de-CH
+bibliography: references.bib
+---
+
+TODO: Bei teschnischer Umsetzung, wer hat Zugriff auf welche Daten etc.?
+
+TODO: Übersichtstabelle mit Varianten + Kosten für alle Stakeholder.

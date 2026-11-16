@@ -1,0 +1,9 @@
+---
+title: Ökologische Bewertung der Bäume
+lang: de-CH
+bibliography: references.bib
+---
+
+TODO: Tabelle mit allen Merkmalen, siehe <https://github.com/blw-ofag-ufag/boschettissimo/issues/10>.
+
+TODO: Beschreibung möglicher Funktionen zur Konstruktion des Indikators (Beitragsdesign).
