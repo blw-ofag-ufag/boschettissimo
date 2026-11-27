@@ -2,8 +2,8 @@
 setlocal enabledelayedexpansion
  
 REM === ANPASSEN ===
-set "ROOT=D:\BOSCHETTISSIMO\PROCESSED_DATA\TREE_SEG\"
-set "OUT=D:\BOSCHETTISSIMO\PROCESSED_DATA\TREE_SEG_merged.gpkg"
+set "ROOT=D:\BOSCHETTISSIMO\PROCESSED_DATA\TREE_SEG\SWISS2\"
+set "OUT=D:\BOSCHETTISSIMO\PROCESSED_DATA\TREE_SEG_SWISS2_merged.gpkg"
 set "LAYER=crowns"
  
 REM Falls Output schon existiert, löschen

@@ -17,6 +17,8 @@ source("src/r/compute_ecol_val.R")
 
 # Load the grid for processing 
 CH_1000 <- st_read(CH_1000_path, layer="grid_1000")
+CH_1000 <- CH_1000 %>%
+  filter(in_CH)
 
 # Load the forest layer
 forest_mask <- st_read(swisstlm3d_path, query="SELECT * FROM tlm_bb_bodenbedeckung t where t.OBJEKTART = 'Wald'")
@@ -28,7 +30,7 @@ water_mask <- st_read(swisstlm3d_path, query="SELECT * FROM tlm_bb_bodenbedeckun
 settlement <- st_read(settlement_path)
 
 # SELECT SWISS1 OR SWISS2 RUN
-SWISS_RUN <- "SWISS1"
+SWISS_RUN <- "SWISS2"
 stopifnot(SWISS_RUN %in% c("SWISS1", "SWISS2"))
 
 if(SWISS_RUN == "SWISS1"){
